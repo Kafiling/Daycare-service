@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { login } from "@/app/login/actions";
+import { login } from "@/app/(login)/login/actions";
 import { ModalOneAction } from "./modal";
 export function LoginForm({
   className,
