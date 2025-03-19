@@ -32,16 +32,7 @@ export async function Navbar() {
           </Link>
         </div>
 
-        <div className="ml-auto flex items-center gap-4">
-          {user && (
-            <div className="hidden md:flex flex-col items-end mr-4">
-              {/* TODO : Add Position for med staff inside supabase db */}
-              <span className="text-sm font-medium">{user.email}</span>
-              <span className="text-xs text-muted-foreground">
-                Lorem Specialist
-              </span>
-            </div>
-          )}
+        <div className="flex items-center gap-6 ml-auto">
           <UserNav />
         </div>
       </div>

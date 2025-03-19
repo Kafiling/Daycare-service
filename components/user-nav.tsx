@@ -29,7 +29,19 @@ export default async function UserNav() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+        <Button variant="ghost" className="relative ">
+          <div className="ml-auto flex items-center gap-4">
+            {user && (
+              <div className="hidden md:flex flex-col items-end mr-4">
+                {/* TODO : Add Position for med staff inside supabase db */}
+                <span className="text-sm font-medium">{user.email}</span>
+                <span className="text-xs text-muted-foreground">
+                  Lorem Specialist
+                </span>
+              </div>
+            )}
+            <div />
+          </div>
           <Avatar className="h-8 w-8">
             <AvatarImage
               src={`https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(
