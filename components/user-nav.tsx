@@ -1,5 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { redirect } from "next/navigation";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,19 +8,23 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { createClient } from "@/utils/supabase/server";
-import { LogOut } from "lucide-react";
+import { LogoutButton } from "@/components/logout-button";
 
-export async function UserNav() {
+import { revalidatePath } from "next/cache";
+
+export default async function UserNav() {
   const supabase = await createClient();
   const { data, error } = await supabase.auth.getUser();
   const user = data?.user;
   if (!user) return null;
 
-  const initials = user.email || "Admin"
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase();
+  const initials =
+    user.email ||
+    "Admin"
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase();
 
   return (
     <DropdownMenu>
@@ -37,13 +42,7 @@ export async function UserNav() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
-        <DropdownMenuItem
-          //onClick={() => logoutMutation.mutate()}
-          className="text-red-600 cursor-pointer"
-        >
-          <LogOut className="mr-2 h-4 w-4" />
-          <span>Log out</span>
-        </DropdownMenuItem>
+        <LogoutButton />
       </DropdownMenuContent>
     </DropdownMenu>
   );

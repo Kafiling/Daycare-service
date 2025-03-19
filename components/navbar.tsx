@@ -1,13 +1,14 @@
 // lucide-react is for the Logo
 import { Building2 } from "lucide-react";
 import Link from "next/link";
-import { UserNav } from "./user-nav";
+import UserNav from "./user-nav";
 import { createClient } from "@/utils/supabase/server";
 
 export async function Navbar() {
   const supabase = await createClient();
   const { data, error } = await supabase.auth.getUser();
   const user = data?.user;
+  if (!user) return null;
   return (
     <nav className="border-b bg-white">
       <div className="flex h-16 items-center px-4 lg:px-8">
