@@ -31,12 +31,13 @@ export function LoginForm({
               <div className="grid gap-3 ">
                 <div className="flex items-center justify-between ">
                   <Label htmlFor="password">Password</Label>
-                  <ModalOneAction
-                    clasName="flex justify-end"
-                    openText="Forgot password?"
-                    title="กรุณาติดต่อผู้ดูแลระบบ"
-                    description="โทร xxx-xxx-xxxx "
-                  />
+                  <div className="flex justify-end">
+                    <ModalOneAction
+                      openText="Forgot password?"
+                      title="Forgot password?"
+                      description="Please contact your administrator."
+                    />
+                  </div>
                 </div>
                 <Input id="password" name="password" type="password" required />
               </div>
