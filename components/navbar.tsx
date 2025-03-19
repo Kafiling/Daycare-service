@@ -13,7 +13,7 @@ export async function Navbar() {
     <nav className="border-b bg-white">
       <div className="flex h-16 items-center px-4 lg:px-8">
         <Link href="/" className="flex items-center gap-2 mr-8">
-          <Building2 className="h-6 w-6 text-[#DB5F8E]" />
+          <Building2 className="h-6 w-6 text-primary" />
           <span className="font-semibold text-lg">Daycare Service</span>
         </Link>
 

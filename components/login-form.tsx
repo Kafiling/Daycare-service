@@ -44,7 +44,7 @@ export function LoginForm({
               <Button
                 type="submit"
                 formAction={login}
-                className="w-full bg-[#DB5F8E]"
+                className="w-full bg-primary text-white"
               >
                 Login
               </Button>
