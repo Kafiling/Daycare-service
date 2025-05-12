@@ -6,10 +6,10 @@ import { redirect } from "next/navigation";
 import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
+import { AwardIcon, Search } from "lucide-react";
 
 export function PatientIdInput() {
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     let patientID = formData.get("patientId") as string;
@@ -18,14 +18,22 @@ export function PatientIdInput() {
       toast.error("กรุณากรอกเลขบัตรประชาชน 13 หลัก");
       return;
     }
-    const patient = searchPatientByID(patientID);
-    if (!patient) {
-      toast.error("ไม่พบข้อมูลผู้ป่วย");
-      return;
+    try {
+      const patient = await searchPatientByID(patientID);
+
+      if (patient && patient.id) {
+        redirect(`/patients/${patient.id}`);
+      }
+    } catch (error) {
+      if (error instanceof Error && error.message == "Error fetching patient") {
+        toast.error("ไม่พบข้อมูลผู้ป่วย");
+        // todo make redirect button in toast
+      } else {
+        console.error("พบปัญหาระหว่างค้นข้อมูลผู้ป่วย : ", error);
+        toast.error(`พบปัญหาระหว่างค้นข้อมูลผู้ป่วย : ${error}`);
+        return 
+      }
     }
-    toast("พบข้อมูลผู้ป่วย");
-    // Redirect to the patient detail page
-    redirect(`/patient/${patientID}`);
   }
   return (
     <form className="flex items-end" onSubmit={handleSubmit}>

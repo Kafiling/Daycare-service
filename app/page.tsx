@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PatientIdInput } from "@/components/PatientIdInput"; // Import the new Client Component
+import { PatientIdInput } from "@/components/searchPatientByID"; // Import the new Client Component
 import { DashboardGrid } from "./dashboard-charts";
 
 export default async function Page() {
