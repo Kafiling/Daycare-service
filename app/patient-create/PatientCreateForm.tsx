@@ -15,9 +15,8 @@ import {
 function PatientCreateForm(patientId: any) {
   let patientID: string = patientId.patientId || "";
   const [formData, setFormData] = React.useState({
-    patientId: patientID});
-
-  
+    patientId: patientID,
+  });
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -54,7 +53,7 @@ function PatientCreateForm(patientId: any) {
               <Label htmlFor="patientId" className="py-2">
                 คำนำหน้าชื่อ
               </Label>
-              <Select >
+              <Select>
                 <SelectTrigger className="w-full" name="title">
                   <SelectValue placeholder="คำนำหน้า" />
                 </SelectTrigger>
@@ -70,26 +69,43 @@ function PatientCreateForm(patientId: any) {
               <Label htmlFor="patientId" className="py-2">
                 ชื่อ (First Name)
               </Label>
-              <Input type="text" placeholder="ชื่อ" name="first_name" onChange={handleChange}/>
+              <Input
+                type="text"
+                placeholder="ชื่อ"
+                name="first_name"
+                onChange={handleChange}
+              />
             </div>
           </div>
           <div className="grid">
             <Label htmlFor="patientId" className="py-2">
               นามสกุล (Last Name)
             </Label>
-            <Input type="text" placeholder="นามสกุล" name="last_name" onChange={handleChange}/>
+            <Input
+              type="text"
+              placeholder="นามสกุล"
+              name="last_name"
+              onChange={handleChange}
+            />
           </div>
           <div className="grid">
             <Label htmlFor="patientId" className="py-2">
               วันเกิด (Date of Birth)
             </Label>
-            <Input type="text" placeholder="นามสกุล" onChange={handleChange}/>
+            <Input type="text" placeholder="นามสกุล" onChange={handleChange} />
           </div>
           <div className="grid">
             <Label htmlFor="patientId" className="py-2">
               เบอร์โทรศัพท์ (Phone Number)
             </Label>
-            <Input type="text" placeholder="นามสกุล" name="phone_num" onChange={handleChange}/>
+            <PatternFormat
+              id="phone_num"
+              name="phone_num"
+              format="###-###-####"
+              mask="_"
+              onChange={handleChange}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            />
           </div>
           <div className="grid">
             <Label htmlFor="patientId" className="py-2">
@@ -98,7 +114,12 @@ function PatientCreateForm(patientId: any) {
                 (หากไม่มีให้เว้นว่าง)
               </span>
             </Label>
-            <Input type="email" placeholder="อีเมล" name="email" onChange={handleChange} />
+            <Input
+              type="email"
+              placeholder="อีเมล"
+              name="email"
+              onChange={handleChange}
+            />
           </div>
           <div className="grid">
             <Label htmlFor="weight" className="py-2">
