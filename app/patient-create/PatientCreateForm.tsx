@@ -14,10 +14,23 @@ import {
 
 function PatientCreateForm(patientId: any) {
   let patientID: string = patientId.patientId || "";
+  const [formData, setFormData] = React.useState({
+    patientId: patientID});
+
+  
+
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const formData = new FormData(event.currentTarget);
   }
+
+  function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const { name, value } = event.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  }
+
   return (
     <>
       <form className="flex items-end " onSubmit={handleSubmit}>
@@ -32,6 +45,7 @@ function PatientCreateForm(patientId: any) {
               format="#-####-#####-##-#"
               mask="_"
               value={patientID}
+              onChange={handleChange}
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             />
           </div>
@@ -40,11 +54,11 @@ function PatientCreateForm(patientId: any) {
               <Label htmlFor="patientId" className="py-2">
                 คำนำหน้าชื่อ
               </Label>
-              <Select>
-                <SelectTrigger className="w-full">
+              <Select >
+                <SelectTrigger className="w-full" name="title">
                   <SelectValue placeholder="คำนำหน้า" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent onChange={handleChange}>
                   <SelectItem value="light">นาย</SelectItem>
                   <SelectItem value="dark">นาง</SelectItem>
                   <SelectItem value="system">นางสาว</SelectItem>
@@ -56,26 +70,26 @@ function PatientCreateForm(patientId: any) {
               <Label htmlFor="patientId" className="py-2">
                 ชื่อ (First Name)
               </Label>
-              <Input type="text" placeholder="ชื่อ" />
+              <Input type="text" placeholder="ชื่อ" name="first_name" onChange={handleChange}/>
             </div>
           </div>
           <div className="grid">
             <Label htmlFor="patientId" className="py-2">
               นามสกุล (Last Name)
             </Label>
-            <Input type="text" placeholder="นามสกุล" />
+            <Input type="text" placeholder="นามสกุล" name="last_name" onChange={handleChange}/>
           </div>
           <div className="grid">
             <Label htmlFor="patientId" className="py-2">
               วันเกิด (Date of Birth)
             </Label>
-            <Input type="text" placeholder="นามสกุล" />
+            <Input type="text" placeholder="นามสกุล" onChange={handleChange}/>
           </div>
           <div className="grid">
             <Label htmlFor="patientId" className="py-2">
               เบอร์โทรศัพท์ (Phone Number)
             </Label>
-            <Input type="text" placeholder="นามสกุล" />
+            <Input type="text" placeholder="นามสกุล" name="phone_num" onChange={handleChange}/>
           </div>
           <div className="grid">
             <Label htmlFor="patientId" className="py-2">
@@ -84,21 +98,35 @@ function PatientCreateForm(patientId: any) {
                 (หากไม่มีให้เว้นว่าง)
               </span>
             </Label>
-            <Input type="text" placeholder="นามสกุล" />
+            <Input type="email" placeholder="อีเมล" name="email" onChange={handleChange} />
           </div>
           <div className="grid">
-            <Label htmlFor="patientId" className="py-2">
+            <Label htmlFor="weight" className="py-2">
               น้ำหนัก (Weight){" "}
               <span className="text-sm text-muted-foreground">(หน่วย kg)</span>
             </Label>
-            <Input type="text" placeholder="นามสกุล" />
+            <Input
+              id="weight"
+              name="weight"
+              type="number"
+              step="0.01"
+              placeholder="น้ำหนัก (kg)"
+              onChange={handleChange}
+            />
           </div>
           <div className="grid">
-            <Label htmlFor="patientId" className="py-2">
+            <Label htmlFor="height" className="py-2">
               ส่วนสูง (Height)
               <span className="text-sm text-muted-foreground">(หน่วย cm)</span>
             </Label>
-            <Input type="text" placeholder="นามสกุล" />
+            <Input
+              id="height"
+              name="height"
+              type="number"
+              step="0.01"
+              placeholder="ส่วนสูง (cm)"
+              onChange={handleChange}
+            />
           </div>
         </div>
       </form>
