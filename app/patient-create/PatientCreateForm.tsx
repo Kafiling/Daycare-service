@@ -56,16 +56,49 @@ function PatientCreateForm(patientId: any) {
               <Label htmlFor="patientId" className="py-2">
                 ชื่อ (First Name)
               </Label>
-
-              <Input type="email" placeholder="Email" />
+              <Input type="text" placeholder="ชื่อ" />
             </div>
           </div>
           <div className="grid">
             <Label htmlFor="patientId" className="py-2">
               นามสกุล (Last Name)
             </Label>
-
-            <Input type="email" placeholder="Email" />
+            <Input type="text" placeholder="นามสกุล" />
+          </div>
+          <div className="grid">
+            <Label htmlFor="patientId" className="py-2">
+              วันเกิด (Date of Birth)
+            </Label>
+            <Input type="text" placeholder="นามสกุล" />
+          </div>
+          <div className="grid">
+            <Label htmlFor="patientId" className="py-2">
+              เบอร์โทรศัพท์ (Phone Number)
+            </Label>
+            <Input type="text" placeholder="นามสกุล" />
+          </div>
+          <div className="grid">
+            <Label htmlFor="patientId" className="py-2">
+              อีเมล (Email){" "}
+              <span className="text-sm text-muted-foreground">
+                (หากไม่มีให้เว้นว่าง)
+              </span>
+            </Label>
+            <Input type="text" placeholder="นามสกุล" />
+          </div>
+          <div className="grid">
+            <Label htmlFor="patientId" className="py-2">
+              น้ำหนัก (Weight){" "}
+              <span className="text-sm text-muted-foreground">(หน่วย kg)</span>
+            </Label>
+            <Input type="text" placeholder="นามสกุล" />
+          </div>
+          <div className="grid">
+            <Label htmlFor="patientId" className="py-2">
+              ส่วนสูง (Height)
+              <span className="text-sm text-muted-foreground">(หน่วย cm)</span>
+            </Label>
+            <Input type="text" placeholder="นามสกุล" />
           </div>
         </div>
       </form>
