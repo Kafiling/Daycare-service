@@ -32,8 +32,14 @@ function PatientCreateForm(patientId: any) {
 
   return (
     <>
-      <form className="flex items-end " onSubmit={handleSubmit}>
+      <form className="flex flex-col items-end " onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+          <h2 className="text font-bold py-4 md:col-span-2 flex items-center gap-2 ">
+            <span className="flex items-center justify-center w-8 h-8 border-2 border-pink-400 rounded-full shrink-0 ">
+              1
+            </span>
+            ข้อมูลผู้ป่วย (Patient Information)
+          </h2>
           <div className="grid md:col-span-2 ">
             <Label htmlFor="patientId" className="py-2">
               เลขบัตรประชาชน 13 หลัก (Thai ID)
@@ -149,6 +155,14 @@ function PatientCreateForm(patientId: any) {
               onChange={handleChange}
             />
           </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+          <h2 className="text font-bold py-4 md:col-span-2 flex items-center gap-2 ">
+            <span className="flex items-center justify-center w-8 h-8 border-2 border-pink-400 rounded-full shrink-0 ">
+              2
+            </span>
+            ข้อมูลการรักษา (Medical Information)
+          </h2>
         </div>
       </form>
     </>
