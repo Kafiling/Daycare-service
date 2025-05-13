@@ -12,20 +12,6 @@ export default async function Page() {
     redirect("/login");
   }
 
-  const cardVariants = {
-    hidden: {
-      opacity: 0,
-      y: 20,
-    },
-    show: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.4,
-      },
-    },
-  };
-
   return (
     <div className="min-h-screen bg-background">
       <main className="container mx-auto p-8 space-y-8">
@@ -35,7 +21,7 @@ export default async function Page() {
             <CardTitle>ค้นหาผู้ป่วย</CardTitle>
           </CardHeader>
           <CardContent>
-            <PatientIdInput/>
+            <PatientIdInput />
           </CardContent>
         </Card>
 
@@ -45,5 +31,3 @@ export default async function Page() {
     </div>
   );
 }
-
-
