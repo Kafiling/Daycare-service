@@ -14,10 +14,10 @@ import {
 } from "@/components/ui/select";
 import type { DatePickerProps } from "antd";
 import { DatePicker, Space } from "antd";
-
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import { Flex, message, Upload } from "antd";
 import type { GetProp, UploadProps } from "antd";
+import { uploadImage } from "@/app/patient-create/_actions/uploadImage";
 
 type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
 
@@ -88,6 +88,13 @@ function PatientCreateForm(patientId: any) {
       });
     }
   };
+
+  useEffect(() => {
+    if (imageUrl) {
+      uploadImage(imageUrl);
+      console.log(imageUrl);
+    }
+  }, [imageUrl]);
 
   const uploadButton = (
     <button style={{ border: 0, background: "none" }} type="button">
@@ -290,7 +297,6 @@ function PatientCreateForm(patientId: any) {
               listType="picture-card"
               className="avatar-uploader w-full h-auto"
               showUploadList={false}
-              action="https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload"
               beforeUpload={beforeUpload}
               onChange={handleImageChange}
             >
