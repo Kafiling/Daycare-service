@@ -1,9 +1,13 @@
 import React from "react";
 import PatientCreateForm from "./PatientCreateForm";
 
-export default async function page({ searchParams }: any) {
-  // Get patientId from query
-  const patientId = searchParams.patientId || "";
+export default async function page({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined };
+}) {
+  // Get patientId from query by properly unwrapping the searchParams
+  const { patientId = "" } = await searchParams;
   console.log("patientId", patientId);
   return (
     <div className="min-h-screen bg-background">

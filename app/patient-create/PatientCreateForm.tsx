@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { PatternFormat } from "react-number-format";
 import { Label } from "@/components/ui/label";
@@ -11,12 +12,43 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import type { DatePickerProps } from "antd";
+import { DatePicker, Space } from "antd";
+
+import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
+import { Flex, message, Upload } from "antd";
+import type { GetProp, UploadProps } from "antd";
+
+type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
+
+const getBase64 = (img: FileType, callback: (url: string) => void) => {
+  const reader = new FileReader();
+  reader.addEventListener("load", () => callback(reader.result as string));
+  reader.readAsDataURL(img);
+};
+
+const beforeUpload = (file: FileType) => {
+  const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
+  if (!isJpgOrPng) {
+    message.error("You can only upload JPG/PNG file!");
+  }
+  const isLt5M = file.size / 1024 / 1024 < 5;
+  if (!isLt5M) {
+    message.error("Image must smaller than 5MB!");
+  }
+  return isJpgOrPng && isLt5M;
+};
+
+const onChange: DatePickerProps["onChange"] = (date, dateString) => {
+  console.log(date, dateString);
+};
 
 function PatientCreateForm(patientId: any) {
   let patientID: string = patientId.patientId || "";
   const [formData, setFormData] = React.useState({
     patientId: patientID,
   });
+  const [date, setDate] = React.useState<Date>();
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -29,21 +61,52 @@ function PatientCreateForm(patientId: any) {
       [name]: value,
     }));
   }
+  useEffect(() => {
+    console.log("formData updated in useEffect:", formData);
+  }, [formData]);
+  useEffect(() => {
+    setFormData((prevData) => ({
+      ...prevData,
+      date_of_birth: date,
+    }));
+  }, [date]);
 
+  // Image Upload
+  const [loading, setLoading] = useState(false);
+  const [imageUrl, setImageUrl] = useState<string>();
+
+  const handleImageChange: UploadProps["onChange"] = (info) => {
+    if (info.file.status === "uploading") {
+      setLoading(true);
+      return;
+    }
+    if (info.file.status === "done") {
+      // Get this url from response in real world.
+      getBase64(info.file.originFileObj as FileType, (url) => {
+        setLoading(false);
+        setImageUrl(url);
+      });
+    }
+  };
+
+  const uploadButton = (
+    <button style={{ border: 0, background: "none" }} type="button">
+      {loading ? <LoadingOutlined /> : <PlusOutlined />}
+      <div style={{ marginTop: 8 }}>Upload</div>
+    </button>
+  );
   return (
     <>
       <form className="flex flex-col items-end " onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-          <h2 className="text font-bold py-4 md:col-span-2 flex items-center gap-2 ">
+          <h2 className="text font-bold  md:col-span-2 flex items-center gap-2 ">
             <span className="flex items-center justify-center w-8 h-8 border-2 border-pink-400 rounded-full shrink-0 ">
               1
             </span>
             ข้อมูลผู้ป่วย (Patient Information)
           </h2>
           <div className="grid md:col-span-2 ">
-            <Label htmlFor="patientId" className="py-2">
-              เลขบัตรประชาชน 13 หลัก (Thai ID)
-            </Label>
+            <Label className="py-2">เลขบัตรประชาชน 13 หลัก (Thai ID)</Label>
             <PatternFormat
               id="patientId"
               name="patientId"
@@ -56,25 +119,26 @@ function PatientCreateForm(patientId: any) {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="grid col-span-1">
-              <Label htmlFor="patientId" className="py-2">
-                คำนำหน้าชื่อ
-              </Label>
-              <Select>
-                <SelectTrigger className="w-full" name="title">
+              <Label className="py-2">คำนำหน้าชื่อ</Label>
+              <Select
+                onValueChange={(value: string) =>
+                  setFormData((prevData) => ({ ...prevData, title: value }))
+                }
+                name="title"
+              >
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="คำนำหน้า" />
                 </SelectTrigger>
-                <SelectContent onChange={handleChange}>
-                  <SelectItem value="light">นาย</SelectItem>
-                  <SelectItem value="dark">นาง</SelectItem>
-                  <SelectItem value="system">นางสาว</SelectItem>
+                <SelectContent>
+                  <SelectItem value="นาย">นาย</SelectItem>
+                  <SelectItem value="นาง">นาง</SelectItem>
+                  <SelectItem value="นางสาว">นางสาว</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="grid col-span-2">
-              <Label htmlFor="patientId" className="py-2">
-                ชื่อ (First Name)
-              </Label>
+              <Label className="py-2">ชื่อ (First Name)</Label>
               <Input
                 type="text"
                 placeholder="ชื่อ"
@@ -84,9 +148,7 @@ function PatientCreateForm(patientId: any) {
             </div>
           </div>
           <div className="grid">
-            <Label htmlFor="patientId" className="py-2">
-              นามสกุล (Last Name)
-            </Label>
+            <Label className="py-2">นามสกุล (Last Name)</Label>
             <Input
               type="text"
               placeholder="นามสกุล"
@@ -95,15 +157,11 @@ function PatientCreateForm(patientId: any) {
             />
           </div>
           <div className="grid">
-            <Label htmlFor="patientId" className="py-2">
-              วันเกิด (Date of Birth)
-            </Label>
-            <Input type="text" placeholder="นามสกุล" onChange={handleChange} />
+            <Label className="py-2">วัน/เดือน/ปีเกิด (Date of Birth) </Label>
+            <DatePicker onChange={onChange} format={"DD MMM YYYY"} />
           </div>
           <div className="grid">
-            <Label htmlFor="patientId" className="py-2">
-              เบอร์โทรศัพท์ (Phone Number)
-            </Label>
+            <Label className="py-2">เบอร์โทรศัพท์ (Phone Number)</Label>
             <PatternFormat
               id="phone_num"
               name="phone_num"
@@ -114,7 +172,7 @@ function PatientCreateForm(patientId: any) {
             />
           </div>
           <div className="grid">
-            <Label htmlFor="patientId" className="py-2">
+            <Label className="py-2">
               อีเมล (Email){" "}
               <span className="text-sm text-muted-foreground">
                 (หากไม่มีให้เว้นว่าง)
@@ -156,13 +214,93 @@ function PatientCreateForm(patientId: any) {
             />
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
-          <h2 className="text font-bold py-4 md:col-span-2 flex items-center gap-2 ">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full pt-8">
+          <h2 className="text font-bold md:col-span-2 flex items-center gap-2 ">
             <span className="flex items-center justify-center w-8 h-8 border-2 border-pink-400 rounded-full shrink-0 ">
               2
             </span>
-            ข้อมูลการรักษา (Medical Information)
+            ข้อมูลที่อยู่ (Address Information)
           </h2>
+          <div className="grid">
+            <Label className="py-2">ที่อยู่ (Address)</Label>
+            <Input
+              type="text"
+              placeholder="12/1 หมู่บ้านแสนสุข ซอย 1"
+              name="address"
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="grid">
+            <Label className="py-2">ถนน (Road)</Label>
+            <Input
+              type="text"
+              placeholder="ถนน"
+              name="road"
+              onChange={handleChange}
+            />
+          </div>
+          <div className="grid">
+            <Label className="py-2">ตำบล/แขวง (Subdistrict)</Label>
+            <Input
+              type="text"
+              placeholder="ตำบล/แขวง"
+              name="sub_district"
+              onChange={handleChange}
+            />
+          </div>
+          <div className="grid">
+            <Label className="py-2">อำเภอ/เขต (District)</Label>
+            <Input
+              type="text"
+              placeholder="อำเภอ/เขต"
+              name="district"
+              onChange={handleChange}
+            />
+          </div>
+          <div className="grid">
+            <Label className="py-2">จังหวัด (Province)</Label>
+            <Input
+              type="text"
+              placeholder="จังหวัด"
+              name="province"
+              onChange={handleChange}
+            />
+          </div>
+          <div className="grid">
+            <Label className="py-2">รหัสไปรษณีย์ (Postal Number)</Label>
+            <Input
+              type="text"
+              placeholder="รหัสไปรษณีย์"
+              name="postal_num"
+              onChange={handleChange}
+            />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full pt-8">
+          <h2 className="text font-bold md:col-span-2 flex items-center gap-2 ">
+            <span className="flex items-center justify-center w-8 h-8 border-2 border-pink-400 rounded-full shrink-0 ">
+              3
+            </span>
+            อัปโหลดรูปภาพ (Upload Image)
+          </h2>
+          <div className="flex w-full h-auto">
+            <Upload
+              name="avatar"
+              listType="picture-card"
+              className="avatar-uploader w-full h-auto"
+              showUploadList={false}
+              action="https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload"
+              beforeUpload={beforeUpload}
+              onChange={handleImageChange}
+            >
+              {imageUrl ? (
+                <img src={imageUrl} alt="avatar" style={{ width: "100%" }} />
+              ) : (
+                uploadButton
+              )}
+            </Upload>
+          </div>
         </div>
       </form>
     </>
