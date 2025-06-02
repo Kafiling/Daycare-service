@@ -21,30 +21,6 @@ import type { GetProp, UploadProps } from "antd";
 import { uploadImage } from "@/app/patient-create/_actions/uploadImage";
 import { useRouter } from "next/navigation";
 
-type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
-
-const getBase64 = (img: FileType, callback: (url: string) => void) => {
-  const reader = new FileReader();
-  reader.addEventListener("load", () => callback(reader.result as string));
-  reader.readAsDataURL(img);
-};
-
-const beforeUpload = (file: FileType) => {
-  const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
-  if (!isJpgOrPng) {
-    message.error("You can only upload JPG/PNG file!");
-    toast.error("คุณสามารถอัปโหลดไฟล์ JPG/PNG เท่านั้น");
-  }
-  const isLt5M = file.size / 1024 / 1024 < 5;
-  if (!isLt5M) {
-    message.error("Image must smaller than 5MB!");
-    toast.error("ไฟล์รูปภาพต้องมีขนาดไม่เกิน 5 MB");
-  }
-  return isJpgOrPng && isLt5M;
-};
-
-
-
 function PatientCreateForm(patientId: any) {
   const router = useRouter();
   let patientID: string = patientId.patientId || "";
@@ -77,12 +53,12 @@ function PatientCreateForm(patientId: any) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          id: formData.patientId,
+          id: formData.patientId.replace(/-/g, ""), // Remove dashes from patientId
           title: formData.title,
           first_name: formData.first_name,
           last_name: formData.last_name,
           date_of_birth: formData.date_of_birth,
-          phone_num: formData.phone_num,
+          phone_num: formData.phone_num.replace(/-/g, ""),
           email: formData.email ? formData.email : null,
           weight: formData.weight ? parseFloat(formData.weight) : null,
           height: formData.height ? parseFloat(formData.height) : null,
@@ -138,6 +114,30 @@ function PatientCreateForm(patientId: any) {
     }));
   }, [date]);
 
+
+
+  type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
+
+  const getBase64 = (img: FileType, callback: (url: string) => void) => {
+    const reader = new FileReader();
+    reader.addEventListener("load", () => callback(reader.result as string));
+    reader.readAsDataURL(img);
+  };
+
+  const beforeUpload = (file: FileType) => {
+    const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
+    if (!isJpgOrPng) {
+      message.error("You can only upload JPG/PNG file!");
+      toast.error("คุณสามารถอัปโหลดไฟล์ JPG/PNG เท่านั้น");
+    }
+    const isLt5M = file.size / 1024 / 1024 < 5;
+    if (!isLt5M) {
+      message.error("Image must smaller than 5MB!");
+      toast.error("ไฟล์รูปภาพต้องมีขนาดไม่เกิน 5 MB");
+    }
+    return isJpgOrPng && isLt5M;
+  };
+
   // Image Upload
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string>();
@@ -158,7 +158,7 @@ function PatientCreateForm(patientId: any) {
 
   useEffect(() => {
     if (imageUrl) {
-      uploadImage(imageUrl);
+      uploadImage(imageUrl, formData.patientId.replace(/-/g, ""));
       console.log(imageUrl);
     }
   }, [imageUrl]);
