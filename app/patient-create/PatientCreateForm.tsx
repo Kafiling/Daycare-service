@@ -32,10 +32,12 @@ const beforeUpload = (file: FileType) => {
   const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
   if (!isJpgOrPng) {
     message.error("You can only upload JPG/PNG file!");
+    toast.error("คุณสามารถอัปโหลดไฟล์ JPG/PNG เท่านั้น");
   }
   const isLt5M = file.size / 1024 / 1024 < 5;
   if (!isLt5M) {
     message.error("Image must smaller than 5MB!");
+    toast.error("ไฟล์รูปภาพต้องมีขนาดไม่เกิน 5 MB");
   }
   return isJpgOrPng && isLt5M;
 };
