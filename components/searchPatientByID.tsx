@@ -27,14 +27,31 @@ export function PatientIdInput() {
         redirect(`/patients/${patient.id}`);
       }
     } catch (error) {
-      if (error instanceof Error && error.message == "Error fetching patient") {
-        toast.error("ไม่พบข้อมูลผู้ป่วย");
-        // todo make redirect button in toast
-      } else {
-        console.error("พบปัญหาระหว่างค้นข้อมูลผู้ป่วย : ", error);
-        toast.error(`พบปัญหาระหว่างค้นข้อมูลผู้ป่วย : ${error}`);
-        return;
+
+      console.error("พบปัญหาระหว่างค้นข้อมูลผู้ใช้บริการ : ", error);
+      if (error == "Error: No patient found") {
+        toast.warning("ไม่พบข้อมูลผู้ใช้บริการนี้ในระบบ",
+          {
+            description: "กรุณาสร้างผู้ใช้บริการใหม่" ,
+            action: {
+              label: "Create Patient",
+              onClick: () => handleRedirectToCreatePatient(),
+            }
+          }
+        );
       }
+      else {
+        toast.error("เกิดข้อผิดพลาดในการค้นหาข้อมูลผู้ใช้บริการ"
+          ,
+          {
+            description: "error: " + error,
+          }
+        );
+
+      }
+
+      return;
+
     }
   }
   function handleRedirectToCreatePatient() {

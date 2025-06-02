@@ -18,7 +18,7 @@ export default async function Page() {
         {/* Search Patient */}
         <Card>
           <CardHeader>
-            <CardTitle>ค้นหาผู้ป่วย</CardTitle>
+            <CardTitle>ค้นหาผู้ใช้บริการ</CardTitle>
           </CardHeader>
           <CardContent>
             <PatientIdInput />
