@@ -124,3 +124,15 @@
     @apply bg-background text-foreground;
   }
 }
+
+.avatar-uploader .ant-upload {
+  width: 100% !important;
+  height: auto !important;
+  min-height: 200px;
+}
+
+.avatar-uploader .ant-upload-select {
+  width: 100% !important;
+  height: auto !important;
+  min-height: 200px;
+}
