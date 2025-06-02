@@ -20,6 +20,7 @@ export async function POST(req: NextRequest) {
 
     const body: Patient = await req.json();
 
+    console.log("Received body:", body);
     // Basic input validation
     const requiredFields = ['id', 'first_name', 'last_name'];
     for (const field of requiredFields) {
@@ -34,6 +35,7 @@ export async function POST(req: NextRequest) {
     const { error } = await supabase.from('patients').insert([body]);
 
     if (error) {
+        console.error("Error inserting patient:", error);
         return NextResponse.json(
             { error: error.message },
             { status: 500 }
@@ -44,4 +46,4 @@ export async function POST(req: NextRequest) {
         { message: 'Patient created successfully' },
         { status: 201 }
     );
-  }
+}

@@ -19,6 +19,7 @@ import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import { Flex, message, Upload } from "antd";
 import type { GetProp, UploadProps } from "antd";
 import { uploadImage } from "@/app/patient-create/_actions/uploadImage";
+import { useRouter } from "next/navigation";
 
 type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
 
@@ -42,19 +43,70 @@ const beforeUpload = (file: FileType) => {
   return isJpgOrPng && isLt5M;
 };
 
-const onChange: DatePickerProps["onChange"] = (date, dateString) => {
-  console.log(date, dateString);
-};
+
 
 function PatientCreateForm(patientId: any) {
+  const router = useRouter();
   let patientID: string = patientId.patientId || "";
   const [formData, setFormData] = React.useState({
     patientId: patientID,
+    title: "",
+    first_name: "",
+    last_name: "",
+    phone_num: "",
+    email: "",
+    weight: "",
+    height: "",
+    address: "",
+    road: "",
+    sub_district: "",
+    district: "",
+    province: "",
+    postal_num: "",
+    date_of_birth: "",
   });
   const [date, setDate] = React.useState<Date>();
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    console.log("formData before submission:", formData);
+    try {
+      const response = await fetch('/api/v1/patients/createPatient', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: formData.patientId,
+          title: formData.title,
+          first_name: formData.first_name,
+          last_name: formData.last_name,
+          date_of_birth: formData.date_of_birth,
+          phone_num: formData.phone_num,
+          email: formData.email ? formData.email : null,
+          weight: formData.weight ? parseFloat(formData.weight) : null,
+          height: formData.height ? parseFloat(formData.height) : null,
+          address: formData.address,
+          road: formData.road,
+          sub_district: formData.sub_district,
+          district: formData.district,
+          province: formData.province,
+          postal_num: formData.postal_num
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Patient created successfully:', data);
+        toast.success('บันทึกข้อมูลสำเร็จ');
+        router.push('/');
+      } else {
+        throw new Error('Failed to create patient');
+      }
+    } catch (error) {
+      console.error('Error creating patient:', error);
+      toast.error('เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+    }
   }
 
   function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -64,13 +116,25 @@ function PatientCreateForm(patientId: any) {
       [name]: value,
     }));
   }
+  const handleDateChange = (date: any, dateString: string | string[]) => {
+    console.log("Selected date:", date, "Formatted date string:", dateString);
+
+    // Convert to Date object and then to ISO string format (YYYY-MM-DD)
+    const formattedDate = date ? date.format('YYYY-MM-DD') : '';
+
+    setFormData((prevData) => ({
+      ...prevData,
+      date_of_birth: formattedDate,
+    }));
+  };
   useEffect(() => {
     console.log("formData updated in useEffect:", formData);
   }, [formData]);
+
   useEffect(() => {
     setFormData((prevData) => ({
       ...prevData,
-      date_of_birth: date,
+      date_of_birth: date ? date.toISOString().split('T')[0] : "",
     }));
   }, [date]);
 
@@ -168,7 +232,7 @@ function PatientCreateForm(patientId: any) {
           </div>
           <div className="grid">
             <Label className="py-2 text-base">วัน/เดือน/ปีเกิด (Date of Birth) </Label>
-            <DatePicker onChange={onChange} format={"DD MMM YYYY"} />
+            <DatePicker name="date_of_birth" onChange={handleDateChange} format={"DD MMM YYYY"} />
           </div>
           <div className="grid">
             <Label className="py-2 text-base">เบอร์โทรศัพท์ (Phone Number)</Label>
@@ -316,26 +380,29 @@ function PatientCreateForm(patientId: any) {
             </Upload>
           </div>
         </div>
+        {/* Action Buttons */}
+        <div className="flex justify-between w-full pt-8 gap-4">
+          <Button
+            type="button"
+            variant="outline"
+            className="flex items-center gap-2"
+            onClick={() => router.push("/")}
+          >
+            ← กลับ
+          </Button>
+
+          <Button
+            type="submit"
+            className="flex items-center gap-2 bg-pink-500 hover:bg-pink-600"
+            onClick={() => handleSubmit}
+          >
+            บันทึกข้อมูล →
+          </Button>
+        </div>
       </form>
 
-      {/* Action Buttons */}
-      <div className="flex justify-between w-full pt-8 gap-4">
-        <Button
-          type="button"
-          variant="outline"
-          className="flex items-center gap-2"
-          onClick={() => window.history.back()}
-        >
-          ← กลับ
-        </Button>
 
-        <Button
-          type="submit"
-          className="flex items-center gap-2 bg-pink-500 hover:bg-pink-600"
-        >
-          บันทึกข้อมูล →
-        </Button>
-      </div>
+
     </>
   );
 }
