@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { PatternFormat } from "react-number-format";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -99,7 +100,7 @@ function PatientCreateForm(patientId: any) {
   const uploadButton = (
     <button style={{ border: 0, background: "none" }} type="button">
       {loading ? <LoadingOutlined /> : <PlusOutlined />}
-      <div style={{ marginTop: 8 }}>Upload</div>
+      <div style={{ marginTop: 8 }}>อัปโหลดรูปภาพ ระบบรองรับไฟล์นามสกุล .jpg .jpeg .png ขนาดไม่เกิน 5 mb</div>
     </button>
   );
   return (
@@ -110,10 +111,10 @@ function PatientCreateForm(patientId: any) {
             <span className="flex items-center justify-center w-8 h-8 border-2 border-pink-400 rounded-full shrink-0 ">
               1
             </span>
-            ข้อมูลผู้ป่วย (Patient Information)
+            ข้อมูลผู้ใช้บริการ (Patient Information)
           </h2>
           <div className="grid md:col-span-2 ">
-            <Label className="py-2">เลขบัตรประชาชน 13 หลัก (Thai ID)</Label>
+            <Label className="py-2 text-base">เลขบัตรประชาชน 13 หลัก (Thai ID)</Label>
             <PatternFormat
               id="patientId"
               name="patientId"
@@ -126,7 +127,7 @@ function PatientCreateForm(patientId: any) {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="grid col-span-1">
-              <Label className="py-2">คำนำหน้าชื่อ</Label>
+              <Label className="py-2 text-base">คำนำหน้าชื่อ</Label>
               <Select
                 onValueChange={(value: string) =>
                   setFormData((prevData) => ({ ...prevData, title: value }))
@@ -145,7 +146,7 @@ function PatientCreateForm(patientId: any) {
             </div>
 
             <div className="grid col-span-2">
-              <Label className="py-2">ชื่อ (First Name)</Label>
+              <Label className="py-2 text-base">ชื่อ (First Name)</Label>
               <Input
                 type="text"
                 placeholder="ชื่อ"
@@ -155,7 +156,7 @@ function PatientCreateForm(patientId: any) {
             </div>
           </div>
           <div className="grid">
-            <Label className="py-2">นามสกุล (Last Name)</Label>
+            <Label className="py-2 text-base">นามสกุล (Last Name)</Label>
             <Input
               type="text"
               placeholder="นามสกุล"
@@ -164,11 +165,11 @@ function PatientCreateForm(patientId: any) {
             />
           </div>
           <div className="grid">
-            <Label className="py-2">วัน/เดือน/ปีเกิด (Date of Birth) </Label>
+            <Label className="py-2 text-base">วัน/เดือน/ปีเกิด (Date of Birth) </Label>
             <DatePicker onChange={onChange} format={"DD MMM YYYY"} />
           </div>
           <div className="grid">
-            <Label className="py-2">เบอร์โทรศัพท์ (Phone Number)</Label>
+            <Label className="py-2 text-base">เบอร์โทรศัพท์ (Phone Number)</Label>
             <PatternFormat
               id="phone_num"
               name="phone_num"
@@ -179,7 +180,7 @@ function PatientCreateForm(patientId: any) {
             />
           </div>
           <div className="grid">
-            <Label className="py-2">
+            <Label className="py-2 text-base">
               อีเมล (Email){" "}
               <span className="text-sm text-muted-foreground">
                 (หากไม่มีให้เว้นว่าง)
@@ -229,7 +230,7 @@ function PatientCreateForm(patientId: any) {
             ข้อมูลที่อยู่ (Address Information)
           </h2>
           <div className="grid">
-            <Label className="py-2">ที่อยู่ (Address)</Label>
+            <Label className="py-2 text-base">ที่อยู่ (Address)</Label>
             <Input
               type="text"
               placeholder="12/1 หมู่บ้านแสนสุข ซอย 1"
@@ -239,7 +240,7 @@ function PatientCreateForm(patientId: any) {
           </div>
 
           <div className="grid">
-            <Label className="py-2">ถนน (Road)</Label>
+            <Label className="py-2 text-base">ถนน (Road)</Label>
             <Input
               type="text"
               placeholder="ถนน"
@@ -248,7 +249,7 @@ function PatientCreateForm(patientId: any) {
             />
           </div>
           <div className="grid">
-            <Label className="py-2">ตำบล/แขวง (Subdistrict)</Label>
+            <Label className="py-2 text-base">ตำบล/แขวง (Subdistrict)</Label>
             <Input
               type="text"
               placeholder="ตำบล/แขวง"
@@ -257,7 +258,7 @@ function PatientCreateForm(patientId: any) {
             />
           </div>
           <div className="grid">
-            <Label className="py-2">อำเภอ/เขต (District)</Label>
+            <Label className="py-2 text-base">อำเภอ/เขต (District)</Label>
             <Input
               type="text"
               placeholder="อำเภอ/เขต"
@@ -266,7 +267,7 @@ function PatientCreateForm(patientId: any) {
             />
           </div>
           <div className="grid">
-            <Label className="py-2">จังหวัด (Province)</Label>
+            <Label className="py-2 text-base">จังหวัด (Province)</Label>
             <Input
               type="text"
               placeholder="จังหวัด"
@@ -275,7 +276,7 @@ function PatientCreateForm(patientId: any) {
             />
           </div>
           <div className="grid">
-            <Label className="py-2">รหัสไปรษณีย์ (Postal Number)</Label>
+            <Label className="py-2 text-lg">รหัสไปรษณีย์ (Postal Number)</Label>
             <Input
               type="text"
               placeholder="รหัสไปรษณีย์"
@@ -284,14 +285,15 @@ function PatientCreateForm(patientId: any) {
             />
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full pt-8">
+        <div className="grid grid-cols-1 gap-4 w-full pt-8 justify-center">
           <h2 className="text font-bold md:col-span-2 flex items-center gap-2 ">
             <span className="flex items-center justify-center w-8 h-8 border-2 border-pink-400 rounded-full shrink-0 ">
               3
             </span>
             อัปโหลดรูปภาพ (Upload Image)
           </h2>
-          <div className="flex w-full h-auto">
+
+          <div className="flex w-full md:w-1/2 h-auto justify-center items-center mx-auto">
             <Upload
               name="avatar"
               listType="picture-card"
@@ -299,9 +301,13 @@ function PatientCreateForm(patientId: any) {
               showUploadList={false}
               beforeUpload={beforeUpload}
               onChange={handleImageChange}
+              style={{ width: '100%', height: 'auto' }}
             >
               {imageUrl ? (
-                <img src={imageUrl} alt="avatar" style={{ width: "100%" }} />
+                <div>
+                  <img src={imageUrl} alt="avatar" style={{ width: "100%", height: "auto" }} />
+                  <p className="text-sm py-2">กดที่นี้เพื่อเปลี่ยนรูปภาพ/อัปโหลดใหม่</p>
+                </div>
               ) : (
                 uploadButton
               )}
@@ -309,6 +315,25 @@ function PatientCreateForm(patientId: any) {
           </div>
         </div>
       </form>
+
+      {/* Action Buttons */}
+      <div className="flex justify-between w-full pt-8 gap-4">
+        <Button
+          type="button"
+          variant="outline"
+          className="flex items-center gap-2"
+          onClick={() => window.history.back()}
+        >
+          ← กลับ
+        </Button>
+
+        <Button
+          type="submit"
+          className="flex items-center gap-2 bg-pink-500 hover:bg-pink-600"
+        >
+          บันทึกข้อมูล →
+        </Button>
+      </div>
     </>
   );
 }
