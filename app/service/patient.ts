@@ -84,6 +84,8 @@ export interface QuestionAnswer {
     created_at: string;
 }
 
+
+
 /**
  * Get patient by ID
  */
