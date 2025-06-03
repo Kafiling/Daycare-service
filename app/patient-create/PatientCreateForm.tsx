@@ -75,7 +75,7 @@ function PatientCreateForm(patientId: any) {
         const data = await response.json();
         console.log('Patient created successfully:', data);
         toast.success('บันทึกข้อมูลสำเร็จ');
-        router.push('/');
+        router.push(`/patient/${formData.patientId.replace(/-/g, "")}`);
       } else {
         throw new Error('Failed to create patient');
       }

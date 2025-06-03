@@ -24,7 +24,7 @@ export function PatientIdInput() {
       const patient = await searchPatientByID(patientID);
 
       if (patient && patient.id) {
-        redirect(`/patients/${patient.id}`);
+        router.push(`/patient/${patient.id}/home`);
       }
     } catch (error) {
 
@@ -32,7 +32,7 @@ export function PatientIdInput() {
       if (error == "Error: No patient found") {
         toast.warning("ไม่พบข้อมูลผู้ใช้บริการนี้ในระบบ",
           {
-            description: "กรุณาสร้างผู้ใช้บริการใหม่" ,
+            description: "กรุณาสร้างผู้ใช้บริการใหม่",
             action: {
               label: "Create Patient",
               onClick: () => handleRedirectToCreatePatient(),
@@ -41,10 +41,11 @@ export function PatientIdInput() {
         );
       }
       else {
+        console.log("Error fetching patient:", error);
         toast.error("เกิดข้อผิดพลาดในการค้นหาข้อมูลผู้ใช้บริการ"
           ,
           {
-            description: "error: " + error,
+            description: String(error),
           }
         );
 
