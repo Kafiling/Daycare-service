@@ -206,7 +206,7 @@ export default function QuestionPage() {
             <div className="container mx-auto p-6">
                 <Card>
                     <CardContent className="pt-6">
-                        <p className="text-center text-muted-foreground">ไม่พบคำถามที่ระบุ</p>
+                        <p className="text-center text-muted-foreground text-lg">ไม่พบคำถามที่ระบุ</p>
                     </CardContent>
                 </Card>
             </div>
@@ -220,26 +220,26 @@ export default function QuestionPage() {
                 <CardHeader>
                     <div className="flex items-center justify-between">
                         <div>
-                            <CardTitle className="flex items-center gap-2">
-                                <FileText className="h-5 w-5" />
+                            <CardTitle className="flex items-center gap-2 text-xl">
+                                <FileText className="h-6 w-6" />
                                 {mockForm.title}
                             </CardTitle>
-                            <CardDescription>
+                            <CardDescription className="text-base mt-2">
                                 ผู้ป่วย: {mockPatient.title} {mockPatient.first_name} {mockPatient.last_name}
                             </CardDescription>
                         </div>
                         <div className="text-right">
-                            <Badge variant="outline">
+                            <Badge variant="outline" className="text-sm px-3 py-1">
                                 คำถามที่ {currentQuestionIndex + 1} จาก {totalQuestions}
                             </Badge>
                         </div>
                     </div>
                     <div className="space-y-2">
-                        <div className="flex items-center justify-between text-sm text-muted-foreground">
+                        <div className="flex items-center justify-between text-base text-muted-foreground">
                             <span>ความคืบหน้า</span>
                             <span>{Math.round(progressPercentage)}%</span>
                         </div>
-                        <Progress value={progressPercentage} className="w-full" />
+                        <Progress value={progressPercentage} className="w-full h-3" />
                     </div>
                 </CardHeader>
             </Card>
@@ -260,8 +260,9 @@ export default function QuestionPage() {
                                 variant="outline"
                                 onClick={handlePrevious}
                                 disabled={currentQuestionIndex === 0}
+                                className="text-base px-6 py-3"
                             >
-                                <ArrowLeft className="h-4 w-4 mr-2" />
+                                <ArrowLeft className="h-5 w-5 mr-2" />
                                 ย้อนกลับ
                             </Button>
 
@@ -269,8 +270,9 @@ export default function QuestionPage() {
                                 variant="ghost"
                                 onClick={handleSaveDraft}
                                 disabled={isSaving}
+                                className="text-base px-6 py-3"
                             >
-                                <Save className="h-4 w-4 mr-2" />
+                                <Save className="h-5 w-5 mr-2" />
                                 บันทึกร่าง
                             </Button>
                         </div>
@@ -280,26 +282,27 @@ export default function QuestionPage() {
                                 <Button
                                     onClick={handleComplete}
                                     disabled={!isCurrentQuestionAnswered() || isSaving}
-                                    className="min-w-[120px]"
+                                    className="min-w-[140px] text-base px-6 py-3"
                                 >
-                                    <CheckCircle2 className="h-4 w-4 mr-2" />
+                                    <CheckCircle2 className="h-5 w-5 mr-2" />
                                     {isSaving ? 'กำลังบันทึก...' : 'เสร็จสิ้น'}
                                 </Button>
                             ) : (
                                 <Button
                                     onClick={handleNext}
                                     disabled={!isCurrentQuestionAnswered()}
+                                    className="text-base px-6 py-3"
                                 >
                                     ถัดไป
-                                    <ArrowRight className="h-4 w-4 ml-2" />
+                                    <ArrowRight className="h-5 w-5 ml-2" />
                                 </Button>
                             )}
                         </div>
                     </div>
 
                     {currentQuestion.is_required && !isCurrentQuestionAnswered() && (
-                        <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                            <p className="text-sm text-yellow-800">
+                        <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                            <p className="text-base text-yellow-800">
                                 คำถามนี้จำเป็นต้องตอบก่อนดำเนินการต่อ
                             </p>
                         </div>
@@ -310,14 +313,14 @@ export default function QuestionPage() {
             {/* Question Summary */}
             <Card>
                 <CardHeader>
-                    <CardTitle className="text-sm">สรุปการตอบคำถาม</CardTitle>
+                    <CardTitle className="text-base">สรุปการตอบคำถาม</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-5 gap-2">
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
                         {mockQuestions.map((question, index) => (
                             <div
                                 key={question.id}
-                                className={`p-2 rounded border text-center text-xs cursor-pointer transition-colors ${index === currentQuestionIndex
+                                className={`p-3 rounded border text-center text-sm cursor-pointer transition-colors ${index === currentQuestionIndex
                                         ? 'bg-primary text-primary-foreground border-primary'
                                         : answers[question.id]
                                             ? 'bg-green-50 border-green-200 text-green-800'
@@ -325,9 +328,9 @@ export default function QuestionPage() {
                                     }`}
                                 onClick={() => router.push(`/patient/${patientId}/${formId}/${question.id}`)}
                             >
-                                <div>คำถาม {index + 1}</div>
+                                <div className="font-medium">คำถาม {index + 1}</div>
                                 {answers[question.id] && (
-                                    <CheckCircle2 className="h-3 w-3 mx-auto mt-1" />
+                                    <CheckCircle2 className="h-4 w-4 mx-auto mt-2" />
                                 )}
                             </div>
                         ))}
