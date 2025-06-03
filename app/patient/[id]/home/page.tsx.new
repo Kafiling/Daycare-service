@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FileText } from 'lucide-react';
-import { getPatientById, getActiveForms, getCompletedSubmissions } from '@/app/service/patient';
+import { getPatientById, getAvailableForms, getCompletedSubmissions } from '@/app/service/patient';
 import PatientHeader from '@/components/patient/PatientHeader';
 import PatientInfo from '@/components/patient/PatientInfo';
 import AvailableSurveys from '@/components/patient/AvailableSurveys';
@@ -15,7 +15,7 @@ interface PatientHomePageProps {
 export default async function PatientHomePage({ params }: PatientHomePageProps) {
     try {
         const patient = await getPatientById(params.id);
-        const availableForms = await getActiveForms();
+        const availableForms = await getAvailableForms();
         const completedSubmissions = await getCompletedSubmissions(params.id);
 
         if (!patient) {
@@ -30,9 +30,9 @@ export default async function PatientHomePage({ params }: PatientHomePageProps) 
         }
 
         return (
-            <div className="container mx-auto px-4 py-8 max-w-6xl flex flex-col gap-y-4">
+            <div className="container mx-auto px-4 py-8 max-w-6xl">
                 {/* Patient Header */}
-                <PatientHeader patient={patient} patientId={params.id} />
+                <PatientHeader patient={patient} />
 
                 {/* Patient Information */}
                 <PatientInfo patient={patient} />

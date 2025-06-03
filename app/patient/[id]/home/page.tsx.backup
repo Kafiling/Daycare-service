@@ -1,0 +1,485 @@
+"use client";
+
+import React, { useState, useEffect } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Progress } from '@/components/ui/progress';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+    Calendar,
+    Phone,
+    Mail,
+    MapPin,
+    Weight,
+    Ruler,
+    FileText,
+    Clock,
+    CheckCircle2,
+    AlertCircle,
+    User,
+    Heart,
+    Activity,
+    Stethoscope,
+    Loader2
+} from 'lucide-react';
+import { 
+    getPatientById, 
+    getActiveForms, 
+    getPatientFormResponses,
+    getOrCreateFormResponse,
+    getFirstQuestionByFormId,
+    type Patient,
+    type Form,
+    type FormResponse
+} from '@/app/service/patient-client';
+
+// Icon mapping for form categories
+const getCategoryIcon = (category: string) => {
+    switch (category?.toLowerCase()) {
+        case 'สุขภาพทั่วไป':
+        case 'สุขภาพ':
+            return Heart;
+        case 'สุขภาพจิต':
+        case 'จิตใจ':
+            return Activity;
+        case 'ความปลอดภัย':
+        case 'ปลอดภัย':
+            return AlertCircle;
+        case 'กิจกรรมประจำวัน':
+        case 'กิจกรรม':
+            return User;
+        default:
+            return FileText;
+    }
+};
+
+// Priority mapping for forms (this could be added to your database)
+const getFormPriority = (formId: number) => {
+    // You can customize this logic based on your business rules
+    // For now, using form ID as a simple example
+    if (formId <= 2) return 'high';
+    if (formId <= 4) return 'medium';
+    return 'low';
+};
+
+export default function PatientDashboard() {
+    const params = useParams();
+    const router = useRouter();
+    const patientId = params.id as string;
+
+    const [patient, setPatient] = useState<Patient | null>(null);
+    const [availableForms, setAvailableForms] = useState<Form[]>([]);
+    const [completedResponses, setCompletedResponses] = useState<FormResponse[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        async function fetchData() {
+            try {
+                setLoading(true);
+                setError(null);
+
+                // Fetch patient data
+                const patientData = await getPatientById(patientId);
+                if (!patientData) {
+                    throw new Error('Patient not found');
+                }
+                setPatient(patientData);
+
+                // Fetch available forms
+                const forms = await getActiveForms();
+                setAvailableForms(forms);
+
+                // Fetch completed form responses
+                const responses = await getPatientFormResponses(patientId);
+                setCompletedResponses(responses);
+
+            } catch (err) {
+                console.error('Error fetching data:', err);
+                setError(err instanceof Error ? err.message : 'An error occurred');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        if (patientId) {
+            fetchData();
+        }
+    }, [patientId]);
+
+    const handleStartSurvey = async (formId: number) => {
+        try {
+            // TODO: Get actual nurse ID from session/authentication
+            const nurseId = 'placeholder-nurse-id'; // You'll need to replace this with actual nurse ID
+            
+            // Create or get existing form response
+            const submissionId = await getOrCreateFormResponse(patientId, formId, nurseId);
+            
+            // Get first question for this form
+            const firstQuestion = await getFirstQuestionByFormId(formId);
+            
+            if (firstQuestion) {
+                router.push(`/patient/${patientId}/${formId}/${firstQuestion.id}`);
+            } else {
+                console.error('No questions found for this form');
+                // You might want to show a toast error here
+                alert('ไม่พบคำถามในแบบประเมินนี้');
+            }
+        } catch (err) {
+            console.error('Error starting survey:', err);
+            // You might want to show a toast error here
+            alert('เกิดข้อผิดพลาดในการเริ่มแบบประเมิน');
+        }
+    };
+
+    const calculateAge = (birthDate: string) => {
+        const today = new Date();
+        const birth = new Date(birthDate);
+        let age = today.getFullYear() - birth.getFullYear();
+        const monthDiff = today.getMonth() - birth.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+            age--;
+        }
+        return age;
+    };
+
+    const formatDate = (dateString: string) => {
+        return new Date(dateString).toLocaleDateString('th-TH', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    };
+
+    const formatDateTime = (dateString: string) => {
+        return new Date(dateString).toLocaleDateString('th-TH', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
+
+    const getPriorityColor = (priority: string) => {
+        switch (priority) {
+            case 'high': return 'destructive';
+            case 'medium': return 'default';
+            case 'low': return 'secondary';
+            default: return 'default';
+        }
+    };
+
+    const getScoreColor = (score: number) => {
+        if (score >= 90) return 'text-green-600';
+        if (score >= 70) return 'text-yellow-600';
+        return 'text-red-600';
+    };
+
+    if (loading) {
+        return (
+            <div className="container mx-auto p-6 flex items-center justify-center min-h-screen">
+                <div className="flex items-center gap-2">
+                    <Loader2 className="h-6 w-6 animate-spin" />
+                    <span>กำลังโหลดข้อมูลผู้ใช้บริการ...</span>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="container mx-auto p-6 flex items-center justify-center min-h-screen">
+                <Card className="w-full max-w-md">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-red-600">
+                            <AlertCircle className="h-5 w-5" />
+                            เกิดข้อผิดพลาด
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-muted-foreground">{error}</p>
+                        <Button onClick={() => window.location.reload()} className="mt-4">
+                            ลองใหม่อีกครั้ง
+                        </Button>
+                    </CardContent>
+                </Card>
+            </div>
+        );
+    }
+
+    if (!patient) {
+        return (
+            <div className="container mx-auto p-6 flex items-center justify-center min-h-screen">
+                <Card className="w-full max-w-md">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <AlertCircle className="h-5 w-5" />
+                            ไม่พบข้อมูลผู้ใช้บริการ
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-muted-foreground">ไม่พบข้อมูลผู้ใช้บริการที่มี ID: {patientId}</p>
+                    </CardContent>
+                </Card>
+            </div>
+        );
+    }
+
+    return (
+        <div className="container mx-auto p-6 space-y-6 flex flex-col gap-4">
+            {/* Patient Header */}
+            <Card>
+                <CardHeader>
+                    <div className="flex items-center space-x-4">
+                        <Avatar className="h-48 w-48">
+                            <AvatarImage src={patient.image_url || ''} />
+                            <AvatarFallback className="text-6xl">
+                                {patient.first_name.charAt(0)}
+                            </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                            <CardTitle className="text-2xl">
+                                {patient.title} {patient.first_name} {patient.last_name}
+                            </CardTitle>
+                            <CardDescription className="text-lg">
+                                รหัสผู้ใช้บริการ: {patientId}
+                            </CardDescription>
+                            <div className="flex items-center gap-4 mt-2">
+                                <Badge variant="outline">
+                                    อายุ {calculateAge(patient.date_of_birth)} ปี
+                                </Badge>
+                                <Badge variant="outline">
+                                    ลงทะเบียนเมื่อ {formatDate(patient.created_at)}
+                                </Badge>
+                            </div>
+                        </div>
+                    </div>
+                </CardHeader>
+            </Card>
+
+            {/* Patient Information */}
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <User className="h-5 w-5" />
+                        ข้อมูลผู้ใช้บริการ
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-2">
+                                <Calendar className="h-4 w-4 text-muted-foreground" />
+                                <span className="text-sm text-muted-foreground">วันเกิด:</span>
+                                <span>{formatDate(patient.date_of_birth)}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Phone className="h-4 w-4 text-muted-foreground" />
+                                <span className="text-sm text-muted-foreground">โทรศัพท์:</span>
+                                <span>{patient.phone_num}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Mail className="h-4 w-4 text-muted-foreground" />
+                                <span className="text-sm text-muted-foreground">อีเมล:</span>
+                                <span>{patient.email}</span>
+                            </div>
+                        </div>
+
+                        <div className="space-y-4">
+                            {patient.weight && (
+                                <div className="flex items-center gap-2">
+                                    <Weight className="h-4 w-4 text-muted-foreground" />
+                                    <span className="text-sm text-muted-foreground">น้ำหนัก:</span>
+                                    <span>{patient.weight} กก.</span>
+                                </div>
+                            )}
+                            {patient.height && (
+                                <div className="flex items-center gap-2">
+                                    <Ruler className="h-4 w-4 text-muted-foreground" />
+                                    <span className="text-sm text-muted-foreground">ส่วนสูง:</span>
+                                    <span>{patient.height} ซม.</span>
+                                </div>
+                            )}
+                            {patient.weight && patient.height && (
+                                <div className="flex items-center gap-2">
+                                    <Activity className="h-4 w-4 text-muted-foreground" />
+                                    <span className="text-sm text-muted-foreground">BMI:</span>
+                                    <span>
+                                        {(patient.weight / Math.pow(patient.height / 100, 2)).toFixed(1)}
+                                    </span>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="space-y-4">
+                            {(patient.address || patient.road || patient.sub_district || patient.district || patient.province || patient.postal_num) && (
+                                <div className="flex items-start gap-2">
+                                    <MapPin className="h-4 w-4 text-muted-foreground mt-1" />
+                                    <div>
+                                        <span className="text-sm text-muted-foreground">ที่อยู่:</span>
+                                        <div className="text-sm">
+                                            {patient.address && <>{patient.address}<br /></>}
+                                            {patient.road && <>{patient.road}<br /></>}
+                                            {(patient.sub_district || patient.district) && (
+                                                <>{patient.sub_district} {patient.district}<br /></>
+                                            )}
+                                            {(patient.province || patient.postal_num) && (
+                                                <>{patient.province} {patient.postal_num}</>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+
+            {/* Surveys Section */}
+            <Tabs defaultValue="available" className="space-y-4">
+                <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="available">แบบประเมินที่ใช้ได้</TabsTrigger>
+                    <TabsTrigger value="completed">แบบประเมินที่เสร็จแล้ว</TabsTrigger>
+                </TabsList>
+
+                {/* Available Surveys */}
+                <TabsContent value="available" className="space-y-4">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <FileText className="h-5 w-5" />
+                                แบบประเมินที่พร้อมใช้งาน
+                            </CardTitle>
+                            <CardDescription>
+                                แบบประเมินที่พยาบาลสามารถทำกับผู้ใช้บริการได้
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            {availableForms.length === 0 ? (
+                                <div className="text-center py-8 text-muted-foreground">
+                                    <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                                    <p>ไม่มีแบบประเมินที่พร้อมใช้งานในขณะนี้</p>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {availableForms.map((form) => {
+                                        const IconComponent = getCategoryIcon('แบบประเมิน');
+                                        const priority = getFormPriority(form.id);
+                                        return (
+                                            <Card key={form.id} className="hover:shadow-md transition-shadow">
+                                                <CardHeader className="pb-3">
+                                                    <div className="flex items-start justify-between">
+                                                        <div className="flex items-center gap-2">
+                                                            <IconComponent className="h-5 w-5 text-primary" />
+                                                            <CardTitle className="text-lg">{form.title}</CardTitle>
+                                                        </div>
+                                                        <Badge variant={getPriorityColor(priority) as any}>
+                                                            {priority === 'high' ? 'สำคัญ' :
+                                                                priority === 'medium' ? 'ปกติ' : 'ไม่เร่งด่วน'}
+                                                        </Badge>
+                                                    </div>
+                                                    {form.description && (
+                                                        <CardDescription>{form.description}</CardDescription>
+                                                    )}
+                                                </CardHeader>
+                                                <CardContent className="pt-0">
+                                                    <div className="flex items-center justify-between">
+                                                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                                            <div className="flex items-center gap-1">
+                                                                <Clock className="h-4 w-4" />
+                                                                15 นาที {/* Default estimate */}
+                                                            </div>
+                                                            <Badge variant="outline">แบบประเมิน</Badge>
+                                                        </div>
+                                                        <Button size="sm" onClick={() => handleStartSurvey(form.id)}>
+                                                            เริ่มประเมิน
+                                                        </Button>
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+
+                {/* Completed Surveys */}
+                <TabsContent value="completed" className="space-y-4">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <CheckCircle2 className="h-5 w-5" />
+                                แบบประเมินที่เสร็จสิ้นแล้ว
+                            </CardTitle>
+                            <CardDescription>
+                                ประวัติการประเมินที่ได้ทำไปแล้ว
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            {completedResponses.length === 0 ? (
+                                <div className="text-center py-8 text-muted-foreground">
+                                    <CheckCircle2 className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                                    <p>ยังไม่มีแบบประเมินที่เสร็จสิ้น</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    {completedResponses.map((response, index) => (
+                                        <div key={response.id}>
+                                            <Card>
+                                                <CardContent className="pt-6">
+                                                    <div className="flex items-center justify-between">
+                                                        <div className="flex-1">
+                                                            <div className="flex items-center gap-2 mb-2">
+                                                                <Stethoscope className="h-4 w-4 text-primary" />
+                                                                <h4 className="font-semibold">
+                                                                    {(response as any).forms?.title || 'แบบประเมิน'}
+                                                                </h4>
+                                                                <Badge variant="outline">แบบประเมิน</Badge>
+                                                            </div>
+                                                            <div className="text-sm text-muted-foreground space-y-1">
+                                                                <div className="flex items-center gap-2">
+                                                                    <Calendar className="h-3 w-3" />
+                                                                    เสร็จสิ้นเมื่อ: {formatDateTime(response.submitted_at)}
+                                                                </div>
+                                                                {response.nurse_id && (
+                                                                    <div className="flex items-center gap-2">
+                                                                        <User className="h-3 w-3" />
+                                                                        ดำเนินการโดย: {response.nurse_id}
+                                                                    </div>
+                                                                )}
+                                                                {response.notes && (
+                                                                    <div className="flex items-start gap-2 mt-2">
+                                                                        <FileText className="h-3 w-3 mt-0.5" />
+                                                                        <span>หมายเหตุ: {response.notes}</span>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                        <div className="text-right space-y-2">
+                                                            {/* Note: Since the schema doesn't have a score field, we'll hide the score section for now */}
+                                                            <Button variant="outline" size="sm">
+                                                                ดูรายละเอียด
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                            {index < completedResponses.length - 1 && <Separator className="my-4" />}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+            </Tabs>
+        </div>
+    );
+}
