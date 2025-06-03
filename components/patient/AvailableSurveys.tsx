@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -18,6 +18,7 @@ import {
     getFirstQuestionByFormId,
     type Form
 } from '@/app/service/patient-client';
+import { getCurrentUserProfile } from '@/app/service/nurse-client';
 
 // Icon mapping for form categories
 const getCategoryIcon = (category: string) => {
@@ -62,13 +63,37 @@ interface AvailableSurveysProps {
 
 export default function AvailableSurveys({ patientId, forms }: AvailableSurveysProps) {
     const router = useRouter();
+    const [nurseId, setNurseId] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    // Get nurse profile on component mount
+    useEffect(() => {
+        const fetchNurseProfile = async () => {
+            try {
+                const profile = await getCurrentUserProfile();
+                if (profile) {
+                    setNurseId(profile.id);
+                } else {
+                    console.warn('No nurse profile found');
+                }
+            } catch (error) {
+                console.error('Error fetching nurse profile:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchNurseProfile();
+    }, []);
 
     const handleStartSurvey = async (formId: number) => {
-        try {
-            // TODO: Get actual nurse ID from session/authentication
-            const nurseId = 'placeholder-nurse-id';
+        if (!nurseId) {
+            alert('ไม่สามารถระบุตัวตนของพยาบาลได้ กรุณาเข้าสู่ระบบใหม่');
+            return;
+        }
 
-            // Create or get existing form response
+        try {
+            // Create or get existing form response with real nurse ID
             const submissionId = await getOrCreateFormResponse(patientId, formId, nurseId);
 
             // Get first question for this form
@@ -91,6 +116,15 @@ export default function AvailableSurveys({ patientId, forms }: AvailableSurveysP
             <div className="text-center py-8 text-muted-foreground">
                 <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>ไม่มีแบบประเมินที่พร้อมใช้งานในขณะนี้</p>
+            </div>
+        );
+    }
+
+    if (isLoading) {
+        return (
+            <div className="text-center py-8 text-muted-foreground">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                <p>กำลังโหลด...</p>
             </div>
         );
     }
@@ -126,7 +160,12 @@ export default function AvailableSurveys({ patientId, forms }: AvailableSurveysP
                                     </div>
                                     <Badge variant="outline">แบบประเมิน</Badge>
                                 </div>
-                                <Button size="sm" onClick={() => handleStartSurvey(form.id)}>
+                                <Button
+                                    size="sm"
+                                    onClick={() => handleStartSurvey(form.id)}
+                                    disabled={!nurseId}
+                                    title={!nurseId ? 'กำลังโหลดข้อมูลพยาบาล...' : ''}
+                                >
                                     เริ่มประเมิน
                                 </Button>
                             </div>
