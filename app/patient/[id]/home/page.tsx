@@ -9,14 +9,15 @@ import AvailableSurveys from '@/components/patient/AvailableSurveys';
 import CompletedSurveys from '@/components/patient/CompletedSurveys';
 
 interface PatientHomePageProps {
-    params: { id: string };
+    params: Promise<{ id: string }>;
 }
 
 export default async function PatientHomePage({ params }: PatientHomePageProps) {
     try {
-        const patient = await getPatientById(params.id);
+        const resolvedParams = await params;
+        const patient = await getPatientById(resolvedParams.id);
         const availableForms = await getActiveForms();
-        const completedSubmissions = await getCompletedSubmissions(params.id);
+        const completedSubmissions = await getCompletedSubmissions(resolvedParams.id);
 
         if (!patient) {
             return (
@@ -32,7 +33,7 @@ export default async function PatientHomePage({ params }: PatientHomePageProps) 
         return (
             <div className="container mx-auto px-4 py-8 max-w-6xl flex flex-col gap-y-4">
                 {/* Patient Header */}
-                <PatientHeader patient={patient} patientId={params.id} />
+                <PatientHeader patient={patient} patientId={resolvedParams.id} />
 
                 {/* Patient Information */}
                 <PatientInfo patient={patient} />
@@ -60,7 +61,7 @@ export default async function PatientHomePage({ params }: PatientHomePageProps) 
                             </TabsList>
 
                             <TabsContent value="available" className="mt-6">
-                                <AvailableSurveys patientId={params.id} forms={availableForms} />
+                                <AvailableSurveys patientId={resolvedParams.id} forms={availableForms} />
                             </TabsContent>
 
                             <TabsContent value="completed" className="mt-6">

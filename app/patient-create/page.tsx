@@ -4,7 +4,7 @@ import PatientCreateForm from "./PatientCreateForm";
 export default async function page({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   // Get patientId from query by properly unwrapping the searchParams
   const { patientId = "" } = await searchParams;
