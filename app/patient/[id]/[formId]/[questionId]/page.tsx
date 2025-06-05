@@ -6,15 +6,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Separator } from '@/components/ui/separator';
 import {
     ArrowLeft,
     ArrowRight,
     Save,
     CheckCircle2,
     FileText,
-    User,
-    Clock
 } from 'lucide-react';
 import QuestionRenderer from '@/components/question-types/QuestionRenderer';
 
@@ -321,10 +318,10 @@ export default function QuestionPage() {
                             <div
                                 key={question.id}
                                 className={`p-3 rounded border text-center text-sm cursor-pointer transition-colors ${index === currentQuestionIndex
-                                        ? 'bg-primary text-primary-foreground border-primary'
-                                        : answers[question.id]
-                                            ? 'bg-green-50 border-green-200 text-green-800'
-                                            : 'bg-gray-50 border-gray-200 text-gray-600'
+                                    ? 'bg-primary text-primary-foreground border-primary'
+                                    : answers[question.id]
+                                        ? 'bg-green-50 border-green-200 text-green-800'
+                                        : 'bg-gray-50 border-gray-200 text-gray-600'
                                     }`}
                                 onClick={() => router.push(`/patient/${patientId}/${formId}/${question.id}`)}
                             >
