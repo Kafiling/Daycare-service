@@ -19,7 +19,7 @@ import QuestionRenderer from '@/components/question-types/QuestionRenderer';
 const mockForm = {
     id: 1,
     title: "แบบประเมินโรคซึมเศร้า 9 คำถาม (9Q)",
-    description: "แบบสอบถามเพื่อประเมินอาการที่เกิดขึ้นในช่วง 2 สัปดาห์ที่ผ่านมาจนถึงวันที่สัมภาษณ์. สอบถามผู้สูงอายุถึงอาการที่เกิดขึ้นในช่วง 2 สัปดาห์ที่ผ่านมาจนถึงวันที่สัมภาษณ์ ถามทีละข้อไม่ช้าหรือเร็วเกินไป พยายามให้ได้คำตอบทุกข้อ ถ้าผู้สูงอายุไม่เข้าใจให้ถามซ้ำ ไม่ควรอธิบายหรือขยายความ ควรถามซ้ำจนกว่าผู้สูงอายุจะตอบตามความเข้าใจของตัวเอง",
+    description: "คำแนะนำ : สอบถามผู้สูงอายุถึงอาการที่เกิดขึ้นในช่วง 2 สัปดาห์ที่ผ่านมาจนถึงวันที่สัมภาษณ์ ถามทีละข้อไม่ช้าหรือเร็วเกินไป พยายามให้ได้คำตอบทุกข้อ ถ้าผู้สูงอายุไม่เข้าใจให้ถามซ้ำ ไม่ควรอธิบายหรือขยายความ ควรถามซ้ำจนกว่าผู้สูงอายุจะตอบตามความเข้าใจของตัวเอง",
     version: 1,
     created_at: "2024-01-15T10:30:00Z"
 };
@@ -28,7 +28,7 @@ const mockQuestions = [
     {
         id: 1,
         form_id: 1,
-        question_text: "เบื่อ ไม่สนใจอยากทำอะไร",
+        question_text: "ในช่วง 2 สัปดาห์ที่ผ่านมาคุณรู้สึกเบื่อ ไม่สนใจอยากทำอะไร",
         question_type: "mcq",
         options: {
             choices: [
@@ -46,7 +46,7 @@ const mockQuestions = [
     {
         id: 2,
         form_id: 1,
-        question_text: "ไม่สบายใจ ซึมเศร้า ท้อแท้",
+        question_text: "ในช่วง 2 สัปดาห์ที่ผ่านมาคุณรู้สึกไม่สบายใจ ซึมเศร้า ท้อแท้",
         question_type: "mcq",
         options: {
             choices: [
@@ -64,7 +64,7 @@ const mockQuestions = [
     {
         id: 3,
         form_id: 1,
-        question_text: "หลับยาก หรือ หลับๆ ตื่นๆ หรือ หลับมากไป",
+        question_text: "ในช่วง 2 สัปดาห์ที่ผ่านมาคุณรู้สึกหลับยาก หรือ หลับๆ ตื่นๆ หรือ หลับมากไป",
         question_type: "mcq",
         options: {
             choices: [
@@ -82,7 +82,7 @@ const mockQuestions = [
     {
         id: 4,
         form_id: 1,
-        question_text: "เหนื่อยง่าย หรือ ไม่ค่อยมีแรง",
+        question_text: "ในช่วง 2 สัปดาห์ที่ผ่านมาคุณรู้สึกเหนื่อยง่าย หรือ ไม่ค่อยมีแรง",
         question_type: "mcq",
         options: {
             choices: [
@@ -100,7 +100,7 @@ const mockQuestions = [
     {
         id: 5,
         form_id: 1,
-        question_text: "เบื่ออาหาร หรือ กินมากเกินไป",
+        question_text: "ในช่วง 2 สัปดาห์ที่ผ่านมาคุณรู้สึกเบื่ออาหาร หรือ กินมากเกินไป",
         question_type: "mcq",
         options: {
             choices: [
@@ -118,7 +118,7 @@ const mockQuestions = [
     {
         id: 6,
         form_id: 1,
-        question_text: "รู้สึกไม่ดีกับตัวเอง คิดว่าตัวเองล้มเหลว หรือทำให้ตนเองหรือครอบครัวผิดหวัง",
+        question_text: "ในช่วง 2 สัปดาห์ที่ผ่านมาคุณรู้สึกรู้สึกไม่ดีกับตัวเอง คิดว่าตัวเองล้มเหลว หรือทำให้ตนเองหรือครอบครัวผิดหวัง",
         question_type: "mcq",
         options: {
             choices: [
@@ -136,7 +136,7 @@ const mockQuestions = [
     {
         id: 7,
         form_id: 1,
-        question_text: "สมาธิไม่ดีเวลาทำอะไร เช่น ดูโทรทัศน์ ฟังวิทยุ หรือทำงานที่ต้องใช้ความตั้งใจ",
+        question_text: "ในช่วง 2 สัปดาห์ที่ผ่านมาคุณรู้สึกสมาธิไม่ดีเวลาทำอะไร เช่น ดูโทรทัศน์ ฟังวิทยุ หรือทำงานที่ต้องใช้ความตั้งใจ",
         question_type: "mcq",
         options: {
             choices: [
@@ -154,7 +154,7 @@ const mockQuestions = [
     {
         id: 8,
         form_id: 1,
-        question_text: "พูดช้า ทำอะไรช้าลงจนคนอื่นสังเกตเห็นได้ หรือ กระสับกระส่ายไม่สามารถอยู่นิ่งได้เหมือนที่เคยเป็น",
+        question_text: "ในช่วง 2 สัปดาห์ที่ผ่านมาคุณรู้สึกพูดช้า ทำอะไรช้าลงจนคนอื่นสังเกตเห็นได้ หรือ กระสับกระส่ายไม่สามารถอยู่นิ่งได้เหมือนที่เคยเป็น",
         question_type: "mcq",
         options: {
             choices: [
@@ -172,7 +172,7 @@ const mockQuestions = [
     {
         id: 9,
         form_id: 1,
-        question_text: "คิดทำร้ายตนเอง หรือคิดว่าถ้าตายไปคงจะดี",
+        question_text: "ในช่วง 2 สัปดาห์ที่ผ่านมาคุณรู้สึกคิดทำร้ายตนเอง หรือคิดว่าถ้าตายไปคงจะดี",
         question_type: "mcq",
         options: {
             choices: [
@@ -317,6 +317,9 @@ export default function QuestionPage() {
                             </Badge>
                         </div>
                     </div>
+                    <CardDescription className="text-sm text-muted-foreground pt-4">
+                        {mockForm.description}
+                    </CardDescription>
                     <div className="space-y-2">
                         <div className="flex items-center justify-between text-base text-muted-foreground">
                             <span>ความคืบหน้า</span>
