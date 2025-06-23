@@ -3,6 +3,8 @@ import { Building2 } from "lucide-react";
 import Link from "next/link";
 import UserNav from "./user-nav";
 import { createClient } from "@/utils/supabase/server";
+import NavbarCurrentPatient from "./NavbarCurrentPatient";
+
 
 export async function Navbar() {
   const supabase = await createClient();
@@ -22,14 +24,9 @@ export async function Navbar() {
             href="/"
             className="text-sm font-medium transition-colors hover:text-primary"
           >
-            Dashboard
+            แดชบอร์ดพนังงาน
           </Link>
-          <Link
-            href="/patients"
-            className="text-sm font-medium transition-colors hover:text-primary"
-          >
-            Patients
-          </Link>
+          <NavbarCurrentPatient />
         </div>
 
         <div className="flex items-center gap-6 ml-auto">

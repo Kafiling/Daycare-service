@@ -6,23 +6,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Separator } from '@/components/ui/separator';
 import {
     ArrowLeft,
     ArrowRight,
     Save,
     CheckCircle2,
     FileText,
-    User,
-    Clock
 } from 'lucide-react';
 import QuestionRenderer from '@/components/question-types/QuestionRenderer';
 
 // Mock data - will be replaced with Supabase data later
 const mockForm = {
     id: 1,
-    title: "แบบประเมินสุขภาพทั่วไป",
-    description: "แบบประเมินสถานะสุขภาพโดยรวมของผู้ป่วย",
+    title: "แบบประเมินโรคซึมเศร้า 9 คำถาม (9Q)",
+    description: "คำแนะนำ : สอบถามผู้สูงอายุถึงอาการที่เกิดขึ้นในช่วง 2 สัปดาห์ที่ผ่านมาจนถึงวันที่สัมภาษณ์ ถามทีละข้อไม่ช้าหรือเร็วเกินไป พยายามให้ได้คำตอบทุกข้อ ถ้าผู้สูงอายุไม่เข้าใจให้ถามซ้ำ ไม่ควรอธิบายหรือขยายความ ควรถามซ้ำจนกว่าผู้สูงอายุจะตอบตามความเข้าใจของตัวเอง",
     version: 1,
     created_at: "2024-01-15T10:30:00Z"
 };
@@ -31,86 +28,172 @@ const mockQuestions = [
     {
         id: 1,
         form_id: 1,
-        question_text: "คุณรู้สึกเป็นอย่างไรเกี่ยวกับสุขภาพโดยรวมของคุณ?",
+        question_text: "ในช่วง 2 สัปดาห์ที่ผ่านมาคุณรู้สึกเบื่อ ไม่สนใจอยากทำอะไร",
         question_type: "mcq",
         options: {
             choices: [
-                { value: "excellent", label: "ดีเยี่ยม" },
-                { value: "good", label: "ดี" },
-                { value: "fair", label: "ปานกลาง" },
-                { value: "poor", label: "แย่" }
+                { value: "0", label: "ไม่มีเลย" },
+                { value: "1", label: "เป็นบางวัน (1-7 วัน)" },
+                { value: "2", label: "เป็นบ่อย (>7 วัน)" },
+                { value: "3", label: "เป็นทุกวัน" }
             ]
         },
         is_required: true,
-        helper_text: "เลือกตัวเลือกที่ตรงกับความรู้สึกของคุณมากที่สุด",
+        helper_text: "",
         created_at: "2024-01-15T10:30:00Z",
         updated_at: "2024-01-15T10:30:00Z"
     },
     {
         id: 2,
         form_id: 1,
-        question_text: "ให้คะแนนระดับความเครียดของคุณในช่วง 7 วันที่ผ่านมา",
-        question_type: "rating",
+        question_text: "ในช่วง 2 สัปดาห์ที่ผ่านมาคุณรู้สึกไม่สบายใจ ซึมเศร้า ท้อแท้",
+        question_type: "mcq",
         options: {
-            maxRating: 5,
-            minRating: 1,
-            labels: {
-                1: "ไม่มีความเครียด",
-                2: "เครียดเล็กน้อย",
-                3: "เครียดปานกลาง",
-                4: "เครียดมาก",
-                5: "เครียดมากที่สุด"
-            }
+            choices: [
+                { value: "0", label: "ไม่มีเลย" },
+                { value: "1", label: "เป็นบางวัน (1-7 วัน)" },
+                { value: "2", label: "เป็นบ่อย (>7 วัน)" },
+                { value: "3", label: "เป็นทุกวัน" }
+            ]
         },
         is_required: true,
-        helper_text: "1 = ไม่มีความเครียด, 5 = เครียดมากที่สุด",
+        helper_text: "",
         created_at: "2024-01-15T10:30:00Z",
         updated_at: "2024-01-15T10:30:00Z"
     },
     {
         id: 3,
         form_id: 1,
-        question_text: "คุณออกกำลังกายเป็นประจำหรือไม่?",
-        question_type: "true_false",
+        question_text: "ในช่วง 2 สัปดาห์ที่ผ่านมาคุณรู้สึกหลับยาก หรือ หลับๆ ตื่นๆ หรือ หลับมากไป",
+        question_type: "mcq",
         options: {
-            trueLabel: "ใช่ ออกกำลังกายเป็นประจำ",
-            falseLabel: "ไม่ ไม่ออกกำลังกายเป็นประจำ"
+            choices: [
+                { value: "0", label: "ไม่มีเลย" },
+                { value: "1", label: "เป็นบางวัน (1-7 วัน)" },
+                { value: "2", label: "เป็นบ่อย (>7 วัน)" },
+                { value: "3", label: "เป็นทุกวัน" }
+            ]
         },
         is_required: true,
-        helper_text: "กำลังกายเป็นประจำหมายถึงอย่างน้อย 3 ครั้งต่อสัปดาห์",
+        helper_text: "",
         created_at: "2024-01-15T10:30:00Z",
         updated_at: "2024-01-15T10:30:00Z"
     },
     {
         id: 4,
         form_id: 1,
-        question_text: "น้ำหนักปัจจุบันของคุณ (กิโลกรัม)",
-        question_type: "number",
+        question_text: "ในช่วง 2 สัปดาห์ที่ผ่านมาคุณรู้สึกเหนื่อยง่าย หรือ ไม่ค่อยมีแรง",
+        question_type: "mcq",
         options: {
-            min: 20,
-            max: 200,
-            step: 0.1,
-            unit: "กก."
+            choices: [
+                { value: "0", label: "ไม่มีเลย" },
+                { value: "1", label: "เป็นบางวัน (1-7 วัน)" },
+                { value: "2", label: "เป็นบ่อย (>7 วัน)" },
+                { value: "3", label: "เป็นทุกวัน" }
+            ]
         },
         is_required: true,
-        helper_text: "กรุณาใส่น้ำหนักปัจจุบันของคุณ",
+        helper_text: "",
         created_at: "2024-01-15T10:30:00Z",
         updated_at: "2024-01-15T10:30:00Z"
     },
     {
         id: 5,
         form_id: 1,
-        question_text: "อธิบายอาการหรือปัญหาสุขภาพที่คุณกังวล (ถ้ามี)",
-        question_type: "text",
+        question_text: "ในช่วง 2 สัปดาห์ที่ผ่านมาคุณรู้สึกเบื่ออาหาร หรือ กินมากเกินไป",
+        question_type: "mcq",
         options: {
-            placeholder: "อธิบายอาการหรือปัญหาสุขภาพ...",
-            maxLength: 500
+            choices: [
+                { value: "0", label: "ไม่มีเลย" },
+                { value: "1", label: "เป็นบางวัน (1-7 วัน)" },
+                { value: "2", label: "เป็นบ่อย (>7 วัน)" },
+                { value: "3", label: "เป็นทุกวัน" }
+            ]
         },
-        is_required: false,
-        helper_text: "คุณสามารถข้ามคำถามนี้ได้หากไม่มีอาการที่กังวล",
+        is_required: true,
+        helper_text: "",
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-15T10:30:00Z"
+    },
+    {
+        id: 6,
+        form_id: 1,
+        question_text: "ในช่วง 2 สัปดาห์ที่ผ่านมาคุณรู้สึกรู้สึกไม่ดีกับตัวเอง คิดว่าตัวเองล้มเหลว หรือทำให้ตนเองหรือครอบครัวผิดหวัง",
+        question_type: "mcq",
+        options: {
+            choices: [
+                { value: "0", label: "ไม่มีเลย" },
+                { value: "1", label: "เป็นบางวัน (1-7 วัน)" },
+                { value: "2", label: "เป็นบ่อย (>7 วัน)" },
+                { value: "3", label: "เป็นทุกวัน" }
+            ]
+        },
+        is_required: true,
+        helper_text: "",
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-15T10:30:00Z"
+    },
+    {
+        id: 7,
+        form_id: 1,
+        question_text: "ในช่วง 2 สัปดาห์ที่ผ่านมาคุณรู้สึกสมาธิไม่ดีเวลาทำอะไร เช่น ดูโทรทัศน์ ฟังวิทยุ หรือทำงานที่ต้องใช้ความตั้งใจ",
+        question_type: "mcq",
+        options: {
+            choices: [
+                { value: "0", label: "ไม่มีเลย" },
+                { value: "1", label: "เป็นบางวัน (1-7 วัน)" },
+                { value: "2", label: "เป็นบ่อย (>7 วัน)" },
+                { value: "3", label: "เป็นทุกวัน" }
+            ]
+        },
+        is_required: true,
+        helper_text: "",
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-15T10:30:00Z"
+    },
+    {
+        id: 8,
+        form_id: 1,
+        question_text: "ในช่วง 2 สัปดาห์ที่ผ่านมาคุณรู้สึกพูดช้า ทำอะไรช้าลงจนคนอื่นสังเกตเห็นได้ หรือ กระสับกระส่ายไม่สามารถอยู่นิ่งได้เหมือนที่เคยเป็น",
+        question_type: "mcq",
+        options: {
+            choices: [
+                { value: "0", label: "ไม่มีเลย" },
+                { value: "1", label: "เป็นบางวัน (1-7 วัน)" },
+                { value: "2", label: "เป็นบ่อย (>7 วัน)" },
+                { value: "3", label: "เป็นทุกวัน" }
+            ]
+        },
+        is_required: true,
+        helper_text: "",
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-15T10:30:00Z"
+    },
+    {
+        id: 9,
+        form_id: 1,
+        question_text: "ในช่วง 2 สัปดาห์ที่ผ่านมาคุณรู้สึกคิดทำร้ายตนเอง หรือคิดว่าถ้าตายไปคงจะดี",
+        question_type: "mcq",
+        options: {
+            choices: [
+                { value: "0", label: "ไม่มีเลย" },
+                { value: "1", label: "เป็นบางวัน (1-7 วัน)" },
+                { value: "2", label: "เป็นบ่อย (>7 วัน)" },
+                { value: "3", label: "เป็นทุกวัน" }
+            ]
+        },
+        is_required: true,
+        helper_text: "",
         created_at: "2024-01-15T10:30:00Z",
         updated_at: "2024-01-15T10:30:00Z"
     }
+];
+
+const mockEvaluationCriteria = [
+    { score_range: "<7", interpretation: "ไม่มีอาการของโรคซึมเศร้าหรือมีอาการโรคซึมเศร้าระดับน้อยมาก" },
+    { score_range: "7-12", interpretation: "มีอาการของโรคซึมเศร้าระดับน้อย" },
+    { score_range: "13-18", interpretation: "มีอาการของโรคซึมเศร้าระดับปานกลาง" },
+    { score_range: ">=19", interpretation: "มีอาการของโรคซึมเศร้าระดับรุนแรง" }
 ];
 
 const mockPatient = {
@@ -163,14 +246,18 @@ export default function QuestionPage() {
     const handleComplete = async () => {
         setIsSaving(true);
         try {
-            // Here you would save the answers to Supabase
+            // Calculate total score
+            const totalScore = Object.values(answers).reduce((sum, value) => sum + parseInt(value || '0', 10), 0);
+
+            // Here you would save the answers and the score to Supabase
             console.log('Saving answers:', answers);
+            console.log('Total score:', totalScore);
 
             // Simulate API call
             await new Promise(resolve => setTimeout(resolve, 1000));
 
-            // Redirect back to patient dashboard
-            router.push(`/patient/${patientId}/home`);
+            // Redirect to the result page with the score
+            router.push(`/patient/${patientId}/${formId}/result?score=${totalScore}`);
         } catch (error) {
             console.error('Error saving answers:', error);
         } finally {
@@ -234,6 +321,9 @@ export default function QuestionPage() {
                             </Badge>
                         </div>
                     </div>
+                    <CardDescription className="text-sm text-muted-foreground pt-4">
+                        {mockForm.description}
+                    </CardDescription>
                     <div className="space-y-2">
                         <div className="flex items-center justify-between text-base text-muted-foreground">
                             <span>ความคืบหน้า</span>
@@ -321,10 +411,10 @@ export default function QuestionPage() {
                             <div
                                 key={question.id}
                                 className={`p-3 rounded border text-center text-sm cursor-pointer transition-colors ${index === currentQuestionIndex
-                                        ? 'bg-primary text-primary-foreground border-primary'
-                                        : answers[question.id]
-                                            ? 'bg-green-50 border-green-200 text-green-800'
-                                            : 'bg-gray-50 border-gray-200 text-gray-600'
+                                    ? 'bg-primary text-primary-foreground border-primary'
+                                    : answers[question.id]
+                                        ? 'bg-green-50 border-green-200 text-green-800'
+                                        : 'bg-gray-50 border-gray-200 text-gray-600'
                                     }`}
                                 onClick={() => router.push(`/patient/${patientId}/${formId}/${question.id}`)}
                             >

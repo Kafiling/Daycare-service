@@ -32,9 +32,10 @@ export function PatientIdInput() {
       if (error == "Error: No patient found") {
         toast.warning("ไม่พบข้อมูลผู้ใช้บริการนี้ในระบบ",
           {
+            duration: 5000,
             description: "กรุณาสร้างผู้ใช้บริการใหม่",
             action: {
-              label: "Create Patient",
+              label: "สร้างผู้ใช้บริการใหม่",
               onClick: () => handleRedirectToCreatePatient(),
             }
           }
@@ -79,14 +80,7 @@ export function PatientIdInput() {
         <Search className="h-4 w-4 mr-2" />
         Search
       </Button>
-      <Button
-        type="button"
-        className="h-auto bg-green-400 hover:bg-green-500"
-        onClick={handleRedirectToCreatePatient}
-      >
-        <Plus className="h-4 w-4 mr-2" />
-        Create
-      </Button>
+
     </form>
   );
 }

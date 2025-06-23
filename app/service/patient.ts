@@ -11,8 +11,8 @@ export interface Patient {
     birth_date: string;
     phone_num: string;
     phone: string;
-    email: string;
-    gender: string;
+    email?: string;
+    gender?: string;
     weight?: number;
     height?: number;
     address?: string;
@@ -23,7 +23,7 @@ export interface Patient {
     postal_num?: string;
     created_at: string;
     updated_at: string;
-    image_url?: string;
+    profile_image_url?: string;
 }
 
 export interface Form {
@@ -131,7 +131,7 @@ export async function getPatientById(patientId: string): Promise<Patient | null>
         postal_num: data.postal_num,
         created_at: data.created_at,
         updated_at: data.updated_at,
-        image_url: data.image_url
+        profile_image_url: data.profile_image_url
     };
 }
 
