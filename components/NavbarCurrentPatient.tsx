@@ -60,8 +60,10 @@ export default function navbarCurrentPatient() {
     const formattedId = patient.id.replace(/(\d{1})(\d{4})(\d{5})(\d{2})(\d{1})/, '$1-$2-$3-$4-$5');
 
     return (
-        <div className="text-sm font-medium transition-colors text-primary" >
-            ขณะนี้กำลังบริการ {displayName} ({formattedId})
-        </div>
+        <Link href={`/patient/${patient.id}/home`} className="flex items-center gap-2">
+            <div className="text-sm font-medium transition-colors text-primary hover:text-black" >
+                ขณะนี้กำลังบริการ {displayName} ({formattedId})
+            </div>
+        </Link>
     );
 }
