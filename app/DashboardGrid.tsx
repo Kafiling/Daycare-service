@@ -93,7 +93,7 @@ export function DashboardGrid() {
 
 							<div className="flex items-center gap-2 mb-4">
 								<Users className="h-5 w-5" />
-								<h3 className="text-lg font-semibold">ผู้ป่วยที่ตอบรับ</h3>
+								<h3 className="text-lg font-semibold">ผู้เข้าร่วม</h3>
 							</div>
 							<ul className="space-y-2">
 								{event.rsvps.map((patient, i) => (
