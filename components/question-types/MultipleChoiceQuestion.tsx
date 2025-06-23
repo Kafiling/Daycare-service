@@ -44,14 +44,25 @@ export default function MultipleChoiceQuestion({
             </CardHeader>
             <CardContent>
                 <RadioGroup value={value} onValueChange={onChange}>
-                    {options.map((option: { value: string; label: string }, index: number) => (
-                        <div key={index} className="flex items-center space-x-2">
-                            <RadioGroupItem value={option.value} id={`option-${index}`} />
-                            <Label htmlFor={`option-${index}`} className="cursor-pointer">
-                                {option.label}
-                            </Label>
-                        </div>
-                    ))}
+                    {options.map((option: { value: string; label: string }, index: number) => {
+                        const isSelected = value === option.value;
+                        return (
+                            <div
+                                key={index}
+                                className={`flex items-center space-x-4 p-2 rounded-md transition-colors ${
+                                    isSelected ? 'bg-primary/10' : ''
+                                }`}
+                            >
+                                <RadioGroupItem value={option.value} id={`option-${index}`} />
+                                <Label
+                                    htmlFor={`option-${index}`}
+                                    className="cursor-pointer text-lg flex-1"
+                                >
+                                    {option.label}
+                                </Label>
+                            </div>
+                        );
+                    })}
                 </RadioGroup>
             </CardContent>
         </Card>
