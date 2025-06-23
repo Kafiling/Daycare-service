@@ -18,6 +18,7 @@ import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import type { GetProp, UploadProps } from "antd";
 import { uploadImage } from "@/app/patient-create/_actions/uploadImage";
 import { useRouter } from "next/navigation";
+import { ImageCropModal } from "@/components/ImageCropModal";
 
 
 // Define a type for your form data for better type safety
@@ -49,12 +50,12 @@ const getBase64 = (img: File, callback: (url: string) => void) => {
 
 // Component for handling image uploads
 interface ImageUploadProps {
-  onImageUploadSuccess: (base64: string) => void;
+  onImageSelected: (base64: string) => void;
+  imageUrl: string | null;
 }
 
-const ImageUpload: React.FC<ImageUploadProps> = ({ onImageUploadSuccess }) => {
+const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelected, imageUrl }) => {
   const [loading, setLoading] = useState(false);
-  const [imageUrl, setImageUrl] = useState<string | undefined>(undefined);
 
   const beforeUpload = (file: File) => {
     const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
@@ -78,8 +79,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageUploadSuccess }) => {
     if (info.file.status === "done") {
       getBase64(info.file.originFileObj as File, (url) => {
         setLoading(false);
-        setImageUrl(url);
-        onImageUploadSuccess(url.split(',')[1]); // Pass base64 string to parent
+        onImageSelected(url); // Pass base64 string to parent
       });
     }
   };
@@ -125,6 +125,9 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageUploadSuccess }) => {
 function PatientCreateForm({ patientId }: { patientId?: string }) {
   const router = useRouter();
   const [date, setDate] = React.useState<dayjs.Dayjs | null>(null);
+  const [cropImgSrc, setCropImgSrc] = useState("");
+  const [isCropModalOpen, setIsCropModalOpen] = useState(false);
+  const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
   const [formData, setFormData] = useState<FormData>({
     patientId: patientId?.replace(/-/g, "") || "", // Clean ID upfront
     title: "",
@@ -175,11 +178,17 @@ function PatientCreateForm({ patientId }: { patientId?: string }) {
     }));
   }, []);
 
+  const handleImageSelected = (base64: string) => {
+    setCropImgSrc(base64);
+    setIsCropModalOpen(true);
+  };
+
   // Handle image upload success
-  const handleImageUploadSuccess = useCallback(async (base64: string) => {
+  const handleImageUploadSuccess = useCallback(async (croppedBase64: string) => {
+    setPreviewImageUrl(croppedBase64);
     if (formData.patientId) {
       try {
-        const imageUrl = await uploadImage(base64, formData.patientId);
+        const imageUrl = await uploadImage(croppedBase64.split(",")[1], formData.patientId);
         setFormData((prevData) => ({
           ...prevData,
           imageUrl: imageUrl,
@@ -529,13 +538,19 @@ function PatientCreateForm({ patientId }: { patientId?: string }) {
             <Label className="py-2 text-base">
               รูปภาพผู้ใช้บริการ (Patient Image)
             </Label>
-            <ImageUpload onImageUploadSuccess={handleImageUploadSuccess} />
+            <ImageUpload onImageSelected={handleImageSelected} imageUrl={previewImageUrl} />
           </div>
         </div>
         <Button type="submit" className="mt-4" disabled={isSubmitting}>
           {isSubmitting ? "กำลังบันทึก..." : "บันทึกข้อมูล"}
         </Button>
       </form>
+      <ImageCropModal
+        open={isCropModalOpen}
+        onOpenChange={setIsCropModalOpen}
+        imgSrc={cropImgSrc}
+        onCropComplete={handleImageUploadSuccess}
+      />
     </>
   );
 }
