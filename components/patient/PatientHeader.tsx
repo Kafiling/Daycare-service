@@ -27,13 +27,14 @@ export default function PatientHeader({ patient, patientId }: PatientHeaderProps
             day: 'numeric'
         });
     };
+    console.log('PatientHeader', patient);
 
     return (
         <Card>
             <CardHeader>
                 <div className="flex items-center space-x-4">
                     <Avatar className="h-48 w-48">
-                        <AvatarImage src={patient.image_url || ''} />
+                        <AvatarImage src={patient.profile_image_url || ''} />
                         <AvatarFallback className="text-6xl">
                             {patient.first_name.charAt(0)}
                         </AvatarFallback>
