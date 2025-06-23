@@ -7,7 +7,8 @@ export default async function page({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   // Get patientId from query by properly unwrapping the searchParams
-  const { patientId = "" } = await searchParams;
+  const { patientId: rawPatientId = "" } = await searchParams;
+  const patientId = Array.isArray(rawPatientId) ? rawPatientId[0] : rawPatientId;
   console.log("patientId", patientId);
   return (
     <div className="min-h-screen bg-background">
