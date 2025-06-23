@@ -18,8 +18,8 @@ import QuestionRenderer from '@/components/question-types/QuestionRenderer';
 // Mock data - will be replaced with Supabase data later
 const mockForm = {
     id: 1,
-    title: "แบบประเมินสุขภาพทั่วไป",
-    description: "แบบประเมินสถานะสุขภาพโดยรวมของผู้ป่วย",
+    title: "แบบประเมินโรคซึมเศร้า 9 คำถาม (9Q)",
+    description: "แบบสอบถามเพื่อประเมินอาการที่เกิดขึ้นในช่วง 2 สัปดาห์ที่ผ่านมาจนถึงวันที่สัมภาษณ์. สอบถามผู้สูงอายุถึงอาการที่เกิดขึ้นในช่วง 2 สัปดาห์ที่ผ่านมาจนถึงวันที่สัมภาษณ์ ถามทีละข้อไม่ช้าหรือเร็วเกินไป พยายามให้ได้คำตอบทุกข้อ ถ้าผู้สูงอายุไม่เข้าใจให้ถามซ้ำ ไม่ควรอธิบายหรือขยายความ ควรถามซ้ำจนกว่าผู้สูงอายุจะตอบตามความเข้าใจของตัวเอง",
     version: 1,
     created_at: "2024-01-15T10:30:00Z"
 };
@@ -28,86 +28,172 @@ const mockQuestions = [
     {
         id: 1,
         form_id: 1,
-        question_text: "คุณรู้สึกเป็นอย่างไรเกี่ยวกับสุขภาพโดยรวมของคุณ?",
+        question_text: "เบื่อ ไม่สนใจอยากทำอะไร",
         question_type: "mcq",
         options: {
             choices: [
-                { value: "excellent", label: "ดีเยี่ยม" },
-                { value: "good", label: "ดี" },
-                { value: "fair", label: "ปานกลาง" },
-                { value: "poor", label: "แย่" }
+                { value: "0", label: "ไม่มีเลย" },
+                { value: "1", label: "เป็นบางวัน (1-7 วัน)" },
+                { value: "2", label: "เป็นบ่อย (>7 วัน)" },
+                { value: "3", label: "เป็นทุกวัน" }
             ]
         },
         is_required: true,
-        helper_text: "เลือกตัวเลือกที่ตรงกับความรู้สึกของคุณมากที่สุด",
+        helper_text: "",
         created_at: "2024-01-15T10:30:00Z",
         updated_at: "2024-01-15T10:30:00Z"
     },
     {
         id: 2,
         form_id: 1,
-        question_text: "ให้คะแนนระดับความเครียดของคุณในช่วง 7 วันที่ผ่านมา",
-        question_type: "rating",
+        question_text: "ไม่สบายใจ ซึมเศร้า ท้อแท้",
+        question_type: "mcq",
         options: {
-            maxRating: 5,
-            minRating: 1,
-            labels: {
-                1: "ไม่มีความเครียด",
-                2: "เครียดเล็กน้อย",
-                3: "เครียดปานกลาง",
-                4: "เครียดมาก",
-                5: "เครียดมากที่สุด"
-            }
+            choices: [
+                { value: "0", label: "ไม่มีเลย" },
+                { value: "1", label: "เป็นบางวัน (1-7 วัน)" },
+                { value: "2", label: "เป็นบ่อย (>7 วัน)" },
+                { value: "3", label: "เป็นทุกวัน" }
+            ]
         },
         is_required: true,
-        helper_text: "1 = ไม่มีความเครียด, 5 = เครียดมากที่สุด",
+        helper_text: "",
         created_at: "2024-01-15T10:30:00Z",
         updated_at: "2024-01-15T10:30:00Z"
     },
     {
         id: 3,
         form_id: 1,
-        question_text: "คุณออกกำลังกายเป็นประจำหรือไม่?",
-        question_type: "true_false",
+        question_text: "หลับยาก หรือ หลับๆ ตื่นๆ หรือ หลับมากไป",
+        question_type: "mcq",
         options: {
-            trueLabel: "ใช่ ออกกำลังกายเป็นประจำ",
-            falseLabel: "ไม่ ไม่ออกกำลังกายเป็นประจำ"
+            choices: [
+                { value: "0", label: "ไม่มีเลย" },
+                { value: "1", label: "เป็นบางวัน (1-7 วัน)" },
+                { value: "2", label: "เป็นบ่อย (>7 วัน)" },
+                { value: "3", label: "เป็นทุกวัน" }
+            ]
         },
         is_required: true,
-        helper_text: "กำลังกายเป็นประจำหมายถึงอย่างน้อย 3 ครั้งต่อสัปดาห์",
+        helper_text: "",
         created_at: "2024-01-15T10:30:00Z",
         updated_at: "2024-01-15T10:30:00Z"
     },
     {
         id: 4,
         form_id: 1,
-        question_text: "น้ำหนักปัจจุบันของคุณ (กิโลกรัม)",
-        question_type: "number",
+        question_text: "เหนื่อยง่าย หรือ ไม่ค่อยมีแรง",
+        question_type: "mcq",
         options: {
-            min: 20,
-            max: 200,
-            step: 0.1,
-            unit: "กก."
+            choices: [
+                { value: "0", label: "ไม่มีเลย" },
+                { value: "1", label: "เป็นบางวัน (1-7 วัน)" },
+                { value: "2", label: "เป็นบ่อย (>7 วัน)" },
+                { value: "3", label: "เป็นทุกวัน" }
+            ]
         },
         is_required: true,
-        helper_text: "กรุณาใส่น้ำหนักปัจจุบันของคุณ",
+        helper_text: "",
         created_at: "2024-01-15T10:30:00Z",
         updated_at: "2024-01-15T10:30:00Z"
     },
     {
         id: 5,
         form_id: 1,
-        question_text: "อธิบายอาการหรือปัญหาสุขภาพที่คุณกังวล (ถ้ามี)",
-        question_type: "text",
+        question_text: "เบื่ออาหาร หรือ กินมากเกินไป",
+        question_type: "mcq",
         options: {
-            placeholder: "อธิบายอาการหรือปัญหาสุขภาพ...",
-            maxLength: 500
+            choices: [
+                { value: "0", label: "ไม่มีเลย" },
+                { value: "1", label: "เป็นบางวัน (1-7 วัน)" },
+                { value: "2", label: "เป็นบ่อย (>7 วัน)" },
+                { value: "3", label: "เป็นทุกวัน" }
+            ]
         },
-        is_required: false,
-        helper_text: "คุณสามารถข้ามคำถามนี้ได้หากไม่มีอาการที่กังวล",
+        is_required: true,
+        helper_text: "",
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-15T10:30:00Z"
+    },
+    {
+        id: 6,
+        form_id: 1,
+        question_text: "รู้สึกไม่ดีกับตัวเอง คิดว่าตัวเองล้มเหลว หรือทำให้ตนเองหรือครอบครัวผิดหวัง",
+        question_type: "mcq",
+        options: {
+            choices: [
+                { value: "0", label: "ไม่มีเลย" },
+                { value: "1", label: "เป็นบางวัน (1-7 วัน)" },
+                { value: "2", label: "เป็นบ่อย (>7 วัน)" },
+                { value: "3", label: "เป็นทุกวัน" }
+            ]
+        },
+        is_required: true,
+        helper_text: "",
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-15T10:30:00Z"
+    },
+    {
+        id: 7,
+        form_id: 1,
+        question_text: "สมาธิไม่ดีเวลาทำอะไร เช่น ดูโทรทัศน์ ฟังวิทยุ หรือทำงานที่ต้องใช้ความตั้งใจ",
+        question_type: "mcq",
+        options: {
+            choices: [
+                { value: "0", label: "ไม่มีเลย" },
+                { value: "1", label: "เป็นบางวัน (1-7 วัน)" },
+                { value: "2", label: "เป็นบ่อย (>7 วัน)" },
+                { value: "3", label: "เป็นทุกวัน" }
+            ]
+        },
+        is_required: true,
+        helper_text: "",
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-15T10:30:00Z"
+    },
+    {
+        id: 8,
+        form_id: 1,
+        question_text: "พูดช้า ทำอะไรช้าลงจนคนอื่นสังเกตเห็นได้ หรือ กระสับกระส่ายไม่สามารถอยู่นิ่งได้เหมือนที่เคยเป็น",
+        question_type: "mcq",
+        options: {
+            choices: [
+                { value: "0", label: "ไม่มีเลย" },
+                { value: "1", label: "เป็นบางวัน (1-7 วัน)" },
+                { value: "2", label: "เป็นบ่อย (>7 วัน)" },
+                { value: "3", label: "เป็นทุกวัน" }
+            ]
+        },
+        is_required: true,
+        helper_text: "",
+        created_at: "2024-01-15T10:30:00Z",
+        updated_at: "2024-01-15T10:30:00Z"
+    },
+    {
+        id: 9,
+        form_id: 1,
+        question_text: "คิดทำร้ายตนเอง หรือคิดว่าถ้าตายไปคงจะดี",
+        question_type: "mcq",
+        options: {
+            choices: [
+                { value: "0", label: "ไม่มีเลย" },
+                { value: "1", label: "เป็นบางวัน (1-7 วัน)" },
+                { value: "2", label: "เป็นบ่อย (>7 วัน)" },
+                { value: "3", label: "เป็นทุกวัน" }
+            ]
+        },
+        is_required: true,
+        helper_text: "",
         created_at: "2024-01-15T10:30:00Z",
         updated_at: "2024-01-15T10:30:00Z"
     }
+];
+
+const mockEvaluationCriteria = [
+    { score_range: "<7", interpretation: "ไม่มีอาการของโรคซึมเศร้าหรือมีอาการโรคซึมเศร้าระดับน้อยมาก" },
+    { score_range: "7-12", interpretation: "มีอาการของโรคซึมเศร้าระดับน้อย" },
+    { score_range: "13-18", interpretation: "มีอาการของโรคซึมเศร้าระดับปานกลาง" },
+    { score_range: ">=19", interpretation: "มีอาการของโรคซึมเศร้าระดับรุนแรง" }
 ];
 
 const mockPatient = {
