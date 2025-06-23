@@ -7,26 +7,26 @@ import { motion } from "framer-motion";
 const events = [
 	{
 		groupNumber: 1,
-		eventName: "Annual Health Check-up",
-		rsvps: ["John Doe", "Jane Smith", "Peter Jones", "Emily Davis"],
+		eventName: "ตรวจสุขภาพประจำปี",
+		rsvps: ["สมชาย เข็มกลัด", "สมหญิง ยิ่งสุข", "สมศักดิ์ รักชาติ", "สมศรี มีสุข"],
 		nextEventDate: "2025-07-15",
 	},
 	{
 		groupNumber: 2,
-		eventName: "Dental Screening",
-		rsvps: ["Alice Williams", "Bob Brown", "Chris Green"],
+		eventName: "ตรวจสุขภาพฟัน",
+		rsvps: ["อาทิตย์ แจ่มใส", "มานี ใจดี", "ปิติ ยินดี"],
 		nextEventDate: "2025-07-20",
 	},
 	{
 		groupNumber: 3,
-		eventName: "Vaccination Drive",
-		rsvps: ["David Black", "Eva White", "Frank Wright", "Grace Hall"],
+		eventName: "ฉีดวัคซีน",
+		rsvps: ["วีระพล สุขเสมอ", "มาลี มีลาภ", "ชาติชาย เชี่ยวชาญ", "พรทิพย์ งามดี"],
 		nextEventDate: "2025-08-01",
 	},
 	{
 		groupNumber: 4,
-		eventName: "Nutrition Workshop",
-		rsvps: ["Henry King", "Ivy Scott", "Jack Turner"],
+		eventName: "อบรมโภชนาการ",
+		rsvps: ["อำนาจ เจริญสุข", "ทิพย์วรรณ ดีเสมอ", "จักรกฤษณ์ มั่นคง"],
 		nextEventDate: "2025-08-10",
 	},
 ];
@@ -74,25 +74,26 @@ export function DashboardGrid() {
 									{event.eventName}
 								</span>
 								<span className="text-sm font-medium text-gray-500">
-									Group {event.groupNumber}
+									กลุ่มที่ {event.groupNumber}
 								</span>
 							</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
+							<div className="flex items-center gap-2 text-sm text-gray-500 mt-2">
 								<CalendarDays className="h-4 w-4" />
 								<span>
-									Next Event:{" "}
-									{new Date(event.nextEventDate).toLocaleDateString("en-US", {
+									กิจกรรมครั้งถัดไป:{" "}
+									{new Date(event.nextEventDate).toLocaleDateString("th-TH", {
 										year: "numeric",
 										month: "long",
 										day: "numeric",
 									})}
 								</span>
 							</div>
+						</CardHeader>
+						<CardContent>
+
 							<div className="flex items-center gap-2 mb-4">
 								<Users className="h-5 w-5" />
-								<h3 className="text-lg font-semibold">RSVP'd Patients</h3>
+								<h3 className="text-lg font-semibold">ผู้ป่วยที่ตอบรับ</h3>
 							</div>
 							<ul className="space-y-2">
 								{event.rsvps.map((patient, i) => (
