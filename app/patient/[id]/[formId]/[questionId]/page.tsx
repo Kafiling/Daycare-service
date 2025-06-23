@@ -246,14 +246,18 @@ export default function QuestionPage() {
     const handleComplete = async () => {
         setIsSaving(true);
         try {
-            // Here you would save the answers to Supabase
+            // Calculate total score
+            const totalScore = Object.values(answers).reduce((sum, value) => sum + parseInt(value || '0', 10), 0);
+
+            // Here you would save the answers and the score to Supabase
             console.log('Saving answers:', answers);
+            console.log('Total score:', totalScore);
 
             // Simulate API call
             await new Promise(resolve => setTimeout(resolve, 1000));
 
-            // Redirect back to patient dashboard
-            router.push(`/patient/${patientId}/home`);
+            // Redirect to the result page with the score
+            router.push(`/patient/${patientId}/${formId}/result?score=${totalScore}`);
         } catch (error) {
             console.error('Error saving answers:', error);
         } finally {
