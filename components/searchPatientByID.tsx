@@ -79,14 +79,7 @@ export function PatientIdInput() {
         <Search className="h-4 w-4 mr-2" />
         Search
       </Button>
-      <Button
-        type="button"
-        className="h-auto bg-green-400 hover:bg-green-500"
-        onClick={handleRedirectToCreatePatient}
-      >
-        <Plus className="h-4 w-4 mr-2" />
-        Create
-      </Button>
+
     </form>
   );
 }
