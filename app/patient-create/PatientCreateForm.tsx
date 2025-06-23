@@ -37,6 +37,7 @@ interface FormData {
   province: string;
   postal_num: string;
   date_of_birth: string;
+  imageUrl: string | null;
 }
 
 // Helper function for base64 conversion (can be moved to a utils file)
@@ -48,7 +49,7 @@ const getBase64 = (img: File, callback: (url: string) => void) => {
 
 // Component for handling image uploads
 interface ImageUploadProps {
-  onImageUploadSuccess: (imageUrl: string) => void;
+  onImageUploadSuccess: (base64: string) => void;
 }
 
 const ImageUpload: React.FC<ImageUploadProps> = ({ onImageUploadSuccess }) => {
@@ -78,7 +79,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageUploadSuccess }) => {
       getBase64(info.file.originFileObj as File, (url) => {
         setLoading(false);
         setImageUrl(url);
-        onImageUploadSuccess(url); // Notify parent component of successful upload
+        onImageUploadSuccess(url.split(',')[1]); // Pass base64 string to parent
       });
     }
   };
@@ -99,6 +100,12 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageUploadSuccess }) => {
       className="avatar-uploader w-full h-auto"
       showUploadList={false}
       beforeUpload={beforeUpload}
+      customRequest={({ file, onSuccess }) => {
+        setTimeout(() => {
+          if (onSuccess)
+            onSuccess("ok");
+        }, 0);
+      }}
       onChange={handleChange}
       style={{ width: "100%", height: "auto" }}
     >
@@ -134,6 +141,7 @@ function PatientCreateForm({ patientId }: { patientId?: string }) {
     province: "",
     postal_num: "",
     date_of_birth: "",
+    imageUrl: null,
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -168,10 +176,14 @@ function PatientCreateForm({ patientId }: { patientId?: string }) {
   }, []);
 
   // Handle image upload success
-  const handleImageUploadSuccess = useCallback(async (uploadedImageUrl: string) => {
+  const handleImageUploadSuccess = useCallback(async (base64: string) => {
     if (formData.patientId) {
       try {
-        await uploadImage(uploadedImageUrl, formData.patientId);
+        const imageUrl = await uploadImage(base64, formData.patientId);
+        setFormData((prevData) => ({
+          ...prevData,
+          imageUrl: imageUrl,
+        }));
         toast.success("อัปโหลดรูปภาพสำเร็จ");
       } catch (error) {
         console.error("Error uploading image:", error);
@@ -212,6 +224,7 @@ function PatientCreateForm({ patientId }: { patientId?: string }) {
         province: "จังหวัด",
         postal_num: "รหัสไปรษณีย์",
         date_of_birth: "วันเกิด",
+        imageUrl: "รูปภาพ",
       };
 
       const missingFields = requiredFields.filter(
@@ -226,7 +239,7 @@ function PatientCreateForm({ patientId }: { patientId?: string }) {
         setIsSubmitting(false);
         return;
       }
-      
+
       // Phone number must be exactly 10 digits
       const cleanedPhone = formData.phone_num.replace(/[-_]/g, "");
       if (cleanedPhone.length !== 10) {
@@ -262,6 +275,7 @@ function PatientCreateForm({ patientId }: { patientId?: string }) {
           district: formData.district,
           province: formData.province,
           postal_num: formData.postal_num,
+          profile_image_url: formData.imageUrl,
         };
 
         const response = await fetch("/api/v1/patients/createPatient", {
@@ -401,72 +415,75 @@ function PatientCreateForm({ patientId }: { patientId?: string }) {
               onChange={handleChange}
             />
           </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full pt-10">
+          <h2 className="text font-bold  md:col-span-2 flex items-center gap-2">
+            <span className="flex items-center justify-center w-8 h-8 border-2 border-pink-400 rounded-full shrink-0">
+              2
+            </span>
+            ข้อมูลสุขภาพ (Health Information)
+          </h2>
           <div className="grid">
-            <Label htmlFor="weight" className="py-2">
+            <Label className="py-2 text-base">
               น้ำหนัก (Weight){" "}
-              <span className="text-sm text-muted-foreground">(หน่วย kg)</span>
+              <span className="text-sm text-muted-foreground">(kg)</span>
             </Label>
             <Input
-              id="weight"
-              name="weight"
               type="number"
-              step="0.01"
-              placeholder="น้ำหนัก (kg)"
-              value={formData.weight || ""} // Controlled component
+              placeholder="น้ำหนัก"
+              name="weight"
+              value={formData.weight || ""}
               onChange={handleChange}
             />
           </div>
           <div className="grid">
-            <Label htmlFor="height" className="py-2">
-              ส่วนสูง (Height)
-              <span className="text-sm text-muted-foreground">(หน่วย cm)</span>
+            <Label className="py-2 text-base">
+              ส่วนสูง (Height){" "}
+              <span className="text-sm text-muted-foreground">(cm)</span>
             </Label>
             <Input
-              id="height"
-              name="height"
               type="number"
-              step="0.01"
-              placeholder="ส่วนสูง (cm)"
-              value={formData.height || ""} // Controlled component
+              placeholder="ส่วนสูง"
+              name="height"
+              value={formData.height || ""}
               onChange={handleChange}
             />
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full pt-8">
-          <h2 className="text font-bold md:col-span-2 flex items-center gap-2 ">
-            <span className="flex items-center justify-center w-8 h-8 border-2 border-pink-400 rounded-full shrink-0 ">
-              2
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full pt-10">
+          <h2 className="text font-bold  md:col-span-2 flex items-center gap-2">
+            <span className="flex items-center justify-center w-8 h-8 border-2 border-pink-400 rounded-full shrink-0">
+              3
             </span>
-            ข้อมูลที่อยู่ (Address Information)
+            ที่อยู่ (Address)
           </h2>
-          <div className="grid">
+          <div className="grid md:col-span-2">
             <Label className="py-2 text-base">ที่อยู่ (Address)</Label>
             <Input
               type="text"
-              placeholder="12/1 หมู่บ้านแสนสุข ซอย 1"
+              placeholder="บ้านเลขที่, หมู่, ซอย"
               name="address"
-              value={formData.address} // Controlled component
+              value={formData.address}
               onChange={handleChange}
             />
           </div>
-
           <div className="grid">
             <Label className="py-2 text-base">ถนน (Road)</Label>
             <Input
               type="text"
               placeholder="ถนน"
               name="road"
-              value={formData.road} // Controlled component
+              value={formData.road}
               onChange={handleChange}
             />
           </div>
           <div className="grid">
-            <Label className="py-2 text-base">ตำบล/แขวง (Subdistrict)</Label>
+            <Label className="py-2 text-base">ตำบล/แขวง (Sub-district)</Label>
             <Input
               type="text"
               placeholder="ตำบล/แขวง"
               name="sub_district"
-              value={formData.sub_district} // Controlled component
+              value={formData.sub_district}
               onChange={handleChange}
             />
           </div>
@@ -476,7 +493,7 @@ function PatientCreateForm({ patientId }: { patientId?: string }) {
               type="text"
               placeholder="อำเภอ/เขต"
               name="district"
-              value={formData.district} // Controlled component
+              value={formData.district}
               onChange={handleChange}
             />
           </div>
@@ -486,52 +503,38 @@ function PatientCreateForm({ patientId }: { patientId?: string }) {
               type="text"
               placeholder="จังหวัด"
               name="province"
-              value={formData.province} // Controlled component
+              value={formData.province}
               onChange={handleChange}
             />
           </div>
           <div className="grid">
-            <Label className="py-2 text-lg">รหัสไปรษณีย์ (Postal Number)</Label>
+            <Label className="py-2 text-base">รหัสไปรษณีย์ (Postal Code)</Label>
             <Input
               type="text"
               placeholder="รหัสไปรษณีย์"
               name="postal_num"
-              value={formData.postal_num} // Controlled component
+              value={formData.postal_num}
               onChange={handleChange}
             />
           </div>
         </div>
-        <div className="grid grid-cols-1 gap-4 w-full pt-8 justify-center">
-          <h2 className="text font-bold md:col-span-2 flex items-center gap-2 ">
-            <span className="flex items-center justify-center w-8 h-8 border-2 border-pink-400 rounded-full shrink-0 ">
-              3
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full pt-10">
+          <h2 className="text font-bold  md:col-span-2 flex items-center gap-2">
+            <span className="flex items-center justify-center w-8 h-8 border-2 border-pink-400 rounded-full shrink-0">
+              4
             </span>
-            อัปโหลดรูปภาพ (Upload Image)
+            รูปภาพ (Image)
           </h2>
-
-          <div className="flex w-full md:w-1/2 h-auto justify-center items-center mx-auto">
+          <div className="grid md:col-span-2">
+            <Label className="py-2 text-base">
+              รูปภาพผู้ใช้บริการ (Patient Image)
+            </Label>
             <ImageUpload onImageUploadSuccess={handleImageUploadSuccess} />
           </div>
         </div>
-        {/* Action Buttons */}
-        <div className="flex justify-between w-full pt-8 gap-4">
-          <Button
-            type="button"
-            variant="outline"
-            className="flex items-center gap-2"
-            onClick={() => router.push("/")}
-          >
-            ← กลับ
-          </Button>
-
-          <Button
-            type="submit"
-            className="flex items-center gap-2 bg-pink-500 hover:bg-pink-600"
-            disabled={isSubmitting} // Disable button during submission
-          >
-            {isSubmitting ? "กำลังบันทึก..." : "บันทึกข้อมูล →"}
-          </Button>
-        </div>
+        <Button type="submit" className="mt-4" disabled={isSubmitting}>
+          {isSubmitting ? "กำลังบันทึก..." : "บันทึกข้อมูล"}
+        </Button>
       </form>
     </>
   );
