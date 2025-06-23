@@ -6,6 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import dayjs from "dayjs";
+import "dayjs/locale/th";
+import buddhistEra from "dayjs/plugin/buddhistEra";
 import {
   Select,
   SelectContent,
@@ -14,12 +16,24 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { DatePicker, message, Upload } from "antd";
+import th_TH from "antd/es/date-picker/locale/th_TH";
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import type { GetProp, UploadProps } from "antd";
 import { uploadImage } from "@/app/patient-create/_actions/uploadImage";
 import { useRouter } from "next/navigation";
 import { ImageCropModal } from "@/components/ImageCropModal";
 
+dayjs.extend(buddhistEra);
+dayjs.locale("th");
+
+const buddhistLocale: typeof th_TH = {
+  ...th_TH,
+  lang: {
+    ...th_TH.lang,
+    yearFormat: "BBBB",
+    cellYearFormat: "BBBB",
+  },
+};
 
 // Define a type for your form data for better type safety
 interface FormData {
@@ -385,16 +399,18 @@ function PatientCreateForm({ patientId }: { patientId?: string }) {
           <div className="grid">
             <Label className="py-2 text-base">วัน/เดือน/ปีเกิด (Date of Birth) <span className="text-red-500">*</span></Label>
             <DatePicker
+              locale={buddhistLocale}
+              className="w-full"
               name="date_of_birth"
               value={date}
               onChange={(dateObj) => {
                 setDate(dateObj);
                 setFormData((prevData) => ({
                   ...prevData,
-                  date_of_birth: dateObj ? dateObj.format('YYYY-MM-DD') : "",
+                  date_of_birth: dateObj ? dateObj.format("YYYY-MM-DD") : "",
                 }));
               }}
-              format={"DD MMM YYYY"}
+              format={"DD MMMM BBBB"}
             />
           </div>
           <div className="grid">
