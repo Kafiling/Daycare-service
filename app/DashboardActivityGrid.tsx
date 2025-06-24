@@ -7,19 +7,19 @@ import { motion } from "framer-motion";
 const events = [
 	{
 		groupNumber: 1,
-		eventName: "ตรวจสุขภาพประจำปี",
+		eventName: "จัดดอกไม้ฮีลใจ",
 		rsvps: ["สมชาย เข็มกลัด", "สมหญิง ยิ่งสุข", "สมศักดิ์ รักชาติ", "สมศรี มีสุข"],
 		nextEventDate: "2025-07-15",
 	},
 	{
 		groupNumber: 2,
-		eventName: "ตรวจสุขภาพฟัน",
+		eventName: "เด้นดิสโก้",
 		rsvps: ["อาทิตย์ แจ่มใส", "มานี ใจดี", "ปิติ ยินดี"],
 		nextEventDate: "2025-07-20",
 	},
 	{
 		groupNumber: 3,
-		eventName: "ฉีดวัคซีน",
+		eventName: "แต่งหน้าคุกกี้สงบใจ",
 		rsvps: ["วีระพล สุขเสมอ", "มาลี มีลาภ", "ชาติชาย เชี่ยวชาญ", "พรทิพย์ งามดี"],
 		nextEventDate: "2025-08-01",
 	},
