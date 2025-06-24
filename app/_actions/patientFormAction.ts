@@ -9,14 +9,16 @@ export async function searchPatientByID(id: string) {
     .eq("id", id)
     .single();
 
-  if (error && error.code === "PGRST116") { 
-    throw new Error("No patient found");  
-    }
+  if (error && error.code === "PGRST116") {
+    //No patient found -> Page will show modal to create new patient
+    return data;
+    //throw new Error("No patient found");  
+  }
   if (error) {
     console.error("Error fetching patient:", error);
-    throw new Error("Error fetching patient",error);
+    throw new Error("Error fetching patient", error);
   }
-  
+
 
   return data;
 }

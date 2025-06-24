@@ -25,35 +25,22 @@ export function PatientIdInput() {
 
       if (patient && patient.id) {
         router.push(`/patient/${patient.id}/home`);
+      } else {
+        // Patient not found since searchPatientByID returns null
+        toast.warning("ไม่พบข้อมูลผู้ใช้บริการนี้ในระบบ", {
+          duration: 5000,
+          description: "กรุณาสร้างผู้ใช้บริการใหม่",
+          action: {
+            label: "สร้างผู้ใช้บริการใหม่",
+            onClick: () => handleRedirectToCreatePatient(),
+          },
+        });
       }
     } catch (error) {
-
       console.error("พบปัญหาระหว่างค้นข้อมูลผู้ใช้บริการ : ", error);
-      if (error == "Error: No patient found") {
-        toast.warning("ไม่พบข้อมูลผู้ใช้บริการนี้ในระบบ",
-          {
-            duration: 5000,
-            description: "กรุณาสร้างผู้ใช้บริการใหม่",
-            action: {
-              label: "สร้างผู้ใช้บริการใหม่",
-              onClick: () => handleRedirectToCreatePatient(),
-            }
-          }
-        );
-      }
-      else {
-        console.log("Error fetching patient:", error);
-        toast.error("เกิดข้อผิดพลาดในการค้นหาข้อมูลผู้ใช้บริการ"
-          ,
-          {
-            description: String(error),
-          }
-        );
-
-      }
-
-      return;
-
+      toast.error("เกิดข้อผิดพลาดในการค้นหาข้อมูลผู้ใช้บริการ", {
+        description: String(error),
+      });
     }
   }
   function handleRedirectToCreatePatient() {
@@ -80,7 +67,6 @@ export function PatientIdInput() {
         <Search className="h-4 w-4 mr-2" />
         Search
       </Button>
-
     </form>
   );
 }
