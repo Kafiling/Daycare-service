@@ -13,7 +13,7 @@ const events = [
 	},
 	{
 		groupNumber: 2,
-		eventName: "เด้นดิสโก้",
+		eventName: "เต้นดิสโก้",
 		rsvps: ["อาทิตย์ แจ่มใส", "มานี ใจดี", "ปิติ ยินดี"],
 		nextEventDate: "2025-07-20",
 	},
