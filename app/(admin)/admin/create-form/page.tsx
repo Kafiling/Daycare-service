@@ -13,11 +13,11 @@ import { v4 as uuidv4 } from 'uuid';
 
 // Based on your readme.md spec
 const questionTypes = [
-    { value: 'multipleChoice', label: 'Multiple Choice' },
-    { value: 'text', label: 'Text Input' },
-    { value: 'rating', label: 'Rating Scale' },
-    { value: 'trueFalse', label: 'True/False' },
-    { value: 'number', label: 'Number Input' },
+    { value: 'multipleChoice', label: 'หลายตัวเลือก' },
+    { value: 'text', label: 'ป้อนข้อความ' },
+    { value: 'rating', label: 'มาตรวัดระดับ' },
+    { value: 'trueFalse', label: 'จริง/เท็จ' },
+    { value: 'number', label: 'ป้อนตัวเลข' },
 ];
 
 const initialQuestionState = {
@@ -73,40 +73,40 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }) {
             case 'multipleChoice':
                 return (
                     <div className="space-y-2">
-                        <Label className="pb-2">Choices</Label>
+
                         {(question.options.choices || []).map((choice, index) => (
                             <div key={index} className="flex items-center gap-2">
                                 <Input
                                     value={choice.value}
                                     onChange={(e) => handleMcqOptionChange(index, e.target.value)}
-                                    placeholder={`Option ${index + 1}`}
+                                    placeholder={`ตัวเลือกที่ ${index + 1}`}
                                 />
                                 <Button variant="ghost" size="icon" onClick={() => removeMcqOption(index)}>
                                     <Trash2 className="h-4 w-4" />
                                 </Button>
                             </div>
                         ))}
-                        <Button variant="outline" size="sm" onClick={addMcqOption}>Add Option</Button>
+                        <Button variant="outline" size="sm" onClick={addMcqOption}>เพิ่มตัวเลือก</Button>
                         <div className="flex items-center gap-2 pt-2">
-                            <Checkbox 
-                                checked={question.options.allowOther || false} 
-                                onCheckedChange={(checked) => handleOptionChange('allowOther', checked)} 
+                            <Checkbox
+                                checked={question.options.allowOther || false}
+                                onCheckedChange={(checked) => handleOptionChange('allowOther', checked)}
                             />
-                            <Label className="text-sm">Allow "Other" option</Label>
+                            <Label className="text-sm">อนุญาตให้มีตัวเลือก "อื่นๆ"</Label>
                         </div>
                     </div>
                 );
             case 'text':
                 return (
                     <div className="space-y-2">
-                        <Input placeholder="Placeholder Text" value={question.options.placeholder || ''} onChange={e => handleOptionChange('placeholder', e.target.value)} />
-                        <Input type="number" placeholder="Max Length" value={question.options.maxLength || ''} onChange={e => handleOptionChange('maxLength', e.target.value)} />
+                        <Input placeholder="ข้อความตัวอย่าง" value={question.options.placeholder || ''} onChange={e => handleOptionChange('placeholder', e.target.value)} />
+                        <Input type="number" placeholder="ความยาวสูงสุด" value={question.options.maxLength || ''} onChange={e => handleOptionChange('maxLength', e.target.value)} />
                         <div className="flex items-center gap-2 pt-2">
-                            <Checkbox 
-                                checked={question.options.multiline || false} 
-                                onCheckedChange={(checked) => handleOptionChange('multiline', checked)} 
+                            <Checkbox
+                                checked={question.options.multiline || false}
+                                onCheckedChange={(checked) => handleOptionChange('multiline', checked)}
                             />
-                            <Label className="text-sm">Multi-line text area</Label>
+                            <Label className="text-sm">พื้นที่ข้อความหลายบรรทัด</Label>
                         </div>
                     </div>
                 );
@@ -114,35 +114,35 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }) {
                 return (
                     <div className="space-y-2">
                         <div className="flex gap-2">
-                            <Input type="number" placeholder="Min Value (e.g., 1)" value={question.options.min || ''} onChange={e => handleOptionChange('min', e.target.value)} />
-                            <Input type="number" placeholder="Max Value (e.g., 5)" value={question.options.max || ''} onChange={e => handleOptionChange('max', e.target.value)} />
+                            <Input type="number" placeholder="ค่าต่ำสุด (เช่น 1)" value={question.options.min || ''} onChange={e => handleOptionChange('min', e.target.value)} />
+                            <Input type="number" placeholder="ค่าสูงสุด (เช่น 5)" value={question.options.max || ''} onChange={e => handleOptionChange('max', e.target.value)} />
                         </div>
-                        <Input type="number" placeholder="Step (optional)" value={question.options.step || ''} onChange={e => handleOptionChange('step', e.target.value)} />
+                        <Input type="number" placeholder="ขั้น (ไม่บังคับ)" value={question.options.step || ''} onChange={e => handleOptionChange('step', e.target.value)} />
                         <div className="flex gap-2">
-                            <Input placeholder="Min Label (optional)" value={question.options.labels?.min || ''} onChange={e => handleOptionChange('labels', {...(question.options.labels || {}), min: e.target.value})} />
-                            <Input placeholder="Max Label (optional)" value={question.options.labels?.max || ''} onChange={e => handleOptionChange('labels', {...(question.options.labels || {}), max: e.target.value})} />
+                            <Input placeholder="ป้ายกำกับค่าต่ำสุด (ไม่บังคับ)" value={question.options.labels?.min || ''} onChange={e => handleOptionChange('labels', { ...(question.options.labels || {}), min: e.target.value })} />
+                            <Input placeholder="ป้ายกำกับค่าสูงสุด (ไม่บังคับ)" value={question.options.labels?.max || ''} onChange={e => handleOptionChange('labels', { ...(question.options.labels || {}), max: e.target.value })} />
                         </div>
                     </div>
                 );
             case 'trueFalse':
                 return (
                     <div className="flex gap-4">
-                        <Input placeholder="Label for 'True'" value={question.options.trueLabel || ''} onChange={e => handleOptionChange('trueLabel', e.target.value)} />
-                        <Input placeholder="Label for 'False'" value={question.options.falseLabel || ''} onChange={e => handleOptionChange('falseLabel', e.target.value)} />
+                        <Input placeholder="ป้ายกำกับสำหรับ 'จริง'" value={question.options.trueLabel || ''} onChange={e => handleOptionChange('trueLabel', e.target.value)} />
+                        <Input placeholder="ป้ายกำกับสำหรับ 'เท็จ'" value={question.options.falseLabel || ''} onChange={e => handleOptionChange('falseLabel', e.target.value)} />
                     </div>
                 );
             case 'number':
                 return (
                     <div className="space-y-2">
                         <div className="flex gap-2">
-                            <Input type="number" placeholder="Min Value" value={question.options.min || ''} onChange={e => handleOptionChange('min', e.target.value)} />
-                            <Input type="number" placeholder="Max Value" value={question.options.max || ''} onChange={e => handleOptionChange('max', e.target.value)} />
+                            <Input type="number" placeholder="ค่าต่ำสุด" value={question.options.min || ''} onChange={e => handleOptionChange('min', e.target.value)} />
+                            <Input type="number" placeholder="ค่าสูงสุด" value={question.options.max || ''} onChange={e => handleOptionChange('max', e.target.value)} />
                         </div>
                         <div className="flex gap-2">
-                            <Input type="number" placeholder="Step (optional)" value={question.options.step || ''} onChange={e => handleOptionChange('step', e.target.value)} />
-                            <Input placeholder="Unit (e.g., kg, cm)" value={question.options.unit || ''} onChange={e => handleOptionChange('unit', e.target.value)} />
+                            <Input type="number" placeholder="ขั้น (ไม่บังคับ)" value={question.options.step || ''} onChange={e => handleOptionChange('step', e.target.value)} />
+                            <Input placeholder="หน่วย (เช่น กก., ซม.)" value={question.options.unit || ''} onChange={e => handleOptionChange('unit', e.target.value)} />
                         </div>
-                        <Input placeholder="Placeholder Text" value={question.options.placeholder || ''} onChange={e => handleOptionChange('placeholder', e.target.value)} />
+                        <Input placeholder="ข้อความตัวอย่าง" value={question.options.placeholder || ''} onChange={e => handleOptionChange('placeholder', e.target.value)} />
                     </div>
                 );
             default:
@@ -159,14 +159,14 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }) {
                             name="question_text"
                             value={question.question_text}
                             onChange={handleInputChange}
-                            placeholder="Type your question here..."
+                            placeholder="พิมพ์คำถามของคุณที่นี่..."
                             className="text-lg font-semibold border-none shadow-none focus-visible:ring-0 p-0 resize-none"
                         />
                         <Input
                             name="helper_text"
                             value={question.helper_text}
                             onChange={handleInputChange}
-                            placeholder="Add helpful instructions or guidance (optional)..."
+                            placeholder="เพิ่มคำแนะนำหรือแนวทางที่เป็นประโยชน์ (ไม่บังคับ)..."
                             className="text-sm text-muted-foreground border-none shadow-none focus-visible:ring-0 p-0"
                         />
                     </div>
@@ -177,10 +177,10 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }) {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <Label className="pb-2">Question Type</Label>
+                        <Label className="pb-2">ประเภทคำถาม</Label>
                         <Select value={question.question_type} onValueChange={handleTypeChange}>
                             <SelectTrigger>
-                                <SelectValue placeholder="Select a question type" />
+                                <SelectValue placeholder="เลือกประเภทคำถาม" />
                             </SelectTrigger>
                             <SelectContent>
                                 {questionTypes.map(qt => (
@@ -190,7 +190,7 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }) {
                         </Select>
                     </div>
                     <div className="space-y-2">
-                        <Label className="pb-2">Options</Label>
+                        <Label className="pb-2">ตัวเลือก</Label>
                         {renderOptions()}
                     </div>
                 </div>
@@ -198,7 +198,7 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }) {
                 <div className="flex items-center pt-4 border-t">
                     <div className="flex items-center gap-2">
                         <Checkbox id={`required-${question.id}`} checked={question.is_required} onCheckedChange={handleCheckboxChange} />
-                        <Label htmlFor={`required-${question.id}`} className="pb-2">Required</Label>
+                        <Label htmlFor={`required-${question.id}`} className="pb-2">จำเป็น</Label>
                     </div>
                 </div>
             </CardContent>
@@ -232,7 +232,7 @@ export default function CreateFormPage() {
         };
         console.log("Form Payload:", JSON.stringify(formPayload, null, 2));
         // Here you would typically send the payload to your backend API
-        alert('Form saved! Check the console for the JSON payload.');
+        alert('บันทึกฟอร์มแล้ว! ตรวจสอบ console สำหรับข้อมูล JSON');
     };
 
     return (
@@ -241,16 +241,16 @@ export default function CreateFormPage() {
                 <div className="space-y-8">
                     <Card>
                         <CardHeader>
-                            <CardTitle>Create New Form</CardTitle>
+                            <CardTitle>สร้างฟอร์มใหม่</CardTitle>
                         </CardHeader>
                         <CardContent className="p-6 space-y-4">
                             <div>
-                                <Label htmlFor="form-title" className="pb-2">Form Title</Label>
-                                <Input id="form-title" value={formTitle} onChange={e => setFormTitle(e.target.value)} placeholder="e.g., Daily Health Check" />
+                                <Label htmlFor="form-title" className="pb-2">ชื่อฟอร์ม</Label>
+                                <Input id="form-title" value={formTitle} onChange={e => setFormTitle(e.target.value)} placeholder="เช่น, ตรวจสุขภาพรายวัน" />
                             </div>
                             <div>
-                                <Label htmlFor="form-description" className="pb-2">Form Description</Label>
-                                <Textarea id="form-description" value={formDescription} onChange={e => setFormDescription(e.target.value)} placeholder="A short description of the form's purpose." />
+                                <Label htmlFor="form-description" className="pb-2">คำอธิบายฟอร์ม</Label>
+                                <Textarea id="form-description" value={formDescription} onChange={e => setFormDescription(e.target.value)} placeholder="คำอธิบายสั้นๆ เกี่ยวกับวัตถุประสงค์ของฟอร์ม" />
                             </div>
                         </CardContent>
                     </Card>
@@ -267,12 +267,12 @@ export default function CreateFormPage() {
                     <div className="flex justify-center">
                         <Button variant="outline" onClick={addQuestion} className="w-full md:w-auto">
                             <PlusCircle className="h-4 w-4 mr-2" />
-                            Add Question
+                            เพิ่มคำถาม
                         </Button>
                     </div>
 
                     <div className="flex justify-end">
-                        <Button onClick={handleSave} size="lg">Save Form</Button>
+                        <Button onClick={handleSave} size="lg">บันทึกฟอร์ม</Button>
                     </div>
                 </div>
             </main>
