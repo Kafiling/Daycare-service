@@ -233,7 +233,17 @@ export default function CreateFormPage() {
     const [questions, setQuestions] = useState<Question[]>([]);
 
     const addQuestion = () => {
-        setQuestions([...questions, { ...initialQuestionState, id: uuidv4() }]);
+        setQuestions([
+            ...questions,
+            {
+                ...initialQuestionState,
+                id: uuidv4(),
+                question_type: 'multipleChoice',
+                options: {
+                    choices: Array.from({ length: 4 }, () => ({ value: '', label: '' })),
+                },
+            },
+        ]);
     };
 
     const updateQuestion = (id: string, updatedQuestion: Question) => {
