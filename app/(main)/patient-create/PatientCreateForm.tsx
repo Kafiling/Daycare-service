@@ -19,7 +19,7 @@ import { DatePicker, message, Upload } from "antd";
 import th_TH from "antd/es/date-picker/locale/th_TH";
 import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import type { GetProp, UploadProps } from "antd";
-import { uploadImage } from "@/app/patient-create/_actions/uploadImage";
+import { uploadImage } from "@/app/(main)/patient-create/_actions/uploadImage";
 import { useRouter } from "next/navigation";
 import { ImageCropModal } from "@/components/ImageCropModal";
 
