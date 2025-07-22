@@ -87,6 +87,13 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }) {
                             </div>
                         ))}
                         <Button variant="outline" size="sm" onClick={addMcqOption}>Add Option</Button>
+                        <div className="flex items-center gap-2 pt-2">
+                            <Checkbox 
+                                checked={question.options.allowOther || false} 
+                                onCheckedChange={(checked) => handleOptionChange('allowOther', checked)} 
+                            />
+                            <Label className="text-sm">Allow "Other" option</Label>
+                        </div>
                     </div>
                 );
             case 'text':
@@ -94,13 +101,27 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }) {
                     <div className="space-y-2">
                         <Input placeholder="Placeholder Text" value={question.options.placeholder || ''} onChange={e => handleOptionChange('placeholder', e.target.value)} />
                         <Input type="number" placeholder="Max Length" value={question.options.maxLength || ''} onChange={e => handleOptionChange('maxLength', e.target.value)} />
+                        <div className="flex items-center gap-2 pt-2">
+                            <Checkbox 
+                                checked={question.options.multiline || false} 
+                                onCheckedChange={(checked) => handleOptionChange('multiline', checked)} 
+                            />
+                            <Label className="text-sm">Multi-line text area</Label>
+                        </div>
                     </div>
                 );
             case 'rating':
                 return (
-                    <div className="flex gap-4">
-                        <Input type="number" placeholder="Min Value (e.g., 1)" value={question.options.min || ''} onChange={e => handleOptionChange('min', e.target.value)} />
-                        <Input type="number" placeholder="Max Value (e.g., 5)" value={question.options.max || ''} onChange={e => handleOptionChange('max', e.target.value)} />
+                    <div className="space-y-2">
+                        <div className="flex gap-2">
+                            <Input type="number" placeholder="Min Value (e.g., 1)" value={question.options.min || ''} onChange={e => handleOptionChange('min', e.target.value)} />
+                            <Input type="number" placeholder="Max Value (e.g., 5)" value={question.options.max || ''} onChange={e => handleOptionChange('max', e.target.value)} />
+                        </div>
+                        <Input type="number" placeholder="Step (optional)" value={question.options.step || ''} onChange={e => handleOptionChange('step', e.target.value)} />
+                        <div className="flex gap-2">
+                            <Input placeholder="Min Label (optional)" value={question.options.labels?.min || ''} onChange={e => handleOptionChange('labels', {...(question.options.labels || {}), min: e.target.value})} />
+                            <Input placeholder="Max Label (optional)" value={question.options.labels?.max || ''} onChange={e => handleOptionChange('labels', {...(question.options.labels || {}), max: e.target.value})} />
+                        </div>
                     </div>
                 );
             case 'trueFalse':
@@ -112,9 +133,16 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }) {
                 );
             case 'number':
                 return (
-                    <div className="flex gap-4">
-                        <Input type="number" placeholder="Min Value" value={question.options.min || ''} onChange={e => handleOptionChange('min', e.target.value)} />
-                        <Input type="number" placeholder="Max Value" value={question.options.max || ''} onChange={e => handleOptionChange('max', e.target.value)} />
+                    <div className="space-y-2">
+                        <div className="flex gap-2">
+                            <Input type="number" placeholder="Min Value" value={question.options.min || ''} onChange={e => handleOptionChange('min', e.target.value)} />
+                            <Input type="number" placeholder="Max Value" value={question.options.max || ''} onChange={e => handleOptionChange('max', e.target.value)} />
+                        </div>
+                        <div className="flex gap-2">
+                            <Input type="number" placeholder="Step (optional)" value={question.options.step || ''} onChange={e => handleOptionChange('step', e.target.value)} />
+                            <Input placeholder="Unit (e.g., kg, cm)" value={question.options.unit || ''} onChange={e => handleOptionChange('unit', e.target.value)} />
+                        </div>
+                        <Input placeholder="Placeholder Text" value={question.options.placeholder || ''} onChange={e => handleOptionChange('placeholder', e.target.value)} />
                     </div>
                 );
             default:
@@ -126,13 +154,22 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }) {
         <Card>
             <CardContent className="p-6 space-y-4">
                 <div className="flex justify-between items-start gap-4">
-                    <Textarea
-                        name="question_text"
-                        value={question.question_text}
-                        onChange={handleInputChange}
-                        placeholder="Type your question here..."
-                        className="text-lg font-semibold border-none shadow-none focus-visible:ring-0 p-0 resize-none"
-                    />
+                    <div className="flex-1 space-y-2">
+                        <Input
+                            name="question_text"
+                            value={question.question_text}
+                            onChange={handleInputChange}
+                            placeholder="Type your question here..."
+                            className="text-lg font-semibold border-none shadow-none focus-visible:ring-0 p-0 resize-none"
+                        />
+                        <Input
+                            name="helper_text"
+                            value={question.helper_text}
+                            onChange={handleInputChange}
+                            placeholder="Add helpful instructions or guidance (optional)..."
+                            className="text-sm text-muted-foreground border-none shadow-none focus-visible:ring-0 p-0"
+                        />
+                    </div>
                     <Button variant="ghost" size="icon" onClick={() => removeQuestion(question.id)}>
                         <Trash2 className="h-5 w-5 text-destructive" />
                     </Button>
@@ -158,7 +195,7 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }) {
                     </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-4 border-t">
+                <div className="flex items-center pt-4 border-t">
                     <div className="flex items-center gap-2">
                         <Checkbox id={`required-${question.id}`} checked={question.is_required} onCheckedChange={handleCheckboxChange} />
                         <Label htmlFor={`required-${question.id}`} className="pb-2">Required</Label>
