@@ -11,6 +11,15 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Trash2, PlusCircle } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 
+interface Question {
+    id: string;
+    question_text: string;
+    question_type: string;
+    is_required: boolean;
+    helper_text: string;
+    options: any;
+}
+
 // Based on your readme.md spec
 const questionTypes = [
     { value: 'multipleChoice', label: 'หลายตัวเลือก' },
@@ -29,28 +38,39 @@ const initialQuestionState = {
     options: {},
 };
 
-function QuestionEditor({ question, updateQuestion, removeQuestion }) {
-    const handleInputChange = (e) => {
+function QuestionEditor({ question, updateQuestion, removeQuestion }: { question: Question, updateQuestion: (id: string, question: Question) => void, removeQuestion: (id: string) => void }) {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         updateQuestion(question.id, { ...question, [name]: value });
     };
 
-    const handleCheckboxChange = (checked) => {
+    const handleCheckboxChange = (checked: boolean) => {
         updateQuestion(question.id, { ...question, is_required: checked });
     };
 
-    const handleTypeChange = (type) => {
-        updateQuestion(question.id, { ...question, question_type: type, options: {} });
+    const handleTypeChange = (type: string) => {
+        let newOptions = {};
+        if (type === 'multipleChoice') {
+            newOptions = {
+                choices: Array.from({ length: 4 }, () => ({ value: '', label: '' })),
+            };
+        } else if (type === 'trueFalse') {
+            newOptions = {
+                trueLabel: 'ใช่',
+                falseLabel: 'ไม่ใช่',
+            };
+        }
+        updateQuestion(question.id, { ...question, question_type: type, options: newOptions });
     };
 
-    const handleOptionChange = (optionName, value) => {
+    const handleOptionChange = (optionName: string, value: any) => {
         updateQuestion(question.id, {
             ...question,
             options: { ...question.options, [optionName]: value },
         });
     };
 
-    const handleMcqOptionChange = (index, value) => {
+    const handleMcqOptionChange = (index: number, value: string) => {
         const newChoices = [...(question.options.choices || [])];
         newChoices[index] = { value: value, label: value };
         handleOptionChange('choices', newChoices);
@@ -61,7 +81,7 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }) {
         handleOptionChange('choices', newChoices);
     };
 
-    const removeMcqOption = (index) => {
+    const removeMcqOption = (index: number) => {
         const newChoices = [...(question.options.choices || [])];
         newChoices.splice(index, 1);
         handleOptionChange('choices', newChoices);
@@ -74,7 +94,7 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }) {
                 return (
                     <div className="space-y-2">
 
-                        {(question.options.choices || []).map((choice, index) => (
+                        {(question.options.choices || []).map((choice: { value: string }, index: number) => (
                             <div key={index} className="flex items-center gap-2">
                                 <Input
                                     value={choice.value}
@@ -106,7 +126,7 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }) {
                                 checked={question.options.multiline || false}
                                 onCheckedChange={(checked) => handleOptionChange('multiline', checked)}
                             />
-                            <Label className="text-sm">พื้นที่ข้อความหลายบรรทัด</Label>
+                            <Label className="text-sm">พื้นที่ข้อความหลายบรรทัด (Textarea)</Label>
                         </div>
                     </div>
                 );
@@ -126,7 +146,7 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }) {
                 );
             case 'trueFalse':
                 return (
-                    <div className="flex gap-4">
+                    <div className="flex flex-col gap-4">
                         <Input placeholder="ป้ายกำกับสำหรับ 'จริง'" value={question.options.trueLabel || ''} onChange={e => handleOptionChange('trueLabel', e.target.value)} />
                         <Input placeholder="ป้ายกำกับสำหรับ 'เท็จ'" value={question.options.falseLabel || ''} onChange={e => handleOptionChange('falseLabel', e.target.value)} />
                     </div>
@@ -210,17 +230,17 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }) {
 export default function CreateFormPage() {
     const [formTitle, setFormTitle] = useState('');
     const [formDescription, setFormDescription] = useState('');
-    const [questions, setQuestions] = useState([]);
+    const [questions, setQuestions] = useState<Question[]>([]);
 
     const addQuestion = () => {
         setQuestions([...questions, { ...initialQuestionState, id: uuidv4() }]);
     };
 
-    const updateQuestion = (id, updatedQuestion) => {
+    const updateQuestion = (id: string, updatedQuestion: Question) => {
         setQuestions(questions.map(q => q.id === id ? updatedQuestion : q));
     };
 
-    const removeQuestion = (id) => {
+    const removeQuestion = (id: string) => {
         setQuestions(questions.filter(q => q.id !== id));
     };
 
