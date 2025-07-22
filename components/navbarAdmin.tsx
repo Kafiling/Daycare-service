@@ -20,6 +20,7 @@ export async function NavbarAdmin() {
         </Link>
 
         <div className="flex items-center gap-6">
+          {/*
           <Link
             href="/"
             className="text-sm font-medium transition-colors hover:text-primary"
@@ -27,6 +28,7 @@ export async function NavbarAdmin() {
             แดชบอร์ดพนังงาน
           </Link>
           <NavbarCurrentPatient />
+          */}
         </div>
 
         <div className="flex items-center gap-6 ml-auto">

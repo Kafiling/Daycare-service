@@ -49,7 +49,7 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }) {
             options: { ...question.options, [optionName]: value },
         });
     };
-    
+
     const handleMcqOptionChange = (index, value) => {
         const newChoices = [...(question.options.choices || [])];
         newChoices[index] = { value: value, label: value };
@@ -57,7 +57,7 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }) {
     };
 
     const addMcqOption = () => {
-        const newChoices = [...(question.options.choices || []), {value: '', label: ''}];
+        const newChoices = [...(question.options.choices || []), { value: '', label: '' }];
         handleOptionChange('choices', newChoices);
     };
 
@@ -73,9 +73,9 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }) {
             case 'multipleChoice':
                 return (
                     <div className="space-y-2">
-                        <Label>Choices</Label>
+                        <Label className="pb-2">Choices</Label>
                         {(question.options.choices || []).map((choice, index) => (
-                             <div key={index} className="flex items-center gap-2">
+                            <div key={index} className="flex items-center gap-2">
                                 <Input
                                     value={choice.value}
                                     onChange={(e) => handleMcqOptionChange(index, e.target.value)}
@@ -97,7 +97,7 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }) {
                     </div>
                 );
             case 'rating':
-                 return (
+                return (
                     <div className="flex gap-4">
                         <Input type="number" placeholder="Min Value (e.g., 1)" value={question.options.min || ''} onChange={e => handleOptionChange('min', e.target.value)} />
                         <Input type="number" placeholder="Max Value (e.g., 5)" value={question.options.max || ''} onChange={e => handleOptionChange('max', e.target.value)} />
@@ -105,7 +105,7 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }) {
                 );
             case 'trueFalse':
                 return (
-                     <div className="flex gap-4">
+                    <div className="flex gap-4">
                         <Input placeholder="Label for 'True'" value={question.options.trueLabel || ''} onChange={e => handleOptionChange('trueLabel', e.target.value)} />
                         <Input placeholder="Label for 'False'" value={question.options.falseLabel || ''} onChange={e => handleOptionChange('falseLabel', e.target.value)} />
                     </div>
@@ -140,7 +140,7 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }) {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <Label>Question Type</Label>
+                        <Label className="pb-2">Question Type</Label>
                         <Select value={question.question_type} onValueChange={handleTypeChange}>
                             <SelectTrigger>
                                 <SelectValue placeholder="Select a question type" />
@@ -153,15 +153,15 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }) {
                         </Select>
                     </div>
                     <div className="space-y-2">
-                        <Label>Options</Label>
+                        <Label className="pb-2">Options</Label>
                         {renderOptions()}
                     </div>
                 </div>
-                
+
                 <div className="flex items-center justify-between pt-4 border-t">
-                     <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2">
                         <Checkbox id={`required-${question.id}`} checked={question.is_required} onCheckedChange={handleCheckboxChange} />
-                        <Label htmlFor={`required-${question.id}`}>Required</Label>
+                        <Label htmlFor={`required-${question.id}`} className="pb-2">Required</Label>
                     </div>
                 </div>
             </CardContent>
@@ -186,7 +186,7 @@ export default function CreateFormPage() {
     const removeQuestion = (id) => {
         setQuestions(questions.filter(q => q.id !== id));
     };
-    
+
     const handleSave = () => {
         const formPayload = {
             title: formTitle,
@@ -208,11 +208,11 @@ export default function CreateFormPage() {
                         </CardHeader>
                         <CardContent className="p-6 space-y-4">
                             <div>
-                                <Label htmlFor="form-title">Form Title</Label>
+                                <Label htmlFor="form-title" className="pb-2">Form Title</Label>
                                 <Input id="form-title" value={formTitle} onChange={e => setFormTitle(e.target.value)} placeholder="e.g., Daily Health Check" />
                             </div>
                             <div>
-                                <Label htmlFor="form-description">Form Description</Label>
+                                <Label htmlFor="form-description" className="pb-2">Form Description</Label>
                                 <Textarea id="form-description" value={formDescription} onChange={e => setFormDescription(e.target.value)} placeholder="A short description of the form's purpose." />
                             </div>
                         </CardContent>
@@ -233,7 +233,7 @@ export default function CreateFormPage() {
                             Add Question
                         </Button>
                     </div>
-                    
+
                     <div className="flex justify-end">
                         <Button onClick={handleSave} size="lg">Save Form</Button>
                     </div>
