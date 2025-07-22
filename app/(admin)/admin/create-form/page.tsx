@@ -10,6 +10,9 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Trash2, PlusCircle } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
+import { createForm } from './action';
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 interface Question {
     id: string;
@@ -228,9 +231,11 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
 
 
 export default function CreateFormPage() {
+    const router = useRouter();
     const [formTitle, setFormTitle] = useState('');
     const [formDescription, setFormDescription] = useState('');
     const [questions, setQuestions] = useState<Question[]>([]);
+    const [isSaving, setIsSaving] = useState(false);
 
     const addQuestion = () => {
         setQuestions([
@@ -254,15 +259,31 @@ export default function CreateFormPage() {
         setQuestions(questions.filter(q => q.id !== id));
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
+        setIsSaving(true);
         const formPayload = {
             title: formTitle,
             description: formDescription,
             questions: questions,
         };
-        console.log("Form Payload:", JSON.stringify(formPayload, null, 2));
-        // Here you would typically send the payload to your backend API
-        alert('บันทึกฟอร์มแล้ว! ตรวจสอบ console สำหรับข้อมูล JSON');
+
+        try {
+            const result = await createForm(formPayload);
+            if (result.error) {
+                toast.error("Failed to save form", {
+                    description: result.error,
+                });
+            } else {
+                toast.success("Form saved successfully!");
+                // Optionally redirect or clear the form
+                router.push('/admin'); // or some other relevant page
+            }
+        } catch (error) {
+            toast.error("An unexpected error occurred.");
+            console.error(error);
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     return (
@@ -302,7 +323,9 @@ export default function CreateFormPage() {
                     </div>
 
                     <div className="flex justify-end">
-                        <Button onClick={handleSave} size="lg" className="text-lg">บันทึกฟอร์ม</Button>
+                        <Button onClick={handleSave} size="lg" className="text-lg" disabled={isSaving}>
+                            {isSaving ? "กำลังบันทึก..." : "บันทึกฟอร์ม"}
+                        </Button>
                     </div>
                 </div>
             </main>

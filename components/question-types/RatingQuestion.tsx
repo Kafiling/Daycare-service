@@ -9,9 +9,9 @@ import { Star } from 'lucide-react';
 
 interface RatingQuestionProps {
     question: {
-        id: number;
+        question_id: number;
         question_text: string;
-        options: any;
+        options?: any;
         is_required: boolean;
         helper_text?: string;
     };

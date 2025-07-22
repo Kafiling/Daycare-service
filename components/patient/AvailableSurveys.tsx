@@ -41,10 +41,11 @@ const getCategoryIcon = (category: string) => {
 };
 
 // Priority mapping for forms
-const getFormPriority = (formId: number) => {
-    if (formId <= 2) return 'high';
-    if (formId <= 4) return 'medium';
-    return 'low';
+const getFormPriority = (formId: string) => {
+    // For UUID form_ids, we can use a different logic
+    // Perhaps based on form title or creation date
+    // For now, returning 'medium' as default
+    return 'medium';
 };
 
 const getPriorityColor = (priority: string) => {
@@ -86,7 +87,7 @@ export default function AvailableSurveys({ patientId, forms }: AvailableSurveysP
         fetchNurseProfile();
     }, []);
 
-    const handleStartSurvey = async (formId: number) => {
+    const handleStartSurvey = async (formId: string) => {
         if (!nurseId) {
             alert('ไม่สามารถระบุตัวตนของพยาบาลได้ กรุณาเข้าสู่ระบบใหม่');
             return;
@@ -100,7 +101,7 @@ export default function AvailableSurveys({ patientId, forms }: AvailableSurveysP
             const firstQuestion = await getFirstQuestionByFormId(formId);
 
             if (firstQuestion) {
-                router.push(`/patient/${patientId}/${formId}/${firstQuestion.id}`);
+                router.push(`/patient/${patientId}/${formId}/${firstQuestion.question_id}`);
             } else {
                 console.error('No questions found for this form');
                 alert('ไม่พบคำถามในแบบประเมินนี้');
@@ -133,9 +134,9 @@ export default function AvailableSurveys({ patientId, forms }: AvailableSurveysP
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {forms.map((form) => {
                 const IconComponent = getCategoryIcon('แบบประเมิน');
-                const priority = getFormPriority(form.id);
+                const priority = getFormPriority(form.form_id);
                 return (
-                    <Card key={form.id} className="hover:shadow-md transition-shadow">
+                    <Card key={form.form_id} className="hover:shadow-md transition-shadow">
                         <CardHeader className="pb-3">
                             <div className="flex items-start justify-between">
                                 <div className="flex items-center gap-2">
@@ -162,7 +163,7 @@ export default function AvailableSurveys({ patientId, forms }: AvailableSurveysP
                                 </div>
                                 <Button
                                     size="sm"
-                                    onClick={() => handleStartSurvey(form.id)}
+                                    onClick={() => handleStartSurvey(form.form_id)}
                                     disabled={!nurseId}
                                     title={!nurseId ? 'กำลังโหลดข้อมูลพยาบาล...' : ''}
                                 >

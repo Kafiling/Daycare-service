@@ -23,7 +23,7 @@ export interface Patient {
 }
 
 export interface Form {
-    id: number;
+    form_id: string;
     title: string;
     description?: string;
     created_by?: string;
@@ -34,8 +34,8 @@ export interface Form {
 }
 
 export interface Question {
-    id: number;
-    form_id: number;
+    question_id: number;
+    form_id: string;
     question_text: string;
     question_type: string;
     options?: any;
@@ -48,7 +48,7 @@ export interface Question {
 export interface FormResponse {
     id: string;
     patient_id: string;
-    form_id: number;
+    form_id: string;
     nurse_id: string;
     submitted_at: string;
     status?: string;
@@ -59,7 +59,7 @@ export interface QuestionAnswer {
     id: string;
     submission_id: string;
     question_id: number;
-    form_id: number;
+    form_id: string;
     answer_value: any;
     answered_at: string;
 }
@@ -107,13 +107,13 @@ export async function getActiveForms(): Promise<Form[]> {
 /**
  * Get form by ID
  */
-export async function getFormById(formId: number): Promise<Form | null> {
+export async function getFormById(formId: string): Promise<Form | null> {
     const supabase = createClient();
 
     const { data, error } = await supabase
         .from('forms')
         .select('*')
-        .eq('id', formId)
+        .eq('form_id', formId)
         .eq('is_active', true)
         .single();
 
@@ -128,14 +128,14 @@ export async function getFormById(formId: number): Promise<Form | null> {
 /**
  * Get all questions for a form
  */
-export async function getQuestionsByFormId(formId: number): Promise<Question[]> {
+export async function getQuestionsByFormId(formId: string): Promise<Question[]> {
     const supabase = createClient();
 
     const { data, error } = await supabase
         .from('questions')
         .select('*')
         .eq('form_id', formId)
-        .order('id', { ascending: true });
+        .order('question_id', { ascending: true });
 
     if (error) {
         console.error('Error fetching questions:', error);
@@ -148,13 +148,13 @@ export async function getQuestionsByFormId(formId: number): Promise<Question[]> 
 /**
  * Get specific question by ID and form ID
  */
-export async function getQuestionById(questionId: number, formId: number): Promise<Question | null> {
+export async function getQuestionById(questionId: number, formId: string): Promise<Question | null> {
     const supabase = createClient();
 
     const { data, error } = await supabase
         .from('questions')
         .select('*')
-        .eq('id', questionId)
+        .eq('question_id', questionId)
         .eq('form_id', formId)
         .single();
 
@@ -197,7 +197,7 @@ export async function getPatientFormResponses(patientId: string): Promise<FormRe
 /**
  * Create a new form submission (when starting a survey)
  */
-export async function createFormResponse(patientId: string, formId: number, nurseId: string): Promise<string> {
+export async function createFormResponse(patientId: string, formId: string, nurseId: string): Promise<string> {
     const supabase = createClient();
 
     const { data, error } = await supabase
@@ -222,7 +222,7 @@ export async function createFormResponse(patientId: string, formId: number, nurs
 /**
  * Save answer for a question
  */
-export async function saveQuestionAnswer(submissionId: string, questionId: number, formId: number, answerValue: any): Promise<void> {
+export async function saveQuestionAnswer(submissionId: string, questionId: number, formId: string, answerValue: any): Promise<void> {
     const supabase = createClient();
 
     const { error } = await supabase
@@ -317,7 +317,7 @@ export async function saveDraftFormResponse(submissionId: string): Promise<void>
 /**
  * Get or create a submission for a patient and form
  */
-export async function getOrCreateFormResponse(patientId: string, formId: number, nurseId: string): Promise<string> {
+export async function getOrCreateFormResponse(patientId: string, formId: string, nurseId: string): Promise<string> {
     const supabase = createClient();
 
     // First, check if there's an existing in-progress submission
@@ -345,14 +345,14 @@ export async function getOrCreateFormResponse(patientId: string, formId: number,
 /**
  * Get the first question of a form
  */
-export async function getFirstQuestionByFormId(formId: number): Promise<Question | null> {
+export async function getFirstQuestionByFormId(formId: string): Promise<Question | null> {
     const supabase = createClient();
 
     const { data, error } = await supabase
         .from('questions')
         .select('*')
         .eq('form_id', formId)
-        .order('id', { ascending: true })
+        .order('question_id', { ascending: true })
         .limit(1)
         .single();
 

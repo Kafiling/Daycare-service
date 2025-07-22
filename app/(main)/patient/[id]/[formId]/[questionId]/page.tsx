@@ -14,210 +14,55 @@ import {
     FileText,
 } from 'lucide-react';
 import QuestionRenderer from '@/components/question-types/QuestionRenderer';
-
-// Mock data - will be replaced with Supabase data later
-const mockForm = {
-    id: 1,
-    title: "แบบประเมินโรคซึมเศร้า 9 คำถาม (9Q)",
-    description: "คำแนะนำ : สอบถามผู้สูงอายุถึงอาการที่เกิดขึ้นในช่วง 2 สัปดาห์ที่ผ่านมาจนถึงวันที่สัมภาษณ์ ถามทีละข้อไม่ช้าหรือเร็วเกินไป พยายามให้ได้คำตอบทุกข้อ ถ้าผู้สูงอายุไม่เข้าใจให้ถามซ้ำ ไม่ควรอธิบายหรือขยายความ ควรถามซ้ำจนกว่าผู้สูงอายุจะตอบตามความเข้าใจของตัวเอง",
-    version: 1,
-    created_at: "2024-01-15T10:30:00Z"
-};
-
-const mockQuestions = [
-    {
-        id: 1,
-        form_id: 1,
-        question_text: "ในช่วง 2 สัปดาห์ที่ผ่านมาคุณรู้สึกเบื่อ ไม่สนใจอยากทำอะไร",
-        question_type: "mcq",
-        options: {
-            choices: [
-                { value: "0", label: "ไม่มีเลย" },
-                { value: "1", label: "เป็นบางวัน (1-7 วัน)" },
-                { value: "2", label: "เป็นบ่อย (>7 วัน)" },
-                { value: "3", label: "เป็นทุกวัน" }
-            ]
-        },
-        is_required: true,
-        helper_text: "",
-        created_at: "2024-01-15T10:30:00Z",
-        updated_at: "2024-01-15T10:30:00Z"
-    },
-    {
-        id: 2,
-        form_id: 1,
-        question_text: "ในช่วง 2 สัปดาห์ที่ผ่านมาคุณรู้สึกไม่สบายใจ ซึมเศร้า ท้อแท้",
-        question_type: "mcq",
-        options: {
-            choices: [
-                { value: "0", label: "ไม่มีเลย" },
-                { value: "1", label: "เป็นบางวัน (1-7 วัน)" },
-                { value: "2", label: "เป็นบ่อย (>7 วัน)" },
-                { value: "3", label: "เป็นทุกวัน" }
-            ]
-        },
-        is_required: true,
-        helper_text: "",
-        created_at: "2024-01-15T10:30:00Z",
-        updated_at: "2024-01-15T10:30:00Z"
-    },
-    {
-        id: 3,
-        form_id: 1,
-        question_text: "ในช่วง 2 สัปดาห์ที่ผ่านมาคุณรู้สึกหลับยาก หรือ หลับๆ ตื่นๆ หรือ หลับมากไป",
-        question_type: "mcq",
-        options: {
-            choices: [
-                { value: "0", label: "ไม่มีเลย" },
-                { value: "1", label: "เป็นบางวัน (1-7 วัน)" },
-                { value: "2", label: "เป็นบ่อย (>7 วัน)" },
-                { value: "3", label: "เป็นทุกวัน" }
-            ]
-        },
-        is_required: true,
-        helper_text: "",
-        created_at: "2024-01-15T10:30:00Z",
-        updated_at: "2024-01-15T10:30:00Z"
-    },
-    {
-        id: 4,
-        form_id: 1,
-        question_text: "ในช่วง 2 สัปดาห์ที่ผ่านมาคุณรู้สึกเหนื่อยง่าย หรือ ไม่ค่อยมีแรง",
-        question_type: "mcq",
-        options: {
-            choices: [
-                { value: "0", label: "ไม่มีเลย" },
-                { value: "1", label: "เป็นบางวัน (1-7 วัน)" },
-                { value: "2", label: "เป็นบ่อย (>7 วัน)" },
-                { value: "3", label: "เป็นทุกวัน" }
-            ]
-        },
-        is_required: true,
-        helper_text: "",
-        created_at: "2024-01-15T10:30:00Z",
-        updated_at: "2024-01-15T10:30:00Z"
-    },
-    {
-        id: 5,
-        form_id: 1,
-        question_text: "ในช่วง 2 สัปดาห์ที่ผ่านมาคุณรู้สึกเบื่ออาหาร หรือ กินมากเกินไป",
-        question_type: "mcq",
-        options: {
-            choices: [
-                { value: "0", label: "ไม่มีเลย" },
-                { value: "1", label: "เป็นบางวัน (1-7 วัน)" },
-                { value: "2", label: "เป็นบ่อย (>7 วัน)" },
-                { value: "3", label: "เป็นทุกวัน" }
-            ]
-        },
-        is_required: true,
-        helper_text: "",
-        created_at: "2024-01-15T10:30:00Z",
-        updated_at: "2024-01-15T10:30:00Z"
-    },
-    {
-        id: 6,
-        form_id: 1,
-        question_text: "ในช่วง 2 สัปดาห์ที่ผ่านมาคุณรู้สึกรู้สึกไม่ดีกับตัวเอง คิดว่าตัวเองล้มเหลว หรือทำให้ตนเองหรือครอบครัวผิดหวัง",
-        question_type: "mcq",
-        options: {
-            choices: [
-                { value: "0", label: "ไม่มีเลย" },
-                { value: "1", label: "เป็นบางวัน (1-7 วัน)" },
-                { value: "2", label: "เป็นบ่อย (>7 วัน)" },
-                { value: "3", label: "เป็นทุกวัน" }
-            ]
-        },
-        is_required: true,
-        helper_text: "",
-        created_at: "2024-01-15T10:30:00Z",
-        updated_at: "2024-01-15T10:30:00Z"
-    },
-    {
-        id: 7,
-        form_id: 1,
-        question_text: "ในช่วง 2 สัปดาห์ที่ผ่านมาคุณรู้สึกสมาธิไม่ดีเวลาทำอะไร เช่น ดูโทรทัศน์ ฟังวิทยุ หรือทำงานที่ต้องใช้ความตั้งใจ",
-        question_type: "mcq",
-        options: {
-            choices: [
-                { value: "0", label: "ไม่มีเลย" },
-                { value: "1", label: "เป็นบางวัน (1-7 วัน)" },
-                { value: "2", label: "เป็นบ่อย (>7 วัน)" },
-                { value: "3", label: "เป็นทุกวัน" }
-            ]
-        },
-        is_required: true,
-        helper_text: "",
-        created_at: "2024-01-15T10:30:00Z",
-        updated_at: "2024-01-15T10:30:00Z"
-    },
-    {
-        id: 8,
-        form_id: 1,
-        question_text: "ในช่วง 2 สัปดาห์ที่ผ่านมาคุณรู้สึกพูดช้า ทำอะไรช้าลงจนคนอื่นสังเกตเห็นได้ หรือ กระสับกระส่ายไม่สามารถอยู่นิ่งได้เหมือนที่เคยเป็น",
-        question_type: "mcq",
-        options: {
-            choices: [
-                { value: "0", label: "ไม่มีเลย" },
-                { value: "1", label: "เป็นบางวัน (1-7 วัน)" },
-                { value: "2", label: "เป็นบ่อย (>7 วัน)" },
-                { value: "3", label: "เป็นทุกวัน" }
-            ]
-        },
-        is_required: true,
-        helper_text: "",
-        created_at: "2024-01-15T10:30:00Z",
-        updated_at: "2024-01-15T10:30:00Z"
-    },
-    {
-        id: 9,
-        form_id: 1,
-        question_text: "ในช่วง 2 สัปดาห์ที่ผ่านมาคุณรู้สึกคิดทำร้ายตนเอง หรือคิดว่าถ้าตายไปคงจะดี",
-        question_type: "mcq",
-        options: {
-            choices: [
-                { value: "0", label: "ไม่มีเลย" },
-                { value: "1", label: "เป็นบางวัน (1-7 วัน)" },
-                { value: "2", label: "เป็นบ่อย (>7 วัน)" },
-                { value: "3", label: "เป็นทุกวัน" }
-            ]
-        },
-        is_required: true,
-        helper_text: "",
-        created_at: "2024-01-15T10:30:00Z",
-        updated_at: "2024-01-15T10:30:00Z"
-    }
-];
-
-const mockEvaluationCriteria = [
-    { score_range: "<7", interpretation: "ไม่มีอาการของโรคซึมเศร้าหรือมีอาการโรคซึมเศร้าระดับน้อยมาก" },
-    { score_range: "7-12", interpretation: "มีอาการของโรคซึมเศร้าระดับน้อย" },
-    { score_range: "13-18", interpretation: "มีอาการของโรคซึมเศร้าระดับปานกลาง" },
-    { score_range: ">=19", interpretation: "มีอาการของโรคซึมเศร้าระดับรุนแรง" }
-];
-
-const mockPatient = {
-    id: "1234567890123",
-    title: "นาย",
-    first_name: "สมชาย",
-    last_name: "ใจดี"
-};
+import { getFormById, getQuestionsByFormId } from '@/app/service/patient-client';
+import { Form, Question } from '@/app/service/patient-client';
 
 export default function QuestionPage() {
     const params = useParams();
     const router = useRouter();
     const patientId = params.id as string;
-    const formId = parseInt(params.formId as string);
+    const formId = params.formId as string; // formId is now a UUID string
     const currentQuestionId = parseInt(params.questionId as string);
 
+    const [form, setForm] = useState<Form | null>(null);
+    const [questions, setQuestions] = useState<Question[]>([]);
     const [answers, setAnswers] = useState<Record<number, string>>({});
     const [isSaving, setIsSaving] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+
+    useEffect(() => {
+        const fetchData = async () => {
+            if (!formId || !patientId) return;
+
+            try {
+                setIsLoading(true);
+                const formResponse = await getFormById(formId);
+                if (!formResponse) {
+                    throw new Error("ไม่พบฟอร์ม");
+                }
+                setForm(formResponse);
+
+                const questionsResponse = await getQuestionsByFormId(formId);
+                setQuestions(questionsResponse);
+
+            } catch (err: any) {
+                setError(err.message || "เกิดข้อผิดพลาดในการโหลดข้อมูล");
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [formId, patientId]);
+
 
     // Find current question index
-    const currentQuestionIndex = mockQuestions.findIndex(q => q.id === currentQuestionId);
-    const currentQuestion = mockQuestions[currentQuestionIndex];
-    const totalQuestions = mockQuestions.length;
-    const progressPercentage = ((currentQuestionIndex + 1) / totalQuestions) * 100;
+    const currentQuestionIndex = questions.findIndex(q => q.question_id === currentQuestionId);
+    const currentQuestion = questions[currentQuestionIndex];
+    const totalQuestions = questions.length;
+    const progressPercentage = totalQuestions > 0 ? ((currentQuestionIndex + 1) / totalQuestions) * 100 : 0;
 
     const handleAnswerChange = (value: string) => {
         setAnswers(prev => ({
@@ -228,8 +73,8 @@ export default function QuestionPage() {
 
     const handleNext = () => {
         if (currentQuestionIndex < totalQuestions - 1) {
-            const nextQuestion = mockQuestions[currentQuestionIndex + 1];
-            router.push(`/patient/${patientId}/${formId}/${nextQuestion.id}`);
+            const nextQuestion = questions[currentQuestionIndex + 1];
+            router.push(`/patient/${patientId}/${formId}/${nextQuestion.question_id}`);
         } else {
             // Last question - redirect to completion page or back to dashboard
             handleComplete();
@@ -238,8 +83,8 @@ export default function QuestionPage() {
 
     const handlePrevious = () => {
         if (currentQuestionIndex > 0) {
-            const prevQuestion = mockQuestions[currentQuestionIndex - 1];
-            router.push(`/patient/${patientId}/${formId}/${prevQuestion.id}`);
+            const prevQuestion = questions[currentQuestionIndex - 1];
+            router.push(`/patient/${patientId}/${formId}/${prevQuestion.question_id}`);
         }
     };
 
@@ -288,7 +133,32 @@ export default function QuestionPage() {
         return true; // Optional questions are always considered "answered"
     };
 
-    if (!currentQuestion) {
+    if (isLoading) {
+        return (
+            <div className="container mx-auto p-6">
+                <Card>
+                    <CardContent className="pt-6">
+                        <p className="text-center text-muted-foreground text-lg">กำลังโหลด...</p>
+                    </CardContent>
+                </Card>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="container mx-auto p-6">
+                <Card>
+                    <CardContent className="pt-6">
+                        <p className="text-center text-red-500 text-lg">{error}</p>
+                    </CardContent>
+                </Card>
+            </div>
+        );
+    }
+
+
+    if (!currentQuestion || !form) {
         return (
             <div className="container mx-auto p-6">
                 <Card>
@@ -309,10 +179,11 @@ export default function QuestionPage() {
                         <div>
                             <CardTitle className="flex items-center gap-2 text-xl">
                                 <FileText className="h-6 w-6" />
-                                {mockForm.title}
+                                {form.title}
                             </CardTitle>
                             <CardDescription className="text-base mt-2">
-                                ผู้ป่วย: {mockPatient.title} {mockPatient.first_name} {mockPatient.last_name}
+                                {/* Replace with actual patient data later */}
+                                ผู้ป่วย: นายสมชาย ใจดี
                             </CardDescription>
                         </div>
                         <div className="text-right">
@@ -322,7 +193,7 @@ export default function QuestionPage() {
                         </div>
                     </div>
                     <CardDescription className="text-sm text-muted-foreground pt-4">
-                        {mockForm.description}
+                        {form.description}
                     </CardDescription>
                     <div className="space-y-2">
                         <div className="flex items-center justify-between text-base text-muted-foreground">
@@ -407,19 +278,19 @@ export default function QuestionPage() {
                 </CardHeader>
                 <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
-                        {mockQuestions.map((question, index) => (
+                        {questions.map((question, index) => (
                             <div
-                                key={question.id}
+                                key={question.question_id}
                                 className={`p-3 rounded border text-center text-sm cursor-pointer transition-colors ${index === currentQuestionIndex
                                     ? 'bg-primary text-primary-foreground border-primary'
-                                    : answers[question.id]
+                                    : answers[question.question_id]
                                         ? 'bg-green-50 border-green-200 text-green-800'
                                         : 'bg-gray-50 border-gray-200 text-gray-600'
                                     }`}
-                                onClick={() => router.push(`/patient/${patientId}/${formId}/${question.id}`)}
+                                onClick={() => router.push(`/patient/${patientId}/${formId}/${question.question_id}`)}
                             >
                                 <div className="font-medium">คำถาม {index + 1}</div>
-                                {answers[question.id] && (
+                                {answers[question.question_id] && (
                                     <CheckCircle2 className="h-4 w-4 mx-auto mt-2" />
                                 )}
                             </div>

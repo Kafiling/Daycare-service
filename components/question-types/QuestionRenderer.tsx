@@ -8,15 +8,13 @@ import TrueFalseQuestion from './TrueFalseQuestion';
 import NumberQuestion from './NumberQuestion';
 
 interface Question {
-    id: number;
-    form_id: number;
+    question_id: number;
+    form_id: string;
     question_text: string;
     question_type: string;
-    options: any;
+    options?: any;
     is_required: boolean;
     helper_text?: string;
-    created_at: string;
-    updated_at: string;
 }
 
 interface QuestionRendererProps {
@@ -32,8 +30,8 @@ export default function QuestionRenderer({
 }: QuestionRendererProps) {
     const renderQuestion = () => {
         switch (question.question_type) {
+            case 'multipleChoice':
             case 'mcq':
-            case 'multiple_choice':
                 return (
                     <MultipleChoiceQuestion
                         question={question}
@@ -63,7 +61,7 @@ export default function QuestionRenderer({
                     />
                 );
 
-            case 'true_false':
+            case 'trueFalse':
             case 'boolean':
                 return (
                     <TrueFalseQuestion
