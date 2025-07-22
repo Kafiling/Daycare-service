@@ -160,14 +160,14 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }) {
                             value={question.question_text}
                             onChange={handleInputChange}
                             placeholder="พิมพ์คำถามของคุณที่นี่..."
-                            className="text-lg font-semibold border-none shadow-none focus-visible:ring-0 p-0 resize-none"
+                            className="text-lg font-semibold  border-none shadow-none focus-visible:ring-0 p-0 resize-none"
                         />
                         <Input
                             name="helper_text"
                             value={question.helper_text}
                             onChange={handleInputChange}
                             placeholder="เพิ่มคำแนะนำหรือแนวทางที่เป็นประโยชน์ (ไม่บังคับ)..."
-                            className="text-sm text-muted-foreground border-none shadow-none focus-visible:ring-0 p-0"
+                            className="text-base border-none shadow-none focus-visible:ring-0 p-0"
                         />
                     </div>
                     <Button variant="ghost" size="icon" onClick={() => removeQuestion(question.id)}>
@@ -177,9 +177,9 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }) {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <Label className="pb-2">ประเภทคำถาม</Label>
+                        <Label className="pb-2 text-base">ประเภทคำถาม</Label>
                         <Select value={question.question_type} onValueChange={handleTypeChange}>
-                            <SelectTrigger>
+                            <SelectTrigger className="text-base">
                                 <SelectValue placeholder="เลือกประเภทคำถาม" />
                             </SelectTrigger>
                             <SelectContent>
@@ -190,7 +190,7 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }) {
                         </Select>
                     </div>
                     <div className="space-y-2">
-                        <Label className="pb-2">ตัวเลือก</Label>
+                        <Label className="pb-2 text-base">ตัวเลือก</Label>
                         {renderOptions()}
                     </div>
                 </div>
@@ -198,7 +198,7 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }) {
                 <div className="flex items-center pt-4 border-t">
                     <div className="flex items-center gap-2">
                         <Checkbox id={`required-${question.id}`} checked={question.is_required} onCheckedChange={handleCheckboxChange} />
-                        <Label htmlFor={`required-${question.id}`} className="pb-2">จำเป็น</Label>
+                        <Label htmlFor={`required-${question.id}`} className="pb-2 text-base">จำเป็น</Label>
                     </div>
                 </div>
             </CardContent>
@@ -241,16 +241,16 @@ export default function CreateFormPage() {
                 <div className="space-y-8">
                     <Card>
                         <CardHeader>
-                            <CardTitle>สร้างฟอร์มใหม่</CardTitle>
+                            <CardTitle className="text-xl font-bold">สร้างฟอร์มใหม่</CardTitle>
                         </CardHeader>
                         <CardContent className="p-6 space-y-4">
                             <div>
-                                <Label htmlFor="form-title" className="pb-2">ชื่อฟอร์ม</Label>
-                                <Input id="form-title" value={formTitle} onChange={e => setFormTitle(e.target.value)} placeholder="เช่น, ตรวจสุขภาพรายวัน" />
+                                <Label htmlFor="form-title" className="pb-2 text-lg">ชื่อฟอร์ม</Label>
+                                <Input id="form-title" value={formTitle} onChange={e => setFormTitle(e.target.value)} placeholder="เช่น, ตรวจสุขภาพรายวัน" className="text-base" />
                             </div>
                             <div>
-                                <Label htmlFor="form-description" className="pb-2">คำอธิบายฟอร์ม</Label>
-                                <Textarea id="form-description" value={formDescription} onChange={e => setFormDescription(e.target.value)} placeholder="คำอธิบายสั้นๆ เกี่ยวกับวัตถุประสงค์ของฟอร์ม" />
+                                <Label htmlFor="form-description" className="pb-2 text-lg">คำอธิบายฟอร์ม</Label>
+                                <Textarea id="form-description" value={formDescription} onChange={e => setFormDescription(e.target.value)} placeholder="คำอธิบายสั้นๆ เกี่ยวกับวัตถุประสงค์ของฟอร์ม" className="text-base" />
                             </div>
                         </CardContent>
                     </Card>
@@ -265,14 +265,14 @@ export default function CreateFormPage() {
                     ))}
 
                     <div className="flex justify-center">
-                        <Button variant="outline" onClick={addQuestion} className="w-full md:w-auto">
-                            <PlusCircle className="h-4 w-4 mr-2" />
+                        <Button variant="outline" onClick={addQuestion} className="w-full md:w-auto text-lg p-6">
+                            <PlusCircle className="h-5 w-5 mr-2" />
                             เพิ่มคำถาม
                         </Button>
                     </div>
 
                     <div className="flex justify-end">
-                        <Button onClick={handleSave} size="lg">บันทึกฟอร์ม</Button>
+                        <Button onClick={handleSave} size="lg" className="text-lg">บันทึกฟอร์ม</Button>
                     </div>
                 </div>
             </main>
