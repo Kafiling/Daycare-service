@@ -22,7 +22,7 @@ export default function AdminPage() {
         </Card>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <Link href="/staff-create" className="hover:shadow-lg transition-shadow duration-300 rounded-lg">
+          <Link href="/admin/manage-staff" className="hover:shadow-lg transition-shadow duration-300 rounded-lg">
             <Card className="h-full">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-lg font-medium">
@@ -38,7 +38,7 @@ export default function AdminPage() {
             </Card>
           </Link>
 
-          <Link href="/form-create" className="hover:shadow-lg transition-shadow duration-300 rounded-lg">
+          <Link href="/admin/create-form" className="hover:shadow-lg transition-shadow duration-300 rounded-lg">
             <Card className="h-full">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-lg font-medium">
