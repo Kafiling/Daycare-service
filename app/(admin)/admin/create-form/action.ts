@@ -14,7 +14,7 @@ export async function createForm(payload: any) {
         return { error: "You must be logged in to create a form." };
     }
 
-    const { title, description, questions } = payload;
+    const { title, description, questions, evaluation_thresholds } = payload;
     const formId = randomUUID();
 
     // Insert into forms table
@@ -25,6 +25,7 @@ export async function createForm(payload: any) {
             title,
             description,
             created_by: user.id,
+            evaluation_thresholds: evaluation_thresholds || [],
         })
         .select()
         .single();
@@ -43,6 +44,7 @@ export async function createForm(payload: any) {
         options: q.options,
         is_required: q.is_required,
         helper_text: q.helper_text,
+        evaluation_scores: q.evaluation_scores || {},
     }));
 
     const { error: questionsError } = await supabase
