@@ -24,15 +24,6 @@ interface Question {
     is_required: boolean;
     helper_text: string;
     options: any;
-    evaluation_scores: any;
-}
-
-interface EvaluationThreshold {
-    id: string;
-    minScore: number;
-    maxScore: number;
-    result: string;
-    description: string;
 }
 
 // Based on your readme.md spec
@@ -51,7 +42,6 @@ const initialQuestionState = {
     is_required: false,
     helper_text: '',
     options: {},
-    evaluation_scores: {},
 };
 
 function QuestionEditor({ question, updateQuestion, removeQuestion }: { question: Question, updateQuestion: (id: string, question: Question) => void, removeQuestion: (id: string) => void }) {
@@ -66,45 +56,17 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
 
     const handleTypeChange = (type: string) => {
         let newOptions = {};
-        let newEvaluationScores = {};
-        
         if (type === 'multipleChoice') {
             newOptions = {
                 choices: Array.from({ length: 4 }, () => ({ value: '', label: '' })),
-            };
-            newEvaluationScores = {
-                choices: Array.from({ length: 4 }, () => 0),
             };
         } else if (type === 'trueFalse') {
             newOptions = {
                 trueLabel: 'ใช่',
                 falseLabel: 'ไม่ใช่',
             };
-            newEvaluationScores = {
-                trueScore: 0,
-                falseScore: 0,
-            };
-        } else if (type === 'rating') {
-            newEvaluationScores = {
-                scorePerPoint: 1, // Score multiplier per rating point
-            };
-        } else if (type === 'number') {
-            newEvaluationScores = {
-                scoreCalculation: 'direct', // 'direct' or 'range'
-                ranges: [], // For range-based scoring
-            };
-        } else if (type === 'text') {
-            newEvaluationScores = {
-                baseScore: 0, // Fixed score for text questions
-            };
         }
-        
-        updateQuestion(question.id, { 
-            ...question, 
-            question_type: type, 
-            options: newOptions,
-            evaluation_scores: newEvaluationScores 
-        });
+        updateQuestion(question.id, { ...question, question_type: type, options: newOptions });
     };
 
     const handleOptionChange = (optionName: string, value: any) => {
@@ -120,42 +82,15 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
         handleOptionChange('choices', newChoices);
     };
 
-    const handleMcqScoreChange = (index: number, score: number) => {
-        const newScores = [...(question.evaluation_scores.choices || [])];
-        newScores[index] = score;
-        updateQuestion(question.id, {
-            ...question,
-            evaluation_scores: { ...question.evaluation_scores, choices: newScores },
-        });
-    };
-
-    const handleEvaluationScoreChange = (scoreName: string, value: any) => {
-        updateQuestion(question.id, {
-            ...question,
-            evaluation_scores: { ...question.evaluation_scores, [scoreName]: value },
-        });
-    };
-
     const addMcqOption = () => {
         const newChoices = [...(question.options.choices || []), { value: '', label: '' }];
-        const newScores = [...(question.evaluation_scores.choices || []), 0];
         handleOptionChange('choices', newChoices);
-        updateQuestion(question.id, {
-            ...question,
-            evaluation_scores: { ...question.evaluation_scores, choices: newScores },
-        });
     };
 
     const removeMcqOption = (index: number) => {
         const newChoices = [...(question.options.choices || [])];
-        const newScores = [...(question.evaluation_scores.choices || [])];
         newChoices.splice(index, 1);
-        newScores.splice(index, 1);
         handleOptionChange('choices', newChoices);
-        updateQuestion(question.id, {
-            ...question,
-            evaluation_scores: { ...question.evaluation_scores, choices: newScores },
-        });
     };
 
 
@@ -163,46 +98,27 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
         switch (question.question_type) {
             case 'multipleChoice':
                 return (
-                    <div className="space-y-4">
-                        <div className="space-y-2">
-                            <Label className="text-sm font-medium">ตัวเลือกและคะแนน</Label>
-                            {(question.options.choices || []).map((choice: { value: string }, index: number) => (
-                                <div key={index} className="flex items-center gap-2">
-                                    <Input
-                                        value={choice.value}
-                                        onChange={(e) => handleMcqOptionChange(index, e.target.value)}
-                                        placeholder={`ตัวเลือกที่ ${index + 1}`}
-                                        className="flex-1"
-                                    />
-                                    <Input
-                                        type="number"
-                                        value={question.evaluation_scores.choices?.[index] || 0}
-                                        onChange={(e) => handleMcqScoreChange(index, parseInt(e.target.value) || 0)}
-                                        placeholder="คะแนน"
-                                        className="w-20"
-                                    />
-                                    <Button variant="ghost" size="icon" onClick={() => removeMcqOption(index)}>
-                                        <Trash2 className="h-4 w-4" />
-                                    </Button>
-                                </div>
-                            ))}
-                            <Button variant="outline" size="sm" onClick={addMcqOption}>เพิ่มตัวเลือก</Button>
-                        </div>
+                    <div className="space-y-2">
+
+                        {(question.options.choices || []).map((choice: { value: string }, index: number) => (
+                            <div key={index} className="flex items-center gap-2">
+                                <Input
+                                    value={choice.value}
+                                    onChange={(e) => handleMcqOptionChange(index, e.target.value)}
+                                    placeholder={`ตัวเลือกที่ ${index + 1}`}
+                                />
+                                <Button variant="ghost" size="icon" onClick={() => removeMcqOption(index)}>
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                            </div>
+                        ))}
+                        <Button variant="outline" size="sm" onClick={addMcqOption}>เพิ่มตัวเลือก</Button>
                         <div className="flex items-center gap-2 pt-2">
                             <Checkbox
                                 checked={question.options.allowOther || false}
                                 onCheckedChange={(checked) => handleOptionChange('allowOther', checked)}
                             />
                             <Label className="text-sm">อนุญาตให้มีตัวเลือก "อื่นๆ"</Label>
-                            {question.options.allowOther && (
-                                <Input
-                                    type="number"
-                                    value={question.evaluation_scores.otherScore || 0}
-                                    onChange={(e) => handleEvaluationScoreChange('otherScore', parseInt(e.target.value) || 0)}
-                                    placeholder="คะแนนสำหรับ 'อื่นๆ'"
-                                    className="w-32 ml-2"
-                                />
-                            )}
                         </div>
                     </div>
                 );
@@ -218,16 +134,6 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
                             />
                             <Label className="text-sm">พื้นที่ข้อความหลายบรรทัด (Textarea)</Label>
                         </div>
-                        <div className="border-t pt-2">
-                            <Label className="text-sm font-medium">การประเมิน</Label>
-                            <Input
-                                type="number"
-                                placeholder="คะแนนพื้นฐาน"
-                                value={question.evaluation_scores.baseScore || 0}
-                                onChange={(e) => handleEvaluationScoreChange('baseScore', parseInt(e.target.value) || 0)}
-                                className="mt-1"
-                            />
-                        </div>
                     </div>
                 );
             case 'rating':
@@ -242,43 +148,13 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
                             <Input placeholder="ป้ายกำกับค่าต่ำสุด (ไม่บังคับ)" value={question.options.labels?.min || ''} onChange={e => handleOptionChange('labels', { ...(question.options.labels || {}), min: e.target.value })} />
                             <Input placeholder="ป้ายกำกับค่าสูงสุด (ไม่บังคับ)" value={question.options.labels?.max || ''} onChange={e => handleOptionChange('labels', { ...(question.options.labels || {}), max: e.target.value })} />
                         </div>
-                        <div className="border-t pt-2">
-                            <Label className="text-sm font-medium">การประเมิน</Label>
-                            <Input
-                                type="number"
-                                placeholder="คะแนนต่อระดับ (เช่น หากเลือก 3 จะได้ 3 x ค่านี้)"
-                                value={question.evaluation_scores.scorePerPoint || 1}
-                                onChange={(e) => handleEvaluationScoreChange('scorePerPoint', parseInt(e.target.value) || 1)}
-                                className="mt-1"
-                            />
-                        </div>
                     </div>
                 );
             case 'trueFalse':
                 return (
-                    <div className="space-y-4">
-                        <div className="flex flex-col gap-4">
-                            <div className="flex gap-2 items-center">
-                                <Input placeholder="ป้ายกำกับสำหรับ 'จริง'" value={question.options.trueLabel || ''} onChange={e => handleOptionChange('trueLabel', e.target.value)} className="flex-1" />
-                                <Input
-                                    type="number"
-                                    placeholder="คะแนน"
-                                    value={question.evaluation_scores.trueScore || 0}
-                                    onChange={(e) => handleEvaluationScoreChange('trueScore', parseInt(e.target.value) || 0)}
-                                    className="w-20"
-                                />
-                            </div>
-                            <div className="flex gap-2 items-center">
-                                <Input placeholder="ป้ายกำกับสำหรับ 'เท็จ'" value={question.options.falseLabel || ''} onChange={e => handleOptionChange('falseLabel', e.target.value)} className="flex-1" />
-                                <Input
-                                    type="number"
-                                    placeholder="คะแนน"
-                                    value={question.evaluation_scores.falseScore || 0}
-                                    onChange={(e) => handleEvaluationScoreChange('falseScore', parseInt(e.target.value) || 0)}
-                                    className="w-20"
-                                />
-                            </div>
-                        </div>
+                    <div className="flex flex-col gap-4">
+                        <Input placeholder="ป้ายกำกับสำหรับ 'จริง'" value={question.options.trueLabel || ''} onChange={e => handleOptionChange('trueLabel', e.target.value)} />
+                        <Input placeholder="ป้ายกำกับสำหรับ 'เท็จ'" value={question.options.falseLabel || ''} onChange={e => handleOptionChange('falseLabel', e.target.value)} />
                     </div>
                 );
             case 'number':
@@ -293,32 +169,6 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
                             <Input placeholder="หน่วย (เช่น กก., ซม.)" value={question.options.unit || ''} onChange={e => handleOptionChange('unit', e.target.value)} />
                         </div>
                         <Input placeholder="ข้อความตัวอย่าง" value={question.options.placeholder || ''} onChange={e => handleOptionChange('placeholder', e.target.value)} />
-                        <div className="border-t pt-2">
-                            <Label className="text-sm font-medium">การประเมิน</Label>
-                            <div className="flex gap-2 mt-1">
-                                <Select 
-                                    value={question.evaluation_scores.scoreCalculation || 'direct'} 
-                                    onValueChange={(value) => handleEvaluationScoreChange('scoreCalculation', value)}
-                                >
-                                    <SelectTrigger className="w-40">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="direct">ใช้ค่าตรง</SelectItem>
-                                        <SelectItem value="fixed">คะแนนคงที่</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                {question.evaluation_scores.scoreCalculation === 'fixed' && (
-                                    <Input
-                                        type="number"
-                                        placeholder="คะแนนคงที่"
-                                        value={question.evaluation_scores.fixedScore || 0}
-                                        onChange={(e) => handleEvaluationScoreChange('fixedScore', parseInt(e.target.value) || 0)}
-                                        className="w-32"
-                                    />
-                                )}
-                            </div>
-                        </div>
                     </div>
                 );
             default:
@@ -388,29 +238,7 @@ export default function CreateFormPage() {
     const [formTitle, setFormTitle] = useState('');
     const [formDescription, setFormDescription] = useState('');
     const [questions, setQuestions] = useState<Question[]>([]);
-    const [evaluationThresholds, setEvaluationThresholds] = useState<EvaluationThreshold[]>([]);
     const [isSaving, setIsSaving] = useState(false);
-
-    const addEvaluationThreshold = () => {
-        setEvaluationThresholds([
-            ...evaluationThresholds,
-            {
-                id: uuidv4(),
-                minScore: 0,
-                maxScore: 0,
-                result: '',
-                description: '',
-            },
-        ]);
-    };
-
-    const updateEvaluationThreshold = (id: string, updatedThreshold: EvaluationThreshold) => {
-        setEvaluationThresholds(evaluationThresholds.map(t => t.id === id ? updatedThreshold : t));
-    };
-
-    const removeEvaluationThreshold = (id: string) => {
-        setEvaluationThresholds(evaluationThresholds.filter(t => t.id !== id));
-    };
 
     const addQuestion = () => {
         setQuestions([
@@ -421,9 +249,6 @@ export default function CreateFormPage() {
                 question_type: 'multipleChoice',
                 options: {
                     choices: Array.from({ length: 4 }, () => ({ value: '', label: '' })),
-                },
-                evaluation_scores: {
-                    choices: Array.from({ length: 4 }, () => 0),
                 },
             },
         ]);
@@ -443,7 +268,6 @@ export default function CreateFormPage() {
             title: formTitle,
             description: formDescription,
             questions: questions,
-            evaluation_thresholds: evaluationThresholds,
         };
 
         try {
@@ -500,69 +324,6 @@ export default function CreateFormPage() {
                             เพิ่มคำถาม
                         </Button>
                     </div>
-
-                    {/* Evaluation Thresholds Section */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-xl font-bold">เกณฑ์การประเมินผล</CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-6 space-y-4">
-                            {evaluationThresholds.map((threshold) => (
-                                <div key={threshold.id} className="flex items-center gap-4 p-4 border rounded-lg">
-                                    <Input
-                                        type="number"
-                                        placeholder="คะแนนต่ำสุด"
-                                        value={threshold.minScore}
-                                        onChange={(e) => updateEvaluationThreshold(threshold.id, {
-                                            ...threshold,
-                                            minScore: parseInt(e.target.value) || 0
-                                        })}
-                                        className="w-32"
-                                    />
-                                    <span className="text-gray-500">ถึง</span>
-                                    <Input
-                                        type="number"
-                                        placeholder="คะแนนสูงสุด"
-                                        value={threshold.maxScore}
-                                        onChange={(e) => updateEvaluationThreshold(threshold.id, {
-                                            ...threshold,
-                                            maxScore: parseInt(e.target.value) || 0
-                                        })}
-                                        className="w-32"
-                                    />
-                                    <Input
-                                        placeholder="ผลการประเมิน (เช่น ดีมาก, ดี, ปานกลาง)"
-                                        value={threshold.result}
-                                        onChange={(e) => updateEvaluationThreshold(threshold.id, {
-                                            ...threshold,
-                                            result: e.target.value
-                                        })}
-                                        className="flex-1"
-                                    />
-                                    <Input
-                                        placeholder="คำอธิบาย (ไม่บังคับ)"
-                                        value={threshold.description}
-                                        onChange={(e) => updateEvaluationThreshold(threshold.id, {
-                                            ...threshold,
-                                            description: e.target.value
-                                        })}
-                                        className="flex-1"
-                                    />
-                                    <Button 
-                                        variant="ghost" 
-                                        size="icon" 
-                                        onClick={() => removeEvaluationThreshold(threshold.id)}
-                                    >
-                                        <Trash2 className="h-4 w-4 text-destructive" />
-                                    </Button>
-                                </div>
-                            ))}
-                            <Button variant="outline" onClick={addEvaluationThreshold} className="w-full">
-                                <PlusCircle className="h-4 w-4 mr-2" />
-                                เพิ่มเกณฑ์การประเมิน
-                            </Button>
-                        </CardContent>
-                    </Card>
 
                     <div className="flex justify-end">
                         <Button onClick={handleSave} size="lg" className="text-lg" disabled={isSaving}>

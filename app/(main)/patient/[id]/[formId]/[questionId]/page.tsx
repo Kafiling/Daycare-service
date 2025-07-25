@@ -16,6 +16,7 @@ import {
 import QuestionRenderer from '@/components/question-types/QuestionRenderer';
 import { getFormById, getQuestionsByFormId } from '@/app/service/patient-client';
 import { Form, Question } from '@/app/service/patient-client';
+import { createClient } from '@/utils/supabase/client';
 
 export default function QuestionPage() {
     const params = useParams();
@@ -90,23 +91,119 @@ export default function QuestionPage() {
 
     const handleComplete = async () => {
         setIsSaving(true);
+        console.log('🚀 Starting form submission process...');
+        
         try {
             // Calculate total score
             const totalScore = Object.values(answers).reduce((sum, value) => sum + parseInt(value || '0', 10), 0);
+            console.log('📊 Calculated total score:', totalScore);
+            console.log('📝 Answers object:', answers);
 
-            // Here you would save the answers and the score to Supabase
-            console.log('Saving answers:', answers);
-            console.log('Total score:', totalScore);
+            // Save the submission to Supabase
+            const supabase = createClient();
+            console.log('🔗 Supabase client created');
 
-            // Simulate API call
+            // Get current user for nurse_id
+            console.log('👤 Getting current user...');
+            const { data: userData, error: userError } = await supabase.auth.getUser();
+            if (userError || !userData?.user) {
+                console.error('❌ User auth error:', userError);
+                throw new Error('ไม่สามารถระบุตัวตนผู้ใช้ได้ กรุณาเข้าสู่ระบบใหม่');
+            }
+            console.log('✅ User authenticated:', userData.user.id);
+
+            // Calculate evaluation based on form thresholds
+            console.log('📋 Fetching form evaluation thresholds...');
+            const { data: formData, error: formError } = await supabase
+                .from('forms')
+                .select('evaluation_thresholds')
+                .eq('form_id', formId)
+                .single();
+
+            if (formError) {
+                console.error('❌ Error fetching form data:', formError);
+            } else {
+                console.log('✅ Form data retrieved:', formData);
+            }
+
+            let evaluationResult = null;
+            let evaluationDescription = null;
+
+            if (formData?.evaluation_thresholds) {
+                const thresholds = formData.evaluation_thresholds;
+                console.log('🎯 Processing evaluation thresholds:', thresholds);
+                
+                for (const threshold of thresholds) {
+                    if (totalScore >= threshold.minScore && totalScore <= threshold.maxScore) {
+                        evaluationResult = threshold.result;
+                        evaluationDescription = threshold.description;
+                        console.log(`✅ Evaluation match found: ${evaluationResult} (${threshold.minScore}-${threshold.maxScore})`);
+                        break;
+                    }
+                }
+            } else {
+                console.log('⚠️ No evaluation thresholds found');
+            }
+
+            // Prepare submission data
+            const submissionData = {
+                patient_id: patientId,
+                form_id: formId,
+                nurse_id: userData.user.id,
+                answers: answers,
+                total_evaluation_score: totalScore,
+                evaluation_result: evaluationResult,
+                evaluation_description: evaluationDescription,
+                status: 'completed',
+                submitted_at: new Date().toISOString(),
+                notes: `Form submission completed with total score: ${totalScore}`
+            };
+            
+            console.log('💾 Preparing to insert submission data:', submissionData);
+
+            // Insert submission record
+            const { data: submission, error: submitError } = await supabase
+                .from('submissions')
+                .insert(submissionData)
+                .select()
+                .single();
+
+            if (submitError) {
+                console.error('❌ Submission insert error:', {
+                    error: submitError,
+                    message: submitError.message,
+                    details: submitError.details,
+                    hint: submitError.hint,
+                    code: submitError.code
+                });
+                throw new Error(`Failed to save submission: ${submitError.message || 'Unknown error'}`);
+            }
+
+            console.log('✅ Submission saved successfully:', submission);
+            console.log('🔑 Submission ID:', submission.id);
+
+            // Wait 1 second before redirect for better UX
+            console.log('⏳ Waiting 1 second before redirect...');
             await new Promise(resolve => setTimeout(resolve, 1000));
 
-            // Redirect to the result page with the score
-            router.push(`/patient/${patientId}/${formId}/result?score=${totalScore}`);
+            // Redirect to the result page with the submission ID
+            const redirectUrl = `/patient/${patientId}/${formId}/result?submissionId=${submission.id}`;
+            console.log('🔄 Redirecting to:', redirectUrl);
+            router.push(redirectUrl);
+            
         } catch (error) {
-            console.error('Error saving answers:', error);
+            console.error('❌ Error in handleComplete:', error);
+            console.error('Error details:', {
+                message: error instanceof Error ? error.message : 'Unknown error',
+                stack: error instanceof Error ? error.stack : undefined
+            });
+            
+            // Show user-friendly error message
+            const errorMessage = error instanceof Error ? error.message : 'เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ';
+            alert(`เกิดข้อผิดพลาดในการบันทึกข้อมูล: ${errorMessage}\n\nกรุณาลองใหม่อีกครั้ง`);
         } finally {
             setIsSaving(false);
+            console.log('🏁 Form submission process completed');
         }
     };
 
@@ -172,6 +269,23 @@ export default function QuestionPage() {
 
     return (
         <div className="container mx-auto p-6 space-y-6">
+            {/* Loading Overlay */}
+            {isSaving && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <Card className="w-80">
+                        <CardContent className="pt-6">
+                            <div className="text-center space-y-4">
+                                <div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto"></div>
+                                <div>
+                                    <h3 className="text-lg font-semibold">กำลังบันทึกข้อมูล</h3>
+                                    <p className="text-sm text-gray-600 mt-1">กรุณารอสักครู่...</p>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+            )}
+            
             {/* Header */}
             <Card>
                 <CardHeader>
@@ -243,15 +357,15 @@ export default function QuestionPage() {
                                 <Button
                                     onClick={handleComplete}
                                     disabled={!isCurrentQuestionAnswered() || isSaving}
-                                    className="min-w-[140px] text-base px-6 py-3"
+                                    className="min-w-[160px] text-base px-6 py-3"
                                 >
                                     <CheckCircle2 className="h-5 w-5 mr-2" />
-                                    {isSaving ? 'กำลังบันทึก...' : 'เสร็จสิ้น'}
+                                    {isSaving ? 'กำลังบันทึกข้อมูล...' : 'เสร็จสิ้น'}
                                 </Button>
                             ) : (
                                 <Button
                                     onClick={handleNext}
-                                    disabled={!isCurrentQuestionAnswered()}
+                                    disabled={!isCurrentQuestionAnswered() || isSaving}
                                     className="text-base px-6 py-3"
                                 >
                                     ถัดไป
