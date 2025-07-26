@@ -14,7 +14,7 @@ export async function createForm(payload: any) {
         return { error: "You must be logged in to create a form." };
     }
 
-    const { title, description, questions } = payload;
+    const { title, description, questions, evaluationThresholds } = payload;
     const formId = randomUUID();
 
     // Insert into forms table
@@ -24,6 +24,7 @@ export async function createForm(payload: any) {
             form_id: formId,
             title,
             description,
+            evaluation_thresholds: evaluationThresholds,
             created_by: user.id,
         })
         .select()

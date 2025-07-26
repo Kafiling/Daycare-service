@@ -283,6 +283,7 @@ export default function CreateFormPage() {
     const [formTitle, setFormTitle] = useState('');
     const [formDescription, setFormDescription] = useState('');
     const [questions, setQuestions] = useState<Question[]>([]);
+    const [evaluationThresholds, setEvaluationThresholds] = useState<any[]>([]);
     const [isSaving, setIsSaving] = useState(false);
 
     const addQuestion = () => {
@@ -305,12 +306,30 @@ export default function CreateFormPage() {
         setQuestions(questions.filter(q => q.id !== id));
     };
 
+    const addThreshold = () => {
+        setEvaluationThresholds([
+            ...evaluationThresholds,
+            { minScore: 0, maxScore: 10, result: '', description: '' }
+        ]);
+    };
+
+    const updateThreshold = (index: number, field: string, value: any) => {
+        const newThresholds = [...evaluationThresholds];
+        newThresholds[index] = { ...newThresholds[index], [field]: value };
+        setEvaluationThresholds(newThresholds);
+    };
+
+    const removeThreshold = (index: number) => {
+        setEvaluationThresholds(evaluationThresholds.filter((_, i) => i !== index));
+    };
+
     const handleSave = async () => {
         setIsSaving(true);
         const formPayload = {
             title: formTitle,
             description: formDescription,
             questions: questions,
+            evaluationThresholds: evaluationThresholds,
         };
 
         try {
@@ -367,6 +386,75 @@ export default function CreateFormPage() {
                             เพิ่มคำถาม
                         </Button>
                     </div>
+
+                    {/* Evaluation Thresholds */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-xl font-bold">เกณฑ์การประเมิน</CardTitle>
+                            <p className="text-sm text-muted-foreground">
+                                กำหนดช่วงคะแนนและผลการประเมินที่สอดคล้องกัน
+                            </p>
+                        </CardHeader>
+                        <CardContent className="p-6 space-y-4">
+                            {evaluationThresholds.length === 0 && (
+                                <div className="text-center py-8 text-muted-foreground">
+                                    <p>ยังไม่มีเกณฑ์การประเมิน</p>
+                                    <p className="text-sm">คลิก "เพิ่มเกณฑ์การประเมิน" เพื่อเริ่มต้น</p>
+                                </div>
+                            )}
+                            {evaluationThresholds.map((threshold, index) => (
+                                <div key={index} className="flex items-end gap-2 p-4 border rounded-lg">
+                                    <div className="flex-1 space-y-2">
+                                        <Label className="text-sm">ช่วงคะแนน</Label>
+                                        <div className="flex items-center gap-2">
+                                            <Input
+                                                type="number"
+                                                placeholder="คะแนนต่ำสุด"
+                                                value={threshold.minScore}
+                                                onChange={(e) => updateThreshold(index, 'minScore', Number(e.target.value))}
+                                                className="w-24"
+                                            />
+                                            <span className="text-sm text-muted-foreground">ถึง</span>
+                                            <Input
+                                                type="number"
+                                                placeholder="คะแนนสูงสุด"
+                                                value={threshold.maxScore}
+                                                onChange={(e) => updateThreshold(index, 'maxScore', Number(e.target.value))}
+                                                className="w-24"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="flex-1 space-y-2">
+                                        <Label className="text-sm">ผลการประเมิน</Label>
+                                        <Input
+                                            placeholder="เช่น ดีมาก, ดี, ปานกลาง, ต้องปรับปรุง"
+                                            value={threshold.result}
+                                            onChange={(e) => updateThreshold(index, 'result', e.target.value)}
+                                        />
+                                    </div>
+                                    <div className="flex-1 space-y-2">
+                                        <Label className="text-sm">คำอธิบาย (ไม่บังคับ)</Label>
+                                        <Input
+                                            placeholder="คำอธิบายเพิ่มเติมเกี่ยวกับผลการประเมิน"
+                                            value={threshold.description}
+                                            onChange={(e) => updateThreshold(index, 'description', e.target.value)}
+                                        />
+                                    </div>
+                                    <Button 
+                                        variant="ghost" 
+                                        size="icon" 
+                                        onClick={() => removeThreshold(index)}
+                                    >
+                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                    </Button>
+                                </div>
+                            ))}
+                            <Button variant="outline" size="sm" onClick={addThreshold}>
+                                <PlusCircle className="h-4 w-4 mr-2" />
+                                เพิ่มเกณฑ์การประเมิน
+                            </Button>
+                        </CardContent>
+                    </Card>
 
                     <div className="flex justify-end">
                         <Button onClick={handleSave} size="lg" className="text-lg" disabled={isSaving}>
