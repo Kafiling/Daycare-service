@@ -158,9 +158,6 @@ export default async function ResultPage({ params, searchParams }: ResultPagePro
         patientData: patient
     });
 
-    // Get thresholds for evaluation thresholds display
-    const thresholds = submission.forms?.evaluation_thresholds || [];
-
     return (
         <div className="container mx-auto p-6">
             <Card className="max-w-2xl mx-auto">
@@ -198,45 +195,6 @@ export default async function ResultPage({ params, searchParams }: ResultPagePro
                                 {evaluationDescription && (
                                     <p className="text-gray-700">{evaluationDescription}</p>
                                 )}
-                            </CardContent>
-                        </Card>
-                    )}
-
-                    {/* Evaluation Thresholds Reference */}
-                    {thresholds.length > 0 && (
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="text-lg flex items-center gap-2">
-                                    <AlertCircle className="h-5 w-5" />
-                                    เกณฑ์การประเมิน
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="space-y-2">
-                                    {thresholds.map((threshold: any, index: number) => (
-                                        <div
-                                            key={index}
-                                            className={`p-3 rounded-lg border ${totalScore >= threshold.minScore && totalScore <= threshold.maxScore
-                                                    ? 'bg-blue-50 border-blue-200'
-                                                    : 'bg-gray-50 border-gray-200'
-                                                }`}
-                                        >
-                                            <div className="flex justify-between items-center">
-                                                <span className="font-medium">
-                                                    {threshold.minScore} - {threshold.maxScore} คะแนน
-                                                </span>
-                                                <span className="text-sm text-gray-600">
-                                                    {threshold.result}
-                                                </span>
-                                            </div>
-                                            {threshold.description && (
-                                                <p className="text-sm text-gray-600 mt-1">
-                                                    {threshold.description}
-                                                </p>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
                             </CardContent>
                         </Card>
                     )}
