@@ -21,8 +21,8 @@ import {
 import { getCurrentUserProfile } from '@/app/service/nurse-client';
 
 // Icon mapping for form categories
-const getCategoryIcon = (category: string) => {
-    switch (category?.toLowerCase()) {
+const getCategoryIcon = (label: string) => {
+    switch (label?.toLowerCase()) {
         case 'สุขภาพทั่วไป':
         case 'สุขภาพ':
             return Heart;
@@ -34,25 +34,30 @@ const getCategoryIcon = (category: string) => {
             return AlertCircle;
         case 'กิจกรรมประจำวัน':
         case 'กิจกรรม':
+        case 'การดูแล':
             return User;
         default:
             return FileText;
     }
 };
 
-// Priority mapping for forms
-const getFormPriority = (formId: number) => {
-    if (formId <= 2) return 'high';
-    if (formId <= 4) return 'medium';
-    return 'low';
-};
-
 const getPriorityColor = (priority: string) => {
-    switch (priority) {
+    switch (priority?.toLowerCase()) {
+        case 'urgent': return 'destructive';
         case 'high': return 'destructive';
         case 'medium': return 'default';
         case 'low': return 'secondary';
         default: return 'default';
+    }
+};
+
+const getPriorityLabel = (priority: string) => {
+    switch (priority?.toLowerCase()) {
+        case 'urgent': return 'เร่งด่วน';
+        case 'high': return 'สำคัญ';
+        case 'medium': return 'ปกติ';
+        case 'low': return 'ไม่เร่งด่วน';
+        default: return 'ปกติ';
     }
 };
 
@@ -86,7 +91,7 @@ export default function AvailableSurveys({ patientId, forms }: AvailableSurveysP
         fetchNurseProfile();
     }, []);
 
-    const handleStartSurvey = async (formId: number) => {
+    const handleStartSurvey = async (formId: string) => {
         if (!nurseId) {
             alert('ไม่สามารถระบุตัวตนของพยาบาลได้ กรุณาเข้าสู่ระบบใหม่');
             return;
@@ -100,7 +105,7 @@ export default function AvailableSurveys({ patientId, forms }: AvailableSurveysP
             const firstQuestion = await getFirstQuestionByFormId(formId);
 
             if (firstQuestion) {
-                router.push(`/patient/${patientId}/${formId}/${firstQuestion.id}`);
+                router.push(`/patient/${patientId}/${formId}/${firstQuestion.question_id}`);
             } else {
                 console.error('No questions found for this form');
                 alert('ไม่พบคำถามในแบบประเมินนี้');
@@ -132,10 +137,12 @@ export default function AvailableSurveys({ patientId, forms }: AvailableSurveysP
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {forms.map((form) => {
-                const IconComponent = getCategoryIcon('แบบประเมิน');
-                const priority = getFormPriority(form.id);
+                const IconComponent = getCategoryIcon(form.label || 'แบบประเมิน');
+                const priority = form.priority_level || 'medium';
+                const timeToComplete = form.time_to_complete || 15;
+                
                 return (
-                    <Card key={form.id} className="hover:shadow-md transition-shadow">
+                    <Card key={form.form_id} className="hover:shadow-md transition-shadow">
                         <CardHeader className="pb-3">
                             <div className="flex items-start justify-between">
                                 <div className="flex items-center gap-2">
@@ -143,8 +150,7 @@ export default function AvailableSurveys({ patientId, forms }: AvailableSurveysP
                                     <CardTitle className="text-lg">{form.title}</CardTitle>
                                 </div>
                                 <Badge variant={getPriorityColor(priority) as any}>
-                                    {priority === 'high' ? 'สำคัญ' :
-                                        priority === 'medium' ? 'ปกติ' : 'ไม่เร่งด่วน'}
+                                    {getPriorityLabel(priority)}
                                 </Badge>
                             </div>
                             {form.description && (
@@ -156,13 +162,15 @@ export default function AvailableSurveys({ patientId, forms }: AvailableSurveysP
                                 <div className="flex items-center gap-4 text-sm text-muted-foreground">
                                     <div className="flex items-center gap-1">
                                         <Clock className="h-4 w-4" />
-                                        15 นาที
+                                        {timeToComplete} นาที
                                     </div>
-                                    <Badge variant="outline">แบบประเมิน</Badge>
+                                    {form.label && (
+                                        <Badge variant="outline">{form.label}</Badge>
+                                    )}
                                 </div>
                                 <Button
                                     size="sm"
-                                    onClick={() => handleStartSurvey(form.id)}
+                                    onClick={() => handleStartSurvey(form.form_id)}
                                     disabled={!nurseId}
                                     title={!nurseId ? 'กำลังโหลดข้อมูลพยาบาล...' : ''}
                                 >

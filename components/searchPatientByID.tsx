@@ -1,7 +1,7 @@
 "use client";
 
 import { PatternFormat } from "react-number-format";
-import { searchPatientByID } from "@/app/_actions/patientFormAction";
+import { searchPatientByID } from "@/app/(main)/_actions/patientFormAction";
 import { redirect } from "next/navigation";
 import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
