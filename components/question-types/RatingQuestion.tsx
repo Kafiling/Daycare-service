@@ -9,9 +9,9 @@ import { Star } from 'lucide-react';
 
 interface RatingQuestionProps {
     question: {
-        id: number;
+        question_id: number;
         question_text: string;
-        options: any;
+        options?: any;
         is_required: boolean;
         helper_text?: string;
     };
@@ -24,8 +24,8 @@ export default function RatingQuestion({
     value,
     onChange
 }: RatingQuestionProps) {
-    const maxRating = question.options?.maxRating || 5;
-    const minRating = question.options?.minRating || 1;
+    const maxRating = question.options?.max || 5;
+    const minRating = question.options?.min || 1;
     const labels = question.options?.labels || {};
 
     const ratings = Array.from(
@@ -72,7 +72,11 @@ export default function RatingQuestion({
                                         ))}
                                     </div>
                                     <span className="text-sm">
-                                        {rating} - {labels[rating] || `${rating} ดาว`}
+                                        {rating} - {
+                                            rating === minRating && labels.min ? labels.min :
+                                            rating === maxRating && labels.max ? labels.max :
+                                            `${rating} ดาว`
+                                        }
                                     </span>
                                 </Label>
                             </div>

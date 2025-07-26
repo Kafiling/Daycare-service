@@ -9,9 +9,9 @@ import { CheckCircle2, XCircle } from 'lucide-react';
 
 interface TrueFalseQuestionProps {
     question: {
-        id: number;
+        question_id: number;
         question_text: string;
-        options: any;
+        options?: any;
         is_required: boolean;
         helper_text?: string;
     };

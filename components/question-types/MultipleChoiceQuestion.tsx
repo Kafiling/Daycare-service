@@ -8,9 +8,9 @@ import { Badge } from '@/components/ui/badge';
 
 interface MultipleChoiceQuestionProps {
     question: {
-        id: number;
+        question_id: number;
         question_text: string;
-        options: any;
+        options?: any;
         is_required: boolean;
         helper_text?: string;
     };
@@ -44,8 +44,9 @@ export default function MultipleChoiceQuestion({
             </CardHeader>
             <CardContent>
                 <RadioGroup value={value} onValueChange={onChange}>
-                    {options.map((option: { value: string; label: string }, index: number) => {
-                        const isSelected = value === option.value;
+                    {options.map((option: any, index: number) => {
+                        const optionText = typeof option === 'string' ? option : option.text;
+                        const isSelected = value === optionText;
                         return (
                             <div
                                 key={index}
@@ -53,12 +54,12 @@ export default function MultipleChoiceQuestion({
                                     isSelected ? 'bg-primary/10' : ''
                                 }`}
                             >
-                                <RadioGroupItem value={option.value} id={`option-${index}`} />
+                                <RadioGroupItem value={optionText} id={`option-${index}`} />
                                 <Label
                                     htmlFor={`option-${index}`}
                                     className="cursor-pointer text-lg flex-1"
                                 >
-                                    {option.label}
+                                    {optionText}
                                 </Label>
                             </div>
                         );
