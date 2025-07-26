@@ -65,7 +65,8 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
         if (field === 'text') {
             newChoices[index] = { ...newChoices[index], text: value as string };
         } else if (field === 'score') {
-            newChoices[index] = { ...newChoices[index], score: Number(value) };
+            const scoreValue = value === '' ? 0 : Number(value);
+            newChoices[index] = { ...newChoices[index], score: scoreValue };
         }
         handleOptionChange('choices', newChoices);
     };
@@ -94,16 +95,18 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
                                     <Input
                                         value={typeof choice === 'string' ? choice : choice.text}
                                         onChange={(e) => handleMcqOptionChange(index, 'text', e.target.value)}
-                                        placeholder={`ตัวเลือกที่ ${index + 1}`}
+                                        placeholder={`ตัวเลือกที่ ${index + 1} *`}
+                                        className={`${!(typeof choice === 'string' ? choice : choice.text)?.trim() ? 'border-red-300 focus-visible:border-red-500' : ''}`}
                                     />
                                 </div>
                                 <div className="w-24">
                                     <Input
                                         type="number"
-                                        value={typeof choice === 'string' ? 0 : choice.score}
+                                        value={typeof choice === 'string' ? '' : (choice.score || '')}
                                         onChange={(e) => handleMcqOptionChange(index, 'score', e.target.value)}
                                         placeholder="0"
                                         className="w-full"
+                                        onWheel={(e) => e.currentTarget.blur()}
                                     />
                                 </div>
                                 <Button variant="ghost" size="icon" onClick={() => removeMcqOption(index)}>
@@ -125,7 +128,13 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
                 return (
                     <div className="space-y-2">
                         <Input placeholder="ข้อความตัวอย่าง" value={question.options.placeholder || ''} onChange={e => handleOptionChange('placeholder', e.target.value)} />
-                        <Input type="number" placeholder="ความยาวสูงสุด" value={question.options.maxLength || ''} onChange={e => handleOptionChange('maxLength', e.target.value)} />
+                        <Input 
+                            type="number" 
+                            placeholder="ความยาวสูงสุด" 
+                            value={question.options.maxLength || ''} 
+                            onChange={e => handleOptionChange('maxLength', e.target.value)} 
+                            onWheel={(e) => e.currentTarget.blur()}
+                        />
                         <div className="flex items-center gap-2 pt-2">
                             <Checkbox
                                 checked={question.options.multiline || false}
@@ -139,17 +148,38 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
                 return (
                     <div className="space-y-2">
                         <div className="flex gap-2">
-                            <Input type="number" placeholder="ค่าต่ำสุด (เช่น 1)" value={question.options.min || ''} onChange={e => handleOptionChange('min', e.target.value)} />
-                            <Input type="number" placeholder="ค่าสูงสุด (เช่น 5)" value={question.options.max || ''} onChange={e => handleOptionChange('max', e.target.value)} />
+                            <Input 
+                                type="number" 
+                                placeholder="ค่าต่ำสุด (เช่น 1) *" 
+                                value={question.options.min || ''} 
+                                onChange={e => handleOptionChange('min', e.target.value)} 
+                                onWheel={(e) => e.currentTarget.blur()}
+                                className={`${!question.options.min ? 'border-red-300 focus-visible:border-red-500' : ''}`}
+                            />
+                            <Input 
+                                type="number" 
+                                placeholder="ค่าสูงสุด (เช่น 5) *" 
+                                value={question.options.max || ''} 
+                                onChange={e => handleOptionChange('max', e.target.value)} 
+                                onWheel={(e) => e.currentTarget.blur()}
+                                className={`${!question.options.max ? 'border-red-300 focus-visible:border-red-500' : ''}`}
+                            />
                         </div>
-                        <Input type="number" placeholder="ขั้น (ไม่บังคับ)" value={question.options.step || ''} onChange={e => handleOptionChange('step', e.target.value)} />
+                        <Input 
+                            type="number" 
+                            placeholder="ขั้น (ไม่บังคับ)" 
+                            value={question.options.step || ''} 
+                            onChange={e => handleOptionChange('step', e.target.value)} 
+                            onWheel={(e) => e.currentTarget.blur()}
+                        />
                         <div>
                             <Label className="text-sm">ตัวคูณคะแนน (คะแนน = ค่าที่เลือก × ตัวคูณ)</Label>
                             <Input 
                                 type="number" 
                                 placeholder="1" 
-                                value={question.options.scoreMultiplier || 1} 
+                                value={question.options.scoreMultiplier || ''} 
                                 onChange={e => handleOptionChange('scoreMultiplier', Number(e.target.value))} 
+                                onWheel={(e) => e.currentTarget.blur()}
                             />
                         </div>
                         <div className="flex gap-2">
@@ -171,8 +201,9 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
                                 <Input 
                                     type="number" 
                                     placeholder="0" 
-                                    value={question.options.trueScore || 0} 
+                                    value={question.options.trueScore || ''} 
                                     onChange={e => handleOptionChange('trueScore', Number(e.target.value))} 
+                                    onWheel={(e) => e.currentTarget.blur()}
                                 />
                             </div>
                         </div>
@@ -186,8 +217,9 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
                                 <Input 
                                     type="number" 
                                     placeholder="0" 
-                                    value={question.options.falseScore || 0} 
+                                    value={question.options.falseScore || ''} 
                                     onChange={e => handleOptionChange('falseScore', Number(e.target.value))} 
+                                    onWheel={(e) => e.currentTarget.blur()}
                                 />
                             </div>
                         </div>
@@ -197,11 +229,29 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
                 return (
                     <div className="space-y-2">
                         <div className="flex gap-2">
-                            <Input type="number" placeholder="ค่าต่ำสุด" value={question.options.min || ''} onChange={e => handleOptionChange('min', e.target.value)} />
-                            <Input type="number" placeholder="ค่าสูงสุด" value={question.options.max || ''} onChange={e => handleOptionChange('max', e.target.value)} />
+                            <Input 
+                                type="number" 
+                                placeholder="ค่าต่ำสุด" 
+                                value={question.options.min || ''} 
+                                onChange={e => handleOptionChange('min', e.target.value)} 
+                                onWheel={(e) => e.currentTarget.blur()}
+                            />
+                            <Input 
+                                type="number" 
+                                placeholder="ค่าสูงสุด" 
+                                value={question.options.max || ''} 
+                                onChange={e => handleOptionChange('max', e.target.value)} 
+                                onWheel={(e) => e.currentTarget.blur()}
+                            />
                         </div>
                         <div className="flex gap-2">
-                            <Input type="number" placeholder="ขั้น (ไม่บังคับ)" value={question.options.step || ''} onChange={e => handleOptionChange('step', e.target.value)} />
+                            <Input 
+                                type="number" 
+                                placeholder="ขั้น (ไม่บังคับ)" 
+                                value={question.options.step || ''} 
+                                onChange={e => handleOptionChange('step', e.target.value)} 
+                                onWheel={(e) => e.currentTarget.blur()}
+                            />
                             <Input placeholder="หน่วย (เช่น กก., ซม.)" value={question.options.unit || ''} onChange={e => handleOptionChange('unit', e.target.value)} />
                         </div>
                         <div>
@@ -209,8 +259,9 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
                             <Input 
                                 type="number" 
                                 placeholder="1" 
-                                value={question.options.scoreMultiplier || 1} 
+                                value={question.options.scoreMultiplier || ''} 
                                 onChange={e => handleOptionChange('scoreMultiplier', Number(e.target.value))} 
+                                onWheel={(e) => e.currentTarget.blur()}
                             />
                         </div>
                         <Input placeholder="ข้อความตัวอย่าง" value={question.options.placeholder || ''} onChange={e => handleOptionChange('placeholder', e.target.value)} />
@@ -230,8 +281,8 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
                             name="question_text"
                             value={question.question_text}
                             onChange={handleInputChange}
-                            placeholder="พิมพ์คำถามของคุณที่นี่..."
-                            className="text-lg font-semibold  border-none shadow-none focus-visible:ring-0 p-0 resize-none"
+                            placeholder="พิมพ์คำถามของคุณที่นี่... *"
+                            className={`text-lg font-semibold border-none shadow-none focus-visible:ring-0 p-0 resize-none ${!question.question_text.trim() ? 'placeholder:text-red-400' : ''}`}
                         />
                         <Input
                             name="helper_text"
@@ -286,6 +337,11 @@ export default function CreateFormPage() {
     const [evaluationThresholds, setEvaluationThresholds] = useState<any[]>([]);
     const [isSaving, setIsSaving] = useState(false);
 
+    // Check if form is valid for saving
+    const isFormValid = () => {
+        return validateForm().length === 0;
+    };
+
     const addQuestion = () => {
         setQuestions([
             ...questions,
@@ -309,7 +365,7 @@ export default function CreateFormPage() {
     const addThreshold = () => {
         setEvaluationThresholds([
             ...evaluationThresholds,
-            { minScore: 0, maxScore: 10, result: '', description: '' }
+            { minScore: '', maxScore: '', result: '', description: '' }
         ]);
     };
 
@@ -323,7 +379,85 @@ export default function CreateFormPage() {
         setEvaluationThresholds(evaluationThresholds.filter((_, i) => i !== index));
     };
 
+    const validateForm = () => {
+        const errors: string[] = [];
+
+        // Check form title
+        if (!formTitle.trim()) {
+            errors.push("ชื่อฟอร์มเป็นข้อมูลที่จำเป็น");
+        }
+
+        // Check form description
+        if (!formDescription.trim()) {
+            errors.push("คำอธิบายฟอร์มเป็นข้อมูลที่จำเป็น");
+        }
+
+        // Check if there are questions
+        if (questions.length === 0) {
+            errors.push("ต้องมีคำถามอย่างน้อย 1 คำถาม");
+        }
+
+        // Validate each question
+        questions.forEach((question, index) => {
+            if (!question.question_text.trim()) {
+                errors.push(`คำถามที่ ${index + 1}: ข้อความคำถามเป็นข้อมูลที่จำเป็น`);
+            }
+
+            // Validate question-specific options
+            switch (question.question_type) {
+                case QUESTION_TYPES.MULTIPLE_CHOICE:
+                    if (!question.options.choices || question.options.choices.length === 0) {
+                        errors.push(`คำถามที่ ${index + 1}: ต้องมีตัวเลือกอย่างน้อย 1 ตัวเลือก`);
+                    } else {
+                        question.options.choices.forEach((choice: any, choiceIndex: number) => {
+                            if (!choice.text || !choice.text.trim()) {
+                                errors.push(`คำถามที่ ${index + 1}: ตัวเลือกที่ ${choiceIndex + 1} ต้องมีข้อความ`);
+                            }
+                        });
+                    }
+                    break;
+                case QUESTION_TYPES.RATING:
+                    if (!question.options.min || !question.options.max) {
+                        errors.push(`คำถามที่ ${index + 1}: ต้องกำหนดค่าต่ำสุดและค่าสูงสุด`);
+                    } else if (Number(question.options.min) >= Number(question.options.max)) {
+                        errors.push(`คำถามที่ ${index + 1}: ค่าต่ำสุดต้องน้อยกว่าค่าสูงสุด`);
+                    }
+                    break;
+                case QUESTION_TYPES.NUMBER:
+                    if (question.options.min && question.options.max && Number(question.options.min) >= Number(question.options.max)) {
+                        errors.push(`คำถามที่ ${index + 1}: ค่าต่ำสุดต้องน้อยกว่าค่าสูงสุด`);
+                    }
+                    break;
+            }
+        });
+
+        // Validate evaluation thresholds if any exist
+        if (evaluationThresholds.length > 0) {
+            evaluationThresholds.forEach((threshold, index) => {
+                if (!threshold.result || !threshold.result.trim()) {
+                    errors.push(`เกณฑ์การประเมินที่ ${index + 1}: ต้องระบุผลการประเมิน`);
+                }
+                if (threshold.minScore === '' || threshold.maxScore === '') {
+                    errors.push(`เกณฑ์การประเมินที่ ${index + 1}: ต้องระบุช่วงคะแนน`);
+                } else if (Number(threshold.minScore) >= Number(threshold.maxScore)) {
+                    errors.push(`เกณฑ์การประเมินที่ ${index + 1}: คะแนนต่ำสุดต้องน้อยกว่าคะแนนสูงสุด`);
+                }
+            });
+        }
+
+        return errors;
+    };
+
     const handleSave = async () => {
+        const validationErrors = validateForm();
+        
+        if (validationErrors.length > 0) {
+            toast.error("กรุณาแก้ไขข้อผิดพลาดต่อไปนี้:", {
+                description: validationErrors.join('\n'),
+            });
+            return;
+        }
+
         setIsSaving(true);
         const formPayload = {
             title: formTitle,
@@ -361,12 +495,28 @@ export default function CreateFormPage() {
                         </CardHeader>
                         <CardContent className="p-6 space-y-4">
                             <div>
-                                <Label htmlFor="form-title" className="pb-2 text-lg">ชื่อฟอร์ม</Label>
-                                <Input id="form-title" value={formTitle} onChange={e => setFormTitle(e.target.value)} placeholder="เช่น, ตรวจสุขภาพรายวัน" className="text-base" />
+                                <Label htmlFor="form-title" className="pb-2 text-lg">
+                                    ชื่อฟอร์ม <span className="text-red-500">*</span>
+                                </Label>
+                                <Input 
+                                    id="form-title" 
+                                    value={formTitle} 
+                                    onChange={e => setFormTitle(e.target.value)} 
+                                    placeholder="เช่น, ตรวจสุขภาพรายวัน" 
+                                    className={`text-base ${!formTitle.trim() ? 'border-red-300 focus-visible:border-red-500' : ''}`}
+                                />
                             </div>
                             <div>
-                                <Label htmlFor="form-description" className="pb-2 text-lg">คำอธิบายฟอร์ม</Label>
-                                <Textarea id="form-description" value={formDescription} onChange={e => setFormDescription(e.target.value)} placeholder="คำอธิบายสั้นๆ เกี่ยวกับวัตถุประสงค์ของฟอร์ม" className="text-base" />
+                                <Label htmlFor="form-description" className="pb-2 text-lg">
+                                    คำอธิบายฟอร์ม <span className="text-red-500">*</span>
+                                </Label>
+                                <Textarea 
+                                    id="form-description" 
+                                    value={formDescription} 
+                                    onChange={e => setFormDescription(e.target.value)} 
+                                    placeholder="คำอธิบายสั้นๆ เกี่ยวกับวัตถุประสงค์ของฟอร์ม" 
+                                    className={`text-base ${!formDescription.trim() ? 'border-red-300 focus-visible:border-red-500' : ''}`}
+                                />
                             </div>
                         </CardContent>
                     </Card>
@@ -409,27 +559,30 @@ export default function CreateFormPage() {
                                         <div className="flex items-center gap-2">
                                             <Input
                                                 type="number"
-                                                placeholder="คะแนนต่ำสุด"
-                                                value={threshold.minScore}
+                                                placeholder="คะแนนต่ำสุด *"
+                                                value={threshold.minScore || ''}
                                                 onChange={(e) => updateThreshold(index, 'minScore', Number(e.target.value))}
-                                                className="w-24"
+                                                className={`w-24 ${threshold.minScore === '' ? 'border-red-300 focus-visible:border-red-500' : ''}`}
+                                                onWheel={(e) => e.currentTarget.blur()}
                                             />
                                             <span className="text-sm text-muted-foreground">ถึง</span>
                                             <Input
                                                 type="number"
-                                                placeholder="คะแนนสูงสุด"
-                                                value={threshold.maxScore}
+                                                placeholder="คะแนนสูงสุด *"
+                                                value={threshold.maxScore || ''}
                                                 onChange={(e) => updateThreshold(index, 'maxScore', Number(e.target.value))}
-                                                className="w-24"
+                                                className={`w-24 ${threshold.maxScore === '' ? 'border-red-300 focus-visible:border-red-500' : ''}`}
+                                                onWheel={(e) => e.currentTarget.blur()}
                                             />
                                         </div>
                                     </div>
                                     <div className="flex-1 space-y-2">
-                                        <Label className="text-sm">ผลการประเมิน</Label>
+                                        <Label className="text-sm">ผลการประเมิน <span className="text-red-500">*</span></Label>
                                         <Input
                                             placeholder="เช่น ดีมาก, ดี, ปานกลาง, ต้องปรับปรุง"
                                             value={threshold.result}
                                             onChange={(e) => updateThreshold(index, 'result', e.target.value)}
+                                            className={`${!threshold.result?.trim() ? 'border-red-300 focus-visible:border-red-500' : ''}`}
                                         />
                                     </div>
                                     <div className="flex-1 space-y-2">
@@ -456,8 +609,18 @@ export default function CreateFormPage() {
                         </CardContent>
                     </Card>
 
-                    <div className="flex justify-end">
-                        <Button onClick={handleSave} size="lg" className="text-lg" disabled={isSaving}>
+                    <div className="flex flex-col items-end gap-2">
+                        {!isFormValid() && (
+                            <p className="text-sm text-red-500">
+                                กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน (ช่องที่มีเครื่องหมาย *)
+                            </p>
+                        )}
+                        <Button 
+                            onClick={handleSave} 
+                            size="lg" 
+                            className="text-lg" 
+                            disabled={isSaving || !isFormValid()}
+                        >
                             {isSaving ? "กำลังบันทึก..." : "บันทึกฟอร์ม"}
                         </Button>
                     </div>
