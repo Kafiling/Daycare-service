@@ -333,6 +333,9 @@ export default function CreateFormPage() {
     const router = useRouter();
     const [formTitle, setFormTitle] = useState('');
     const [formDescription, setFormDescription] = useState('');
+    const [formLabel, setFormLabel] = useState('');
+    const [timeToComplete, setTimeToComplete] = useState('');
+    const [priorityLevel, setPriorityLevel] = useState('medium');
     const [questions, setQuestions] = useState<Question[]>([]);
     const [evaluationThresholds, setEvaluationThresholds] = useState<any[]>([]);
     const [isSaving, setIsSaving] = useState(false);
@@ -390,6 +393,16 @@ export default function CreateFormPage() {
         // Check form description
         if (!formDescription.trim()) {
             errors.push("คำอธิบายฟอร์มเป็นข้อมูลที่จำเป็น");
+        }
+
+        // Check form label
+        if (!formLabel.trim()) {
+            errors.push("ป้ายกำกับฟอร์มเป็นข้อมูลที่จำเป็น");
+        }
+
+        // Check time to complete
+        if (!timeToComplete || Number(timeToComplete) <= 0) {
+            errors.push("เวลาในการทำฟอร์มต้องมากกว่า 0 นาที");
         }
 
         // Check if there are questions
@@ -462,6 +475,9 @@ export default function CreateFormPage() {
         const formPayload = {
             title: formTitle,
             description: formDescription,
+            label: formLabel,
+            timeToComplete: Number(timeToComplete),
+            priorityLevel: priorityLevel,
             questions: questions,
             evaluationThresholds: evaluationThresholds,
         };
@@ -517,6 +533,51 @@ export default function CreateFormPage() {
                                     placeholder="คำอธิบายสั้นๆ เกี่ยวกับวัตถุประสงค์ของฟอร์ม" 
                                     className={`text-base ${!formDescription.trim() ? 'border-red-300 focus-visible:border-red-500' : ''}`}
                                 />
+                            </div>
+                            <div>
+                                <Label htmlFor="form-label" className="pb-2 text-lg">
+                                    ป้ายกำกับ <span className="text-red-500">*</span>
+                                </Label>
+                                <Input 
+                                    id="form-label" 
+                                    value={formLabel} 
+                                    onChange={e => setFormLabel(e.target.value)} 
+                                    placeholder="เช่น สุขภาพ, การดูแล, การประเมิน" 
+                                    className={`text-base ${!formLabel.trim() ? 'border-red-300 focus-visible:border-red-500' : ''}`}
+                                />
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <Label htmlFor="time-to-complete" className="pb-2 text-lg">
+                                        เวลาในการทำฟอร์ม (นาที) <span className="text-red-500">*</span>
+                                    </Label>
+                                    <Input 
+                                        id="time-to-complete" 
+                                        type="number"
+                                        value={timeToComplete} 
+                                        onChange={e => setTimeToComplete(e.target.value)} 
+                                        placeholder="เช่น 5, 10, 15" 
+                                        className={`text-base ${!timeToComplete || Number(timeToComplete) <= 0 ? 'border-red-300 focus-visible:border-red-500' : ''}`}
+                                        onWheel={(e) => e.currentTarget.blur()}
+                                        min="1"
+                                    />
+                                </div>
+                                <div>
+                                    <Label htmlFor="priority-level" className="pb-2 text-lg">
+                                        ระดับความสำคัญ <span className="text-red-500">*</span>
+                                    </Label>
+                                    <Select value={priorityLevel} onValueChange={setPriorityLevel}>
+                                        <SelectTrigger id="priority-level" className="text-base">
+                                            <SelectValue placeholder="เลือกระดับความสำคัญ" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="low">ต่ำ</SelectItem>
+                                            <SelectItem value="medium">ปานกลาง</SelectItem>
+                                            <SelectItem value="high">สูง</SelectItem>
+                                            <SelectItem value="urgent">เร่งด่วน</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
                             </div>
                         </CardContent>
                     </Card>

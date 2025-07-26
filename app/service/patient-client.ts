@@ -26,11 +26,15 @@ export interface Form {
     form_id: string;
     title: string;
     description?: string;
+    label?: string;
+    time_to_complete?: number;
+    priority_level?: string;
     created_by?: string;
     version: number;
     is_active: boolean;
     created_at: string;
     updated_at: string;
+    evaluation_thresholds?: any;
 }
 
 export interface Question {
@@ -45,14 +49,21 @@ export interface Question {
     updated_at: string;
 }
 
-export interface FormResponse {
-    id: string;
+export interface FormSubmissionWithForm {
+    id: number;
     patient_id: string;
     form_id: string;
-    nurse_id: string;
     submitted_at: string;
     status?: string;
     notes?: string;
+    form: {
+        form_id: string;
+        title: string;
+        description?: string;
+        label?: string;
+        time_to_complete?: number;
+        priority_level?: 'low' | 'medium' | 'high';
+    };
 }
 
 export interface QuestionAnswer {
@@ -169,7 +180,7 @@ export async function getQuestionById(questionId: number, formId: string): Promi
 /**
  * Get completed form submissions for a patient
  */
-export async function getPatientFormResponses(patientId: string): Promise<FormResponse[]> {
+export async function getPatientFormResponses(patientId: string): Promise<FormSubmissionWithForm[]> {
     const supabase = createClient();
 
     const { data, error } = await supabase

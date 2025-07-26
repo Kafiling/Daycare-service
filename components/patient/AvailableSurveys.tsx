@@ -21,8 +21,8 @@ import {
 import { getCurrentUserProfile } from '@/app/service/nurse-client';
 
 // Icon mapping for form categories
-const getCategoryIcon = (category: string) => {
-    switch (category?.toLowerCase()) {
+const getCategoryIcon = (label: string) => {
+    switch (label?.toLowerCase()) {
         case 'สุขภาพทั่วไป':
         case 'สุขภาพ':
             return Heart;
@@ -34,26 +34,30 @@ const getCategoryIcon = (category: string) => {
             return AlertCircle;
         case 'กิจกรรมประจำวัน':
         case 'กิจกรรม':
+        case 'การดูแล':
             return User;
         default:
             return FileText;
     }
 };
 
-// Priority mapping for forms
-const getFormPriority = (formId: string) => {
-    // For UUID form_ids, we can use a different logic
-    // Perhaps based on form title or creation date
-    // For now, returning 'medium' as default
-    return 'medium';
-};
-
 const getPriorityColor = (priority: string) => {
-    switch (priority) {
+    switch (priority?.toLowerCase()) {
+        case 'urgent': return 'destructive';
         case 'high': return 'destructive';
         case 'medium': return 'default';
         case 'low': return 'secondary';
         default: return 'default';
+    }
+};
+
+const getPriorityLabel = (priority: string) => {
+    switch (priority?.toLowerCase()) {
+        case 'urgent': return 'เร่งด่วน';
+        case 'high': return 'สำคัญ';
+        case 'medium': return 'ปกติ';
+        case 'low': return 'ไม่เร่งด่วน';
+        default: return 'ปกติ';
     }
 };
 
@@ -133,8 +137,10 @@ export default function AvailableSurveys({ patientId, forms }: AvailableSurveysP
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {forms.map((form) => {
-                const IconComponent = getCategoryIcon('แบบประเมิน');
-                const priority = getFormPriority(form.form_id);
+                const IconComponent = getCategoryIcon(form.label || 'แบบประเมิน');
+                const priority = form.priority_level || 'medium';
+                const timeToComplete = form.time_to_complete || 15;
+                
                 return (
                     <Card key={form.form_id} className="hover:shadow-md transition-shadow">
                         <CardHeader className="pb-3">
@@ -144,8 +150,7 @@ export default function AvailableSurveys({ patientId, forms }: AvailableSurveysP
                                     <CardTitle className="text-lg">{form.title}</CardTitle>
                                 </div>
                                 <Badge variant={getPriorityColor(priority) as any}>
-                                    {priority === 'high' ? 'สำคัญ' :
-                                        priority === 'medium' ? 'ปกติ' : 'ไม่เร่งด่วน'}
+                                    {getPriorityLabel(priority)}
                                 </Badge>
                             </div>
                             {form.description && (
@@ -157,9 +162,11 @@ export default function AvailableSurveys({ patientId, forms }: AvailableSurveysP
                                 <div className="flex items-center gap-4 text-sm text-muted-foreground">
                                     <div className="flex items-center gap-1">
                                         <Clock className="h-4 w-4" />
-                                        15 นาที
+                                        {timeToComplete} นาที
                                     </div>
-                                    <Badge variant="outline">แบบประเมิน</Badge>
+                                    {form.label && (
+                                        <Badge variant="outline">{form.label}</Badge>
+                                    )}
                                 </div>
                                 <Button
                                     size="sm"

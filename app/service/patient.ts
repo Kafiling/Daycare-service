@@ -30,11 +30,15 @@ export interface Form {
     form_id: string;
     title: string;
     description?: string;
+    label?: string;
+    time_to_complete?: number;
+    priority_level?: string;
     created_by?: string;
     version: number;
     is_active: boolean;
     created_at: string;
     updated_at: string;
+    evaluation_thresholds?: any;
 }
 
 export interface Question {
@@ -73,6 +77,9 @@ export interface FormSubmissionWithForm {
         form_id: string;
         title: string;
         description?: string;
+        label?: string;
+        time_to_complete?: number;
+        priority_level?: 'low' | 'medium' | 'high';
     };
 }
 
@@ -235,7 +242,10 @@ export async function getCompletedSubmissions(patientId: string): Promise<FormSu
       forms (
         form_id,
         title,
-        description
+        description,
+        label,
+        time_to_complete,
+        priority_level
       )
     `)
         .eq('patient_id', patientId)
