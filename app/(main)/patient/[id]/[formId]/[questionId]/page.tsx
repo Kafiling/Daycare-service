@@ -89,19 +89,26 @@ export default function QuestionPage() {
         }
     };
 
-    const calculateTotalScore = (answers: Record<string, string>, questions: any[]) => {
+    const calculateTotalScore = (answers: Record<number, string>, questions: any[]) => {
         let totalScore = 0;
         
-        Object.entries(answers).forEach(([questionId, answer]) => {
-            const question = questions.find(q => q.question_id.toString() === questionId);
-            if (!question) return;
+        Object.entries(answers).forEach(([questionIdStr, answer]) => {
+            const questionId = parseInt(questionIdStr, 10); // Convert string back to number
+            const question = questions.find(q => q.question_id === questionId);
+            if (!question) {
+                console.log(`⚠️ Question not found for ID: ${questionId}`);
+                return;
+            }
             
             let questionScore = 0;
+            console.log(`🔍 Processing question ${questionId}, type: ${question.question_type}, answer: ${answer}`);
             
             switch (question.question_type) {
                 case 'multiple_choice':
+                case 'multipleChoice':
                     // Find the score for the selected option
                     const choices = question.options?.choices || [];
+                    console.log(`🔍 Multiple choice choices:`, choices);
                     const selectedChoice = choices.find((choice: any) => {
                         const choiceText = typeof choice === 'string' ? choice : choice.text;
                         return choiceText === answer;
@@ -109,16 +116,22 @@ export default function QuestionPage() {
                     
                     if (selectedChoice) {
                         questionScore = typeof selectedChoice === 'string' ? 0 : (selectedChoice.score || 0);
+                        console.log(`✅ Multiple choice score: ${questionScore} for answer: ${answer}`);
+                    } else {
+                        console.log(`⚠️ No matching choice found for answer: ${answer}`);
                     }
                     break;
                     
                 case 'true_false':
+                case 'trueFalse':
                     // True/False scoring logic
                     const options = question.options || {};
                     if (answer === 'true' && options.trueScore !== undefined) {
                         questionScore = options.trueScore;
+                        console.log(`✅ True/False score (true): ${questionScore}`);
                     } else if (answer === 'false' && options.falseScore !== undefined) {
                         questionScore = options.falseScore;
+                        console.log(`✅ True/False score (false): ${questionScore}`);
                     }
                     break;
                     
@@ -127,6 +140,7 @@ export default function QuestionPage() {
                     const ratingValue = parseInt(answer || '0', 10);
                     questionScore = question.options?.scoreMultiplier ? 
                         ratingValue * question.options.scoreMultiplier : ratingValue;
+                    console.log(`✅ Rating score: ${questionScore} (${ratingValue} × ${question.options?.scoreMultiplier || 1})`);
                     break;
                     
                 case 'number':
@@ -134,20 +148,25 @@ export default function QuestionPage() {
                     const numberValue = parseInt(answer || '0', 10);
                     questionScore = question.options?.scoreMultiplier ? 
                         numberValue * question.options.scoreMultiplier : numberValue;
+                    console.log(`✅ Number score: ${questionScore} (${numberValue} × ${question.options?.scoreMultiplier || 1})`);
                     break;
                     
                 case 'text':
                     // Text questions typically don't contribute to scoring
                     questionScore = 0;
+                    console.log(`✅ Text question score: ${questionScore}`);
                     break;
                     
                 default:
                     questionScore = 0;
+                    console.log(`⚠️ Unknown question type: ${question.question_type}, score: ${questionScore}`);
             }
             
+            console.log(`📊 Question ${questionId} contributes ${questionScore} points`);
             totalScore += questionScore;
         });
         
+        console.log(`🎯 Final total score: ${totalScore}`);
         return totalScore;
     };
 
@@ -157,9 +176,12 @@ export default function QuestionPage() {
         
         try {
             // Calculate total score using proper evaluation logic
+            console.log('🔍 Input data for score calculation:');
+            console.log('📝 Answers:', answers);
+            console.log('❓ Questions:', questions.map(q => ({ id: q.question_id, type: q.question_type, options: q.options })));
+            
             const totalScore = calculateTotalScore(answers, questions);
-            console.log('📊 Calculated total score:', totalScore);
-            console.log('📝 Answers object:', answers);
+            console.log('� Calculated total score:', totalScore);
 
             // Save the submission to Supabase
             const supabase = createClient();

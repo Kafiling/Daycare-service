@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, Home, AlertCircle, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
+import RedoFormButton from '@/components/RedoFormButton';
 
 interface ResultPageProps {
     params: Promise<{
@@ -157,17 +158,8 @@ export default async function ResultPage({ params, searchParams }: ResultPagePro
         patientData: patient
     });
 
-    // Calculate percentage if we have threshold data
+    // Get thresholds for evaluation thresholds display
     const thresholds = submission.forms?.evaluation_thresholds || [];
-    const maxPossibleScore = thresholds.length > 0 ?
-        Math.max(...thresholds.map((t: any) => t.maxScore || 0)) : 100;
-    const percentage = maxPossibleScore > 0 ? Math.round((totalScore / maxPossibleScore) * 100) : 0;
-
-    console.log('🎯 Score calculation:', {
-        thresholds: thresholds.length,
-        maxPossibleScore,
-        percentage
-    });
 
     return (
         <div className="container mx-auto p-6">
@@ -188,18 +180,7 @@ export default async function ResultPage({ params, searchParams }: ResultPagePro
                         <p className="text-lg text-muted-foreground">คะแนนรวมของคุณคือ</p>
                         <div className="flex items-center justify-center gap-4 mt-2">
                             <p className="text-6xl font-bold text-primary">{totalScore}</p>
-                            {percentage > 0 && (
-                                <div className="text-right">
-                                    <p className="text-sm text-muted-foreground">เปอร์เซ็นต์</p>
-                                    <p className="text-2xl font-semibold text-blue-600">{percentage}%</p>
-                                </div>
-                            )}
                         </div>
-                        {maxPossibleScore > 0 && (
-                            <p className="text-sm text-muted-foreground mt-2">
-                                จากคะแนนเต็ม {maxPossibleScore} คะแนน
-                            </p>
-                        )}
                     </div>
 
                     {/* Evaluation Result */}
@@ -298,6 +279,7 @@ export default async function ResultPage({ params, searchParams }: ResultPagePro
                     </Card>
 
                     {/* Action Buttons */}
+                                        {/* Action Buttons */}
                     <div className="flex flex-col sm:flex-row gap-3 pt-4">
                         <Link href={`/patient/${patientId}/home`} className="flex-1">
                             <Button className="w-full text-base px-8 py-4">
@@ -305,11 +287,11 @@ export default async function ResultPage({ params, searchParams }: ResultPagePro
                                 กลับไปหน้าหลัก
                             </Button>
                         </Link>
-                        <Link href={`/patient/${patientId}/${formId}`} className="flex-1">
-                            <Button variant="outline" className="w-full text-base px-8 py-4">
-                                ทำแบบประเมินใหม่
-                            </Button>
-                        </Link>
+                        <RedoFormButton 
+                            patientId={patientId} 
+                            formId={formId}
+                            className="flex-1"
+                        />
                     </div>
                 </CardContent>
             </Card>
