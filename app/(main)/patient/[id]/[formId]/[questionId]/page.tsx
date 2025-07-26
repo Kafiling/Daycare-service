@@ -89,13 +89,75 @@ export default function QuestionPage() {
         }
     };
 
+    const calculateTotalScore = (answers: Record<string, string>, questions: any[]) => {
+        let totalScore = 0;
+        
+        Object.entries(answers).forEach(([questionId, answer]) => {
+            const question = questions.find(q => q.question_id.toString() === questionId);
+            if (!question) return;
+            
+            let questionScore = 0;
+            
+            switch (question.question_type) {
+                case 'multiple_choice':
+                    // Find the score for the selected option
+                    const choices = question.options?.choices || [];
+                    const selectedChoice = choices.find((choice: any) => {
+                        const choiceText = typeof choice === 'string' ? choice : choice.text;
+                        return choiceText === answer;
+                    });
+                    
+                    if (selectedChoice) {
+                        questionScore = typeof selectedChoice === 'string' ? 0 : (selectedChoice.score || 0);
+                    }
+                    break;
+                    
+                case 'true_false':
+                    // True/False scoring logic
+                    const options = question.options || {};
+                    if (answer === 'true' && options.trueScore !== undefined) {
+                        questionScore = options.trueScore;
+                    } else if (answer === 'false' && options.falseScore !== undefined) {
+                        questionScore = options.falseScore;
+                    }
+                    break;
+                    
+                case 'rating':
+                    // Rating scoring - can use the rating value directly or map it
+                    const ratingValue = parseInt(answer || '0', 10);
+                    questionScore = question.options?.scoreMultiplier ? 
+                        ratingValue * question.options.scoreMultiplier : ratingValue;
+                    break;
+                    
+                case 'number':
+                    // Number scoring - can use the number directly or apply ranges
+                    const numberValue = parseInt(answer || '0', 10);
+                    questionScore = question.options?.scoreMultiplier ? 
+                        numberValue * question.options.scoreMultiplier : numberValue;
+                    break;
+                    
+                case 'text':
+                    // Text questions typically don't contribute to scoring
+                    questionScore = 0;
+                    break;
+                    
+                default:
+                    questionScore = 0;
+            }
+            
+            totalScore += questionScore;
+        });
+        
+        return totalScore;
+    };
+
     const handleComplete = async () => {
         setIsSaving(true);
         console.log('🚀 Starting form submission process...');
         
         try {
-            // Calculate total score
-            const totalScore = Object.values(answers).reduce((sum, value) => sum + parseInt(value || '0', 10), 0);
+            // Calculate total score using proper evaluation logic
+            const totalScore = calculateTotalScore(answers, questions);
             console.log('📊 Calculated total score:', totalScore);
             console.log('📝 Answers object:', answers);
 

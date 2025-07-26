@@ -13,6 +13,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { createForm } from './action';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import { QUESTION_TYPES, getQuestionTypeOptions, getDefaultOptions, type QuestionType } from '@/lib/question-types';
 
 
 // TODO add ประเมิน
@@ -20,25 +21,18 @@ import { useRouter } from 'next/navigation';
 interface Question {
     id: string;
     question_text: string;
-    question_type: string;
+    question_type: QuestionType;
     is_required: boolean;
     helper_text: string;
     options: any;
 }
 
-// Based on your readme.md spec
-const questionTypes = [
-    { value: 'multipleChoice', label: 'หลายตัวเลือก' },
-    { value: 'text', label: 'ป้อนข้อความ' },
-    { value: 'rating', label: 'มาตรวัดระดับ' },
-    { value: 'trueFalse', label: 'จริง/เท็จ' },
-    { value: 'number', label: 'ป้อนตัวเลข' },
-];
+const questionTypeOptions = getQuestionTypeOptions();
 
 const initialQuestionState = {
     id: '',
     question_text: '',
-    question_type: 'text',
+    question_type: QUESTION_TYPES.TEXT,
     is_required: false,
     helper_text: '',
     options: {},
@@ -54,18 +48,8 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
         updateQuestion(question.id, { ...question, is_required: checked });
     };
 
-    const handleTypeChange = (type: string) => {
-        let newOptions = {};
-        if (type === 'multipleChoice') {
-            newOptions = {
-                choices: Array.from({ length: 4 }, () => ({ value: '', label: '' })),
-            };
-        } else if (type === 'trueFalse') {
-            newOptions = {
-                trueLabel: 'ใช่',
-                falseLabel: 'ไม่ใช่',
-            };
-        }
+    const handleTypeChange = (type: QuestionType) => {
+        const newOptions = getDefaultOptions(type);
         updateQuestion(question.id, { ...question, question_type: type, options: newOptions });
     };
 
@@ -76,14 +60,18 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
         });
     };
 
-    const handleMcqOptionChange = (index: number, value: string) => {
+    const handleMcqOptionChange = (index: number, field: 'text' | 'score', value: string | number) => {
         const newChoices = [...(question.options.choices || [])];
-        newChoices[index] = { value: value, label: value };
+        if (field === 'text') {
+            newChoices[index] = { ...newChoices[index], text: value as string };
+        } else if (field === 'score') {
+            newChoices[index] = { ...newChoices[index], score: Number(value) };
+        }
         handleOptionChange('choices', newChoices);
     };
 
     const addMcqOption = () => {
-        const newChoices = [...(question.options.choices || []), { value: '', label: '' }];
+        const newChoices = [...(question.options.choices || []), { text: '', score: 0 }];
         handleOptionChange('choices', newChoices);
     };
 
@@ -96,16 +84,23 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
 
     const renderOptions = () => {
         switch (question.question_type) {
-            case 'multipleChoice':
+            case QUESTION_TYPES.MULTIPLE_CHOICE:
                 return (
                     <div className="space-y-2">
 
-                        {(question.options.choices || []).map((choice: { value: string }, index: number) => (
+                        {(question.options.choices || []).map((choice: any, index: number) => (
                             <div key={index} className="flex items-center gap-2">
                                 <Input
-                                    value={choice.value}
-                                    onChange={(e) => handleMcqOptionChange(index, e.target.value)}
+                                    value={typeof choice === 'string' ? choice : choice.text}
+                                    onChange={(e) => handleMcqOptionChange(index, 'text', e.target.value)}
                                     placeholder={`ตัวเลือกที่ ${index + 1}`}
+                                />
+                                <Input
+                                    type="number"
+                                    value={typeof choice === 'string' ? 0 : choice.score}
+                                    onChange={(e) => handleMcqOptionChange(index, 'score', e.target.value)}
+                                    placeholder="คะแนน"
+                                    className="w-20"
                                 />
                                 <Button variant="ghost" size="icon" onClick={() => removeMcqOption(index)}>
                                     <Trash2 className="h-4 w-4" />
@@ -122,7 +117,7 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
                         </div>
                     </div>
                 );
-            case 'text':
+            case QUESTION_TYPES.TEXT:
                 return (
                     <div className="space-y-2">
                         <Input placeholder="ข้อความตัวอย่าง" value={question.options.placeholder || ''} onChange={e => handleOptionChange('placeholder', e.target.value)} />
@@ -136,7 +131,7 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
                         </div>
                     </div>
                 );
-            case 'rating':
+            case QUESTION_TYPES.RATING:
                 return (
                     <div className="space-y-2">
                         <div className="flex gap-2">
@@ -144,20 +139,44 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
                             <Input type="number" placeholder="ค่าสูงสุด (เช่น 5)" value={question.options.max || ''} onChange={e => handleOptionChange('max', e.target.value)} />
                         </div>
                         <Input type="number" placeholder="ขั้น (ไม่บังคับ)" value={question.options.step || ''} onChange={e => handleOptionChange('step', e.target.value)} />
+                        <Input 
+                            type="number" 
+                            placeholder="ตัวคูณคะแนน (เช่น 1)" 
+                            value={question.options.scoreMultiplier || 1} 
+                            onChange={e => handleOptionChange('scoreMultiplier', Number(e.target.value))} 
+                        />
                         <div className="flex gap-2">
                             <Input placeholder="ป้ายกำกับค่าต่ำสุด (ไม่บังคับ)" value={question.options.labels?.min || ''} onChange={e => handleOptionChange('labels', { ...(question.options.labels || {}), min: e.target.value })} />
                             <Input placeholder="ป้ายกำกับค่าสูงสุด (ไม่บังคับ)" value={question.options.labels?.max || ''} onChange={e => handleOptionChange('labels', { ...(question.options.labels || {}), max: e.target.value })} />
                         </div>
                     </div>
                 );
-            case 'trueFalse':
+            case QUESTION_TYPES.TRUE_FALSE:
                 return (
                     <div className="flex flex-col gap-4">
-                        <Input placeholder="ป้ายกำกับสำหรับ 'จริง'" value={question.options.trueLabel || ''} onChange={e => handleOptionChange('trueLabel', e.target.value)} />
-                        <Input placeholder="ป้ายกำกับสำหรับ 'เท็จ'" value={question.options.falseLabel || ''} onChange={e => handleOptionChange('falseLabel', e.target.value)} />
+                        <div className="flex items-center gap-2">
+                            <Input placeholder="ป้ายกำกับสำหรับ 'จริง'" value={question.options.trueLabel || ''} onChange={e => handleOptionChange('trueLabel', e.target.value)} />
+                            <Input 
+                                type="number" 
+                                placeholder="คะแนน" 
+                                value={question.options.trueScore || 0} 
+                                onChange={e => handleOptionChange('trueScore', Number(e.target.value))} 
+                                className="w-20"
+                            />
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Input placeholder="ป้ายกำกับสำหรับ 'เท็จ'" value={question.options.falseLabel || ''} onChange={e => handleOptionChange('falseLabel', e.target.value)} />
+                            <Input 
+                                type="number" 
+                                placeholder="คะแนน" 
+                                value={question.options.falseScore || 0} 
+                                onChange={e => handleOptionChange('falseScore', Number(e.target.value))} 
+                                className="w-20"
+                            />
+                        </div>
                     </div>
                 );
-            case 'number':
+            case QUESTION_TYPES.NUMBER:
                 return (
                     <div className="space-y-2">
                         <div className="flex gap-2">
@@ -168,6 +187,12 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
                             <Input type="number" placeholder="ขั้น (ไม่บังคับ)" value={question.options.step || ''} onChange={e => handleOptionChange('step', e.target.value)} />
                             <Input placeholder="หน่วย (เช่น กก., ซม.)" value={question.options.unit || ''} onChange={e => handleOptionChange('unit', e.target.value)} />
                         </div>
+                        <Input 
+                            type="number" 
+                            placeholder="ตัวคูณคะแนน (เช่น 1)" 
+                            value={question.options.scoreMultiplier || 1} 
+                            onChange={e => handleOptionChange('scoreMultiplier', Number(e.target.value))} 
+                        />
                         <Input placeholder="ข้อความตัวอย่าง" value={question.options.placeholder || ''} onChange={e => handleOptionChange('placeholder', e.target.value)} />
                     </div>
                 );
@@ -209,7 +234,7 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
                                 <SelectValue placeholder="เลือกประเภทคำถาม" />
                             </SelectTrigger>
                             <SelectContent>
-                                {questionTypes.map(qt => (
+                                {questionTypeOptions.map(qt => (
                                     <SelectItem key={qt.value} value={qt.value}>{qt.label}</SelectItem>
                                 ))}
                             </SelectContent>
@@ -246,10 +271,8 @@ export default function CreateFormPage() {
             {
                 ...initialQuestionState,
                 id: uuidv4(),
-                question_type: 'multipleChoice',
-                options: {
-                    choices: Array.from({ length: 4 }, () => ({ value: '', label: '' })),
-                },
+                question_type: QUESTION_TYPES.MULTIPLE_CHOICE,
+                options: getDefaultOptions(QUESTION_TYPES.MULTIPLE_CHOICE),
             },
         ]);
     };
