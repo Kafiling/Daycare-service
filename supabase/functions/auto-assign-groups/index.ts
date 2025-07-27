@@ -9,7 +9,7 @@ interface SubmissionPayload {
     id: string;
     patient_id: string;
     form_id: string;
-    total_score?: number;
+    total_evaluation_score?: number;
     submitted_at: string;
     status?: string;
   };
@@ -172,10 +172,10 @@ async function calculatePatientScores(
 
   // Get all submissions for this patient with scores
   const { data: submissions, error } = await supabaseClient
-    .from('form_submissions')
-    .select('form_id, total_score, submitted_at')
+    .from('submissions')
+    .select('form_id, total_evaluation_score, submitted_at')
     .eq('patient_id', patientId)
-    .not('total_score', 'is', null)
+    .not('total_evaluation_score', 'is', null)
     .order('submitted_at', { ascending: false });
 
   if (error) {
@@ -195,7 +195,7 @@ async function calculatePatientScores(
   for (const [formId, submission] of latestSubmissions) {
     scoresMap.set(formId, {
       form_id: formId,
-      score: submission.total_score,
+      score: submission.total_evaluation_score,
       weight: 1.0, // Default weight, will be overridden by rule config
       submission_date: submission.submitted_at
     });

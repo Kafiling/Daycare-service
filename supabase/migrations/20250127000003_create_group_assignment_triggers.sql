@@ -11,8 +11,8 @@ BEGIN
     RETURN COALESCE(NEW, OLD);
   END IF;
 
-  -- Only process if total_score is present (completed submission)
-  IF NEW.total_score IS NULL THEN
+  -- Only process if total_evaluation_score is present (completed submission)
+  IF NEW.total_evaluation_score IS NULL THEN
     RETURN NEW;
   END IF;
 
@@ -50,11 +50,11 @@ EXCEPTION WHEN OTHERS THEN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Create trigger on form_submissions table
-DROP TRIGGER IF EXISTS form_submissions_group_assignment ON public.form_submissions;
-CREATE TRIGGER form_submissions_group_assignment
-  AFTER INSERT OR UPDATE OF total_score
-  ON public.form_submissions
+-- Create trigger on submissions table
+DROP TRIGGER IF EXISTS submissions_group_assignment ON public.submissions;
+CREATE TRIGGER submissions_group_assignment
+  AFTER INSERT OR UPDATE OF total_evaluation_score
+  ON public.submissions
   FOR EACH ROW
   EXECUTE FUNCTION public.trigger_group_assignment();
 
@@ -69,9 +69,9 @@ DECLARE
 BEGIN
   -- Get the latest submission for this patient
   SELECT * INTO latest_submission
-  FROM public.form_submissions 
+  FROM public.submissions 
   WHERE patient_id = patient_id_param 
-    AND total_score IS NOT NULL
+    AND total_evaluation_score IS NOT NULL
   ORDER BY submitted_at DESC 
   LIMIT 1;
 
@@ -88,7 +88,7 @@ BEGIN
   -- Prepare the payload
   payload := jsonb_build_object(
     'type', 'UPDATE',
-    'table', 'form_submissions',
+    'table', 'submissions',
     'record', row_to_json(latest_submission)
   );
 
@@ -125,8 +125,8 @@ BEGIN
   -- Loop through all patients with completed submissions
   FOR patient_record IN 
     SELECT DISTINCT patient_id 
-    FROM public.form_submissions 
-    WHERE total_score IS NOT NULL
+    FROM public.submissions 
+    WHERE total_evaluation_score IS NOT NULL
   LOOP
     -- Trigger assignment for each patient
     SELECT public.manually_assign_patient_group(patient_record.patient_id) INTO result;

@@ -39,14 +39,25 @@ The system uses the following tables:
 
 Run the migrations in order:
 ```sql
--- 1. Create patient groups table
+-- 1. Create patient groups table and add group_id to patients table
 \i supabase/migrations/20250127000001_create_patient_groups.sql
 
--- 2. Create assignment system tables
+-- 2. Create assignment system tables (rules, thresholds, history)
 \i supabase/migrations/20250127000002_create_group_assignment_system.sql
 
--- 3. Create triggers and functions
+-- 3. Create triggers and functions for automatic assignment
 \i supabase/migrations/20250127000003_create_group_assignment_triggers.sql
+```
+
+Or if using Supabase CLI:
+```bash
+# Apply all migrations
+supabase db push
+
+# Or apply them individually in order
+supabase db push --file supabase/migrations/20250127000001_create_patient_groups.sql
+supabase db push --file supabase/migrations/20250127000002_create_group_assignment_system.sql
+supabase db push --file supabase/migrations/20250127000003_create_group_assignment_triggers.sql
 ```
 
 ### 2. Supabase Edge Functions Setup
