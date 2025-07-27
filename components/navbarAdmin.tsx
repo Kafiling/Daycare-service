@@ -20,15 +20,24 @@ export async function NavbarAdmin() {
         </Link>
 
         <div className="flex items-center gap-6">
-          {/*
           <Link
-            href="/"
+            href="/admin"
             className="text-sm font-medium transition-colors hover:text-primary"
           >
-            แดชบอร์ดพนังงาน
+            แดชบอร์ดแอดมิน
           </Link>
-          <NavbarCurrentPatient />
-          */}
+          <Link
+            href="/admin/create-form"
+            className="text-sm font-medium transition-colors hover:text-primary"
+          >
+            สร้างแบบฟอร์ม
+          </Link>
+          <Link
+            href="/admin/manage-staff"
+            className="text-sm font-medium transition-colors hover:text-primary"
+          >
+            จัดการพนักงาน
+          </Link>
         </div>
 
         <div className="flex items-center gap-6 ml-auto">
