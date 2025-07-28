@@ -39,7 +39,7 @@ export async function NavbarAdmin() {
             จัดการพนักงาน
           </Link>
           <Link
-            href="/admin/manage-group-assignments"
+            href="/admin/manage-group"
             className="text-sm font-medium transition-colors hover:text-primary"
           >
             แบ่งกลุ่มอัตโนมัติ

@@ -42,13 +42,13 @@ Deno.serve(async (req) => {
 
     // Verify user is authenticated
     const { data: { user }, error: authError } = await supabaseClient.auth.getUser()
-    
+
     if (authError || !user) {
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
-        { 
-          status: 401, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       )
     }
@@ -68,9 +68,9 @@ Deno.serve(async (req) => {
       default:
         return new Response(
           JSON.stringify({ error: 'Method not allowed' }),
-          { 
-            status: 405, 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          {
+            status: 405,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
           }
         )
     }
@@ -78,9 +78,9 @@ Deno.serve(async (req) => {
     console.error('Error in manage-groups function:', error)
     return new Response(
       JSON.stringify({ error: 'Internal server error' }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     )
   }
@@ -96,26 +96,26 @@ async function handleGetGroups(supabaseClient: any, corsHeaders: Record<string, 
     if (error) {
       return new Response(
         JSON.stringify({ error: error.message }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       )
     }
 
     return new Response(
       JSON.stringify({ groups }),
-      { 
-        status: 200, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     )
   } catch (error) {
     return new Response(
       JSON.stringify({ error: 'Failed to fetch groups' }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     )
   }
@@ -128,9 +128,9 @@ async function handleCreateGroup(req: Request, supabaseClient: any, corsHeaders:
     if (!name) {
       return new Response(
         JSON.stringify({ error: 'Group name is required' }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       )
     }
@@ -148,26 +148,26 @@ async function handleCreateGroup(req: Request, supabaseClient: any, corsHeaders:
     if (error) {
       return new Response(
         JSON.stringify({ error: error.message }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       )
     }
 
     return new Response(
       JSON.stringify({ group }),
-      { 
-        status: 201, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      {
+        status: 201,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     )
   } catch (error) {
     return new Response(
       JSON.stringify({ error: 'Failed to create group' }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     )
   }
@@ -179,9 +179,9 @@ async function handleUpdateGroup(req: Request, supabaseClient: any, corsHeaders:
     if (!groupId) {
       return new Response(
         JSON.stringify({ error: 'Group ID is required' }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       )
     }
@@ -196,9 +196,9 @@ async function handleUpdateGroup(req: Request, supabaseClient: any, corsHeaders:
     if (Object.keys(updates).length === 0) {
       return new Response(
         JSON.stringify({ error: 'No valid fields to update' }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       )
     }
@@ -213,26 +213,26 @@ async function handleUpdateGroup(req: Request, supabaseClient: any, corsHeaders:
     if (error) {
       return new Response(
         JSON.stringify({ error: error.message }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       )
     }
 
     return new Response(
       JSON.stringify({ group }),
-      { 
-        status: 200, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     )
   } catch (error) {
     return new Response(
       JSON.stringify({ error: 'Failed to update group' }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     )
   }
@@ -244,9 +244,9 @@ async function handleDeleteGroup(supabaseClient: any, corsHeaders: Record<string
     if (!groupId) {
       return new Response(
         JSON.stringify({ error: 'Group ID is required' }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       )
     }
@@ -261,9 +261,9 @@ async function handleDeleteGroup(supabaseClient: any, corsHeaders: Record<string
     if (checkError) {
       return new Response(
         JSON.stringify({ error: 'Failed to check group usage' }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       )
     }
@@ -271,9 +271,9 @@ async function handleDeleteGroup(supabaseClient: any, corsHeaders: Record<string
     if (patients && patients.length > 0) {
       return new Response(
         JSON.stringify({ error: 'Cannot delete group with assigned patients' }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       )
     }
@@ -286,26 +286,26 @@ async function handleDeleteGroup(supabaseClient: any, corsHeaders: Record<string
     if (error) {
       return new Response(
         JSON.stringify({ error: error.message }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       )
     }
 
     return new Response(
       JSON.stringify({ message: 'Group deleted successfully' }),
-      { 
-        status: 200, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     )
   } catch (error) {
     return new Response(
       JSON.stringify({ error: 'Failed to delete group' }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     )
   }

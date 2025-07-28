@@ -5,7 +5,7 @@ import { GroupAssignmentManagementClient } from './GroupAssignmentManagementClie
 
 export default async function ManageGroupAssignmentsPage() {
   const supabase = await createClient();
-  
+
   // Check if user is authenticated
   const { data: { user }, error } = await supabase.auth.getUser();
   if (error || !user) {
