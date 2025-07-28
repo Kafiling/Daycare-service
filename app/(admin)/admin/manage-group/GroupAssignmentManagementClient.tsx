@@ -1045,10 +1045,176 @@ export function GroupAssignmentManagementClient() {
             </DialogDescription>
           </DialogHeader>
 
-          {/* Similar form structure as create dialog but using editForm */}
           <div className="grid gap-4 py-4">
-            {/* Form fields similar to create dialog */}
-            {/* Implementation shortened for brevity */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label htmlFor="edit-name">ชื่อเงื่อนไข *</Label>
+                <Input
+                  id="edit-name"
+                  value={editForm.name}
+                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                  placeholder="เช่น ผู้รับบริการเสี่ยงสูง"
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-priority">ลำดับความสำคัญ</Label>
+                <Input
+                  id="edit-priority"
+                  type="number"
+                  value={editForm.priority}
+                  onChange={(e) => setEditForm({ ...editForm, priority: parseInt(e.target.value) || 0 })}
+                  placeholder="0"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="edit-description">รายละเอียด</Label>
+              <Textarea
+                id="edit-description"
+                value={editForm.description}
+                onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                placeholder="อธิบายเงื่อนไขการแบ่งกลุ่ม"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="edit-group">กลุ่มเป้าหมาย *</Label>
+              <Select
+                value={editForm.group_id}
+                onValueChange={(value) => setEditForm({ ...editForm, group_id: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="เลือกกลุ่ม" />
+                </SelectTrigger>
+                <SelectContent>
+                  {groups.map((group) => (
+                    <SelectItem key={group.id} value={group.id}>
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="w-3 h-3 rounded-full"
+                          style={{ backgroundColor: group.color }}
+                        />
+                        {group.name}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <Label>แบบฟอร์มและน้ำหนัก *</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => addFormConfig(true)}
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  เพิ่มแบบฟอร์ม
+                </Button>
+              </div>
+
+              {editForm.forms.map((form, index) => (
+                <div key={index} className="grid grid-cols-12 gap-2 items-end">
+                  <div className="col-span-6">
+                    <Select
+                      value={form.form_id}
+                      onValueChange={(value) => updateFormConfig(index, 'form_id', value, true)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="เลือกแบบฟอร์ม" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableForms.map((availableForm) => (
+                          <SelectItem key={availableForm.form_id} value={availableForm.form_id}>
+                            {availableForm.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="col-span-3">
+                    <Input
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      value={form.weight}
+                      onChange={(e) => updateFormConfig(index, 'weight', parseFloat(e.target.value) || 1, true)}
+                      placeholder="น้ำหนัก"
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    {editForm.forms.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => removeFormConfig(index, true)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <Label htmlFor="edit-operator">เงื่อนไข</Label>
+                <Select
+                  value={editForm.operator}
+                  onValueChange={(value: any) => setEditForm({ ...editForm, operator: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="gte">มากกว่าเท่ากับ (≥)</SelectItem>
+                    <SelectItem value="lte">น้อยกว่าเท่ากับ (≤)</SelectItem>
+                    <SelectItem value="between">ระหว่าง</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="edit-min-score">คะแนนต่ำสุด</Label>
+                <Input
+                  id="edit-min-score"
+                  type="number"
+                  step="0.1"
+                  value={editForm.min_score || ''}
+                  onChange={(e) => setEditForm({ ...editForm, min_score: parseFloat(e.target.value) || undefined })}
+                  placeholder="0"
+                />
+              </div>
+              {editForm.operator === 'between' && (
+                <div>
+                  <Label htmlFor="edit-max-score">คะแนนสูงสุด</Label>
+                  <Input
+                    id="edit-max-score"
+                    type="number"
+                    step="0.1"
+                    value={editForm.max_score || ''}
+                    onChange={(e) => setEditForm({ ...editForm, max_score: parseFloat(e.target.value) || undefined })}
+                    placeholder="100"
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="edit-is-active"
+                checked={editForm.is_active}
+                onChange={(e) => setEditForm({ ...editForm, is_active: e.target.checked })}
+                className="rounded"
+              />
+              <Label htmlFor="edit-is-active">เปิดใช้งานเงื่อนไขนี้</Label>
+            </div>
           </div>
 
           <div className="flex justify-end gap-3">
