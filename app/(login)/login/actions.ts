@@ -23,7 +23,7 @@ export async function login(formData: FormData) {
     // It's likely a username, so we need to look up the email
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("email")
+      .select("email, position")
       .eq("username", emailOrUsername.trim())
       .single();
 
@@ -45,8 +45,35 @@ export async function login(formData: FormData) {
     return;
   }
 
+  // Check user position for redirect
+  let userPosition = null;
+  
+  // If we already have the profile from username lookup, use it
+  if (!emailOrUsername.includes("@")) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("position")
+      .eq("username", emailOrUsername.trim())
+      .single();
+    userPosition = profile?.position;
+  } else {
+    // For email login, look up the position
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("position")
+      .eq("email", email)
+      .single();
+    userPosition = profile?.position;
+  }
+
   revalidatePath("/", "layout");
-  redirect("/");
+  
+  // Redirect based on position
+  if (userPosition === "ผู้ดูแลระบบ") {
+    redirect("/admin");
+  } else {
+    redirect("/");
+  }
 }
 
 export async function signup(formData: FormData) {
