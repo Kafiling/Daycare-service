@@ -38,6 +38,12 @@ export async function NavbarAdmin() {
           >
             จัดการพนักงาน
           </Link>
+          <Link
+            href="/admin/manage-group"
+            className="text-sm font-medium transition-colors hover:text-primary"
+          >
+            แบ่งกลุ่มอัตโนมัติ
+          </Link>
         </div>
 
         <div className="flex items-center gap-6 ml-auto">
