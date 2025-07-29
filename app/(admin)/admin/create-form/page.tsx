@@ -65,8 +65,8 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
         if (field === 'text') {
             newChoices[index] = { ...newChoices[index], text: value as string };
         } else if (field === 'score') {
-            const scoreValue = value === '' ? 0 : Number(value);
-            newChoices[index] = { ...newChoices[index], score: scoreValue };
+            // Keep the value as-is to allow proper typing
+            newChoices[index] = { ...newChoices[index], score: value };
         }
         handleOptionChange('choices', newChoices);
     };
@@ -102,7 +102,7 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
                                 <div className="w-24">
                                     <Input
                                         type="number"
-                                        value={typeof choice === 'string' ? '' : (choice.score || '')}
+                                        value={typeof choice === 'string' ? '' : (choice.score !== undefined ? choice.score : '')}
                                         onChange={(e) => handleMcqOptionChange(index, 'score', e.target.value)}
                                         placeholder="0"
                                         className="w-full"
@@ -131,7 +131,7 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
                         <Input 
                             type="number" 
                             placeholder="ความยาวสูงสุด" 
-                            value={question.options.maxLength || ''} 
+                            value={question.options.maxLength !== undefined ? question.options.maxLength : ''} 
                             onChange={e => handleOptionChange('maxLength', e.target.value)} 
                             onWheel={(e) => e.currentTarget.blur()}
                         />
@@ -151,24 +151,24 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
                             <Input 
                                 type="number" 
                                 placeholder="ค่าต่ำสุด (เช่น 1) *" 
-                                value={question.options.min || ''} 
+                                value={question.options.min !== undefined ? question.options.min : ''} 
                                 onChange={e => handleOptionChange('min', e.target.value)} 
                                 onWheel={(e) => e.currentTarget.blur()}
-                                className={`${!question.options.min ? 'border-red-300 focus-visible:border-red-500' : ''}`}
+                                className={`${(question.options.min === '' || question.options.min === undefined) && question.options.min !== 0 ? 'border-red-300 focus-visible:border-red-500' : ''}`}
                             />
                             <Input 
                                 type="number" 
                                 placeholder="ค่าสูงสุด (เช่น 5) *" 
-                                value={question.options.max || ''} 
+                                value={question.options.max !== undefined ? question.options.max : ''} 
                                 onChange={e => handleOptionChange('max', e.target.value)} 
                                 onWheel={(e) => e.currentTarget.blur()}
-                                className={`${!question.options.max ? 'border-red-300 focus-visible:border-red-500' : ''}`}
+                                className={`${(question.options.max === '' || question.options.max === undefined) && question.options.max !== 0 ? 'border-red-300 focus-visible:border-red-500' : ''}`}
                             />
                         </div>
                         <Input 
                             type="number" 
                             placeholder="ขั้น (ไม่บังคับ)" 
-                            value={question.options.step || ''} 
+                            value={question.options.step !== undefined ? question.options.step : ''} 
                             onChange={e => handleOptionChange('step', e.target.value)} 
                             onWheel={(e) => e.currentTarget.blur()}
                         />
@@ -177,8 +177,8 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
                             <Input 
                                 type="number" 
                                 placeholder="1" 
-                                value={question.options.scoreMultiplier || ''} 
-                                onChange={e => handleOptionChange('scoreMultiplier', Number(e.target.value))} 
+                                value={question.options.scoreMultiplier !== undefined ? question.options.scoreMultiplier : ''} 
+                                onChange={e => handleOptionChange('scoreMultiplier', e.target.value)} 
                                 onWheel={(e) => e.currentTarget.blur()}
                             />
                         </div>
@@ -201,8 +201,8 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
                                 <Input 
                                     type="number" 
                                     placeholder="0" 
-                                    value={question.options.trueScore || ''} 
-                                    onChange={e => handleOptionChange('trueScore', Number(e.target.value))} 
+                                    value={question.options.trueScore !== undefined ? question.options.trueScore : ''} 
+                                    onChange={e => handleOptionChange('trueScore', e.target.value)} 
                                     onWheel={(e) => e.currentTarget.blur()}
                                 />
                             </div>
@@ -217,8 +217,8 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
                                 <Input 
                                     type="number" 
                                     placeholder="0" 
-                                    value={question.options.falseScore || ''} 
-                                    onChange={e => handleOptionChange('falseScore', Number(e.target.value))} 
+                                    value={question.options.falseScore !== undefined ? question.options.falseScore : ''} 
+                                    onChange={e => handleOptionChange('falseScore', e.target.value)} 
                                     onWheel={(e) => e.currentTarget.blur()}
                                 />
                             </div>
@@ -232,14 +232,14 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
                             <Input 
                                 type="number" 
                                 placeholder="ค่าต่ำสุด" 
-                                value={question.options.min || ''} 
+                                value={question.options.min !== undefined ? question.options.min : ''} 
                                 onChange={e => handleOptionChange('min', e.target.value)} 
                                 onWheel={(e) => e.currentTarget.blur()}
                             />
                             <Input 
                                 type="number" 
                                 placeholder="ค่าสูงสุด" 
-                                value={question.options.max || ''} 
+                                value={question.options.max !== undefined ? question.options.max : ''} 
                                 onChange={e => handleOptionChange('max', e.target.value)} 
                                 onWheel={(e) => e.currentTarget.blur()}
                             />
@@ -248,7 +248,7 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
                             <Input 
                                 type="number" 
                                 placeholder="ขั้น (ไม่บังคับ)" 
-                                value={question.options.step || ''} 
+                                value={question.options.step !== undefined ? question.options.step : ''} 
                                 onChange={e => handleOptionChange('step', e.target.value)} 
                                 onWheel={(e) => e.currentTarget.blur()}
                             />
@@ -259,8 +259,8 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
                             <Input 
                                 type="number" 
                                 placeholder="1" 
-                                value={question.options.scoreMultiplier || ''} 
-                                onChange={e => handleOptionChange('scoreMultiplier', Number(e.target.value))} 
+                                value={question.options.scoreMultiplier !== undefined ? question.options.scoreMultiplier : ''} 
+                                onChange={e => handleOptionChange('scoreMultiplier', e.target.value)} 
                                 onWheel={(e) => e.currentTarget.blur()}
                             />
                         </div>
@@ -430,14 +430,16 @@ export default function CreateFormPage() {
                     }
                     break;
                 case QUESTION_TYPES.RATING:
-                    if (!question.options.min || !question.options.max) {
+                    if (question.options.min === '' || question.options.min === undefined || question.options.max === '' || question.options.max === undefined) {
                         errors.push(`คำถามที่ ${index + 1}: ต้องกำหนดค่าต่ำสุดและค่าสูงสุด`);
                     } else if (Number(question.options.min) >= Number(question.options.max)) {
                         errors.push(`คำถามที่ ${index + 1}: ค่าต่ำสุดต้องน้อยกว่าค่าสูงสุด`);
                     }
                     break;
                 case QUESTION_TYPES.NUMBER:
-                    if (question.options.min && question.options.max && Number(question.options.min) >= Number(question.options.max)) {
+                    if (question.options.min !== '' && question.options.min !== undefined && 
+                        question.options.max !== '' && question.options.max !== undefined && 
+                        Number(question.options.min) >= Number(question.options.max)) {
                         errors.push(`คำถามที่ ${index + 1}: ค่าต่ำสุดต้องน้อยกว่าค่าสูงสุด`);
                     }
                     break;
@@ -621,8 +623,8 @@ export default function CreateFormPage() {
                                             <Input
                                                 type="number"
                                                 placeholder="คะแนนต่ำสุด *"
-                                                value={threshold.minScore || ''}
-                                                onChange={(e) => updateThreshold(index, 'minScore', Number(e.target.value))}
+                                                value={threshold.minScore}
+                                                onChange={(e) => updateThreshold(index, 'minScore', e.target.value)}
                                                 className={`w-24 ${threshold.minScore === '' ? 'border-red-300 focus-visible:border-red-500' : ''}`}
                                                 onWheel={(e) => e.currentTarget.blur()}
                                             />
@@ -630,8 +632,8 @@ export default function CreateFormPage() {
                                             <Input
                                                 type="number"
                                                 placeholder="คะแนนสูงสุด *"
-                                                value={threshold.maxScore || ''}
-                                                onChange={(e) => updateThreshold(index, 'maxScore', Number(e.target.value))}
+                                                value={threshold.maxScore}
+                                                onChange={(e) => updateThreshold(index, 'maxScore', e.target.value)}
                                                 className={`w-24 ${threshold.maxScore === '' ? 'border-red-300 focus-visible:border-red-500' : ''}`}
                                                 onWheel={(e) => e.currentTarget.blur()}
                                             />

@@ -6,7 +6,7 @@ import { StaffManagementClient } from './StaffManagementClient';
 
 export default async function ManageStaffPage() {
   const supabase = await createClient();
-  
+
   // Check if user is authenticated
   const { data: { user }, error } = await supabase.auth.getUser();
   if (error || !user) {
@@ -15,7 +15,7 @@ export default async function ManageStaffPage() {
 
   // For now, we'll assume any authenticated user can access admin features
   // In a real app, you'd check for admin role/permissions here
-  
+
   let staffProfiles: Profile[] = [];
   try {
     staffProfiles = await getAllStaffProfiles();

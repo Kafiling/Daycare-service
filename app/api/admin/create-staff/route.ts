@@ -5,7 +5,7 @@ import { createUserProfile } from '@/app/service/nurse';
 export async function POST(request: Request) {
   try {
     const supabase = await createClient();
-    
+
     // Check if current user is authorized
     const { data: currentUser, error: authError } = await supabase.auth.getUser();
     if (authError || !currentUser?.user) {

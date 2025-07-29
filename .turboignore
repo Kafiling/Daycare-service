@@ -1,0 +1,21 @@
+# Turbopack ignore file
+# Files and directories to ignore during Turbopack processing
+
+# Supabase Edge Functions (Deno runtime, not Node.js)
+supabase/functions/**
+
+# Node modules
+node_modules/**
+
+# Build outputs
+.next/**
+out/**
+
+# Environment files
+.env
+.env.local
+.env.production
+.env.development
+
+# Other generated files
+*.tsbuildinfo

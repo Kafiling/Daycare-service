@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
-import { Users, FileText } from 'lucide-react';
+import { Users, FileText, Target } from 'lucide-react';
 
 export default function AdminPage() {
   return (
@@ -21,7 +21,7 @@ export default function AdminPage() {
           </CardContent>
         </Card>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <Link href="/admin/manage-staff" className="hover:shadow-lg transition-shadow duration-300 rounded-lg">
             <Card className="h-full">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -49,6 +49,22 @@ export default function AdminPage() {
               <CardContent>
                 <p className="text-sm text-muted-foreground">
                   สร้าง แก้ไข และจัดการแบบฟอร์มและแบบสำรวจสำหรับผู้ใช้บริการ
+                </p>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link href="/admin/manage-group" className="hover:shadow-lg transition-shadow duration-300 rounded-lg">
+            <Card className="h-full">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-lg font-medium">
+                  แบ่งกลุ่มอัตโนมัติ
+                </CardTitle>
+                <Target className="h-6 w-6 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  ตั้งค่าเงื่อนไขการแบ่งกลุ่มผู้ป่วยอัตโนมัติตามคะแนนจากแบบฟอร์ม
                 </p>
               </CardContent>
             </Card>

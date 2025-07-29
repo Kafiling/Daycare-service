@@ -50,9 +50,9 @@ export async function createStaff(data: CreateStaffData): Promise<ActionResult> 
 
     if (createError) {
       console.error('Error creating auth user:', createError);
-      return { 
-        success: false, 
-        error: createError.message || 'เกิดข้อผิดพลาดในการสร้างบัญชีผู้ใช้' 
+      return {
+        success: false,
+        error: createError.message || 'เกิดข้อผิดพลาดในการสร้างบัญชีผู้ใช้'
       };
     }
 
@@ -147,9 +147,9 @@ export async function resetStaffPassword(staffId: string, newPassword: string): 
 
     if (updateError) {
       console.error('Error updating password:', updateError);
-      return { 
-        success: false, 
-        error: updateError.message || 'เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน' 
+      return {
+        success: false,
+        error: updateError.message || 'เกิดข้อผิดพลาดในการรีเซ็ตรหัสผ่าน'
       };
     }
 
@@ -187,9 +187,9 @@ export async function deleteStaff(staffId: string): Promise<ActionResult> {
 
     if (profileError) {
       console.error('Error deleting profile:', profileError);
-      return { 
-        success: false, 
-        error: 'เกิดข้อผิดพลาดในการลบข้อมูลโปรไฟล์' 
+      return {
+        success: false,
+        error: 'เกิดข้อผิดพลาดในการลบข้อมูลโปรไฟล์'
       };
     }
 
@@ -199,9 +199,9 @@ export async function deleteStaff(staffId: string): Promise<ActionResult> {
     if (deleteError) {
       console.error('Error deleting auth user:', deleteError);
       // Note: Profile is already deleted at this point
-      return { 
-        success: false, 
-        error: deleteError.message || 'เกิดข้อผิดพลาดในการลบบัญชีผู้ใช้' 
+      return {
+        success: false,
+        error: deleteError.message || 'เกิดข้อผิดพลาดในการลบบัญชีผู้ใช้'
       };
     }
 

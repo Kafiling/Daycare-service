@@ -4,7 +4,7 @@ import { createClient } from '@/utils/supabase/server';
 export async function DELETE(request: Request) {
   try {
     const supabase = await createClient();
-    
+
     // Check if current user is authorized
     const { data: currentUser, error: authError } = await supabase.auth.getUser();
     if (authError || !currentUser?.user) {
