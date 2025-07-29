@@ -251,6 +251,45 @@ export function StaffManagementClient({ initialStaff }: StaffManagementClientPro
                         <div className="grid gap-4 py-4">
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
+                                    <Label htmlFor="create-title">คำนำหน้า</Label>
+                                    <Select
+                                        value={createForm.title}
+                                        onValueChange={(value) => setCreateForm({ ...createForm, title: value })}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="เลือกคำนำหน้า" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {TITLE_OPTIONS.map((option) => (
+                                                <SelectItem key={option.value} value={option.value}>
+                                                    {option.label}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div>
+                                    <Label htmlFor="create-position">ตำแหน่ง</Label>
+                                    <Select
+                                        value={createForm.position}
+                                        onValueChange={(value) => setCreateForm({ ...createForm, position: value })}
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="เลือกตำแหน่ง" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {POSITION_OPTIONS.map((option) => (
+                                                <SelectItem key={option.value} value={option.value}>
+                                                    {option.label}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
                                     <Label htmlFor="create-first-name">ชื่อ *</Label>
                                     <Input
                                         id="create-first-name"
@@ -268,44 +307,6 @@ export function StaffManagementClient({ initialStaff }: StaffManagementClientPro
                                         placeholder="นามสกุล"
                                     />
                                 </div>
-                            </div>
-
-                            <div>
-                                <Label htmlFor="create-title">คำนำหน้า</Label>
-                                <Select
-                                    value={createForm.title}
-                                    onValueChange={(value) => setCreateForm({ ...createForm, title: value })}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="เลือกคำนำหน้า" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {TITLE_OPTIONS.map((option) => (
-                                            <SelectItem key={option.value} value={option.value}>
-                                                {option.label}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <div>
-                                <Label htmlFor="create-position">ตำแหน่ง</Label>
-                                <Select
-                                    value={createForm.position}
-                                    onValueChange={(value) => setCreateForm({ ...createForm, position: value })}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="เลือกตำแหน่ง" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {POSITION_OPTIONS.map((option) => (
-                                            <SelectItem key={option.value} value={option.value}>
-                                                {option.label}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
                             </div>
 
                             <div>
@@ -471,6 +472,45 @@ export function StaffManagementClient({ initialStaff }: StaffManagementClientPro
                     <div className="grid gap-4 py-4">
                         <div className="grid grid-cols-2 gap-3">
                             <div>
+                                <Label htmlFor="edit-title">คำนำหน้า</Label>
+                                <Select
+                                    value={editForm.title}
+                                    onValueChange={(value) => setEditForm({ ...editForm, title: value })}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="เลือกคำนำหน้า" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {TITLE_OPTIONS.map((option) => (
+                                            <SelectItem key={option.value} value={option.value}>
+                                                {option.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div>
+                                <Label htmlFor="edit-position">ตำแหน่ง</Label>
+                                <Select
+                                    value={editForm.position}
+                                    onValueChange={(value) => setEditForm({ ...editForm, position: value })}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="เลือกตำแหน่ง" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {POSITION_OPTIONS.map((option) => (
+                                            <SelectItem key={option.value} value={option.value}>
+                                                {option.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                            <div>
                                 <Label htmlFor="edit-first-name">ชื่อ</Label>
                                 <Input
                                     id="edit-first-name"
@@ -486,44 +526,6 @@ export function StaffManagementClient({ initialStaff }: StaffManagementClientPro
                                     onChange={(e) => setEditForm({ ...editForm, last_name: e.target.value })}
                                 />
                             </div>
-                        </div>
-
-                        <div>
-                            <Label htmlFor="edit-title">คำนำหน้า</Label>
-                            <Select
-                                value={editForm.title}
-                                onValueChange={(value) => setEditForm({ ...editForm, title: value })}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="เลือกคำนำหน้า" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {TITLE_OPTIONS.map((option) => (
-                                        <SelectItem key={option.value} value={option.value}>
-                                            {option.label}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        <div>
-                            <Label htmlFor="edit-position">ตำแหน่ง</Label>
-                            <Select
-                                value={editForm.position}
-                                onValueChange={(value) => setEditForm({ ...editForm, position: value })}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder="เลือกตำแหน่ง" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {POSITION_OPTIONS.map((option) => (
-                                        <SelectItem key={option.value} value={option.value}>
-                                            {option.label}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
                         </div>
 
                         <div>

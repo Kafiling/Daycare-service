@@ -1,6 +1,6 @@
 'use server';
 
-import { createClient } from '@/utils/supabase/server';
+import { createClient, createAdminClient } from '@/utils/supabase/server';
 import { createUserProfile, updateUserProfile } from '@/app/service/nurse';
 import { Profile } from '@/app/service/nurse';
 
@@ -34,6 +34,7 @@ interface ActionResult {
 export async function createStaff(data: CreateStaffData): Promise<ActionResult> {
   try {
     const supabase = await createClient();
+    const adminSupabase = createAdminClient();
 
     // Check if current user is authorized (you might want to add admin role check here)
     const { data: currentUser, error: authError } = await supabase.auth.getUser();
@@ -41,8 +42,8 @@ export async function createStaff(data: CreateStaffData): Promise<ActionResult> 
       return { success: false, error: 'ไม่มีสิทธิ์ในการดำเนินการ' };
     }
 
-    // Create auth user with admin API
-    const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
+    // Create auth user with admin client
+    const { data: newUser, error: createError } = await adminSupabase.auth.admin.createUser({
       email: data.email,
       password: data.password,
       email_confirm: true, // Skip email confirmation for admin-created users
@@ -133,6 +134,7 @@ export async function updateStaff(staffId: string, data: UpdateStaffData): Promi
 export async function resetStaffPassword(staffId: string, newPassword: string): Promise<ActionResult> {
   try {
     const supabase = await createClient();
+    const adminSupabase = createAdminClient();
 
     // Check if current user is authorized
     const { data: currentUser, error: authError } = await supabase.auth.getUser();
@@ -140,8 +142,8 @@ export async function resetStaffPassword(staffId: string, newPassword: string): 
       return { success: false, error: 'ไม่มีสิทธิ์ในการดำเนินการ' };
     }
 
-    // Update user password using admin API
-    const { error: updateError } = await supabase.auth.admin.updateUserById(staffId, {
+    // Update user password using admin client
+    const { error: updateError } = await adminSupabase.auth.admin.updateUserById(staffId, {
       password: newPassword,
     });
 
@@ -167,6 +169,7 @@ export async function resetStaffPassword(staffId: string, newPassword: string): 
 export async function deleteStaff(staffId: string): Promise<ActionResult> {
   try {
     const supabase = await createClient();
+    const adminSupabase = createAdminClient();
 
     // Check if current user is authorized
     const { data: currentUser, error: authError } = await supabase.auth.getUser();
@@ -193,8 +196,8 @@ export async function deleteStaff(staffId: string): Promise<ActionResult> {
       };
     }
 
-    // Delete auth user
-    const { error: deleteError } = await supabase.auth.admin.deleteUser(staffId);
+    // Delete auth user using admin client
+    const { error: deleteError } = await adminSupabase.auth.admin.deleteUser(staffId);
 
     if (deleteError) {
       console.error('Error deleting auth user:', deleteError);
