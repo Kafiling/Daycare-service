@@ -82,6 +82,7 @@ const POSITION_OPTIONS = [
     { value: 'พยาบาลผู้ช่วย', label: 'พยาบาลผู้ช่วย' },
     { value: 'แพทย์', label: 'แพทย์' },
     { value: 'เจ้าหน้าที่', label: 'เจ้าหน้าที่' },
+    { value: 'ผู้ดูแลระบบ', label: 'ผู้ดูแลระบบ' },
 ];
 
 export function StaffManagementClient({ initialStaff }: StaffManagementClientProps) {
