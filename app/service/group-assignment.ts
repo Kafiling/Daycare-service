@@ -332,5 +332,11 @@ export async function getPatientsWithGroups(): Promise<Array<{
         throw new Error(`Failed to fetch patients with groups: ${error.message}`);
     }
 
-    return data || [];
+    // Transform the data to match our expected interface
+    const transformedData = (data || []).map(patient => ({
+        ...patient,
+        group: Array.isArray(patient.group) ? patient.group[0] : patient.group
+    }));
+
+    return transformedData;
 }

@@ -1,38 +1,9 @@
+"use client";
+
 // Manual migration runner - execute SQL migrations through the app
 import { createClient } from '@/utils/supabase/client';
-import { readFileSync } from 'fs';
-import { join } from 'path';
 
 export default function MigrationPage() {
-    const runMigration = async () => {
-        try {
-            const supabase = createClient();
-            
-            // Read the migration file
-            const migrationPath = join(process.cwd(), 'supabase/migrations/20250127000004_add_default_assignment_rules.sql');
-            const migrationSQL = readFileSync(migrationPath, 'utf8');
-            
-            console.log('Running migration...');
-            console.log('SQL:', migrationSQL);
-            
-            // Execute the migration
-            const { data, error } = await supabase.rpc('exec_sql', {
-                sql: migrationSQL
-            });
-            
-            if (error) {
-                console.error('Migration error:', error);
-            } else {
-                console.log('Migration completed successfully:', data);
-            }
-            
-        } catch (error) {
-            console.error('Error reading migration file:', error);
-            // Fallback: execute SQL directly
-            await runMigrationDirectly();
-        }
-    };
-    
     const runMigrationDirectly = async () => {
         const supabase = createClient();
         

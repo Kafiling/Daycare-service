@@ -1,3 +1,7 @@
+"use client";
+
+"use client";
+
 console.log('Group Assignment Debug Test');
 
 // Simple console logs to check in browser
