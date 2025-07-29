@@ -19,34 +19,34 @@ export function LoginForm({
                 <h1 className="text-2xl font-bold">เข้าสู่ระบบ Daycare</h1>
               </div>
               <div className="grid gap-3">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">อีเมล หรือ ชื่อผู้ใช้</Label>
                 <Input
                   id="email"
                   name="email"
-                  type="email"
-                  placeholder="m@example.com"
+                  type="text"
+                  placeholder="อีเมล หรือ ชื่อผู้ใช้"
                   required
                 />
               </div>
               <div className="grid gap-3 ">
                 <div className="flex items-center justify-between ">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password">รหัสผ่าน</Label>
                   <div className="flex justify-end">
                     <ModalOneAction
-                      openText="Forgot password?"
-                      title="Forgot password?"
-                      description="Please contact your administrator."
+                      openText="ลืมรหัสผ่าน?"
+                      title="ลืมรหัสผ่าน?"
+                      description="กรุณาติดต่อผู้ดูแลระบบ"
                     />
                   </div>
                 </div>
-                <Input id="password" name="password" type="password" required />
+                <Input id="password" name="password" type="password" placeholder="รหัสผ่าน" required />
               </div>
               <Button
                 type="submit"
                 formAction={login}
                 className="w-full bg-primary text-white"
               >
-                Login
+                เข้าสู่ระบบ
               </Button>
             </div>
           </form>
