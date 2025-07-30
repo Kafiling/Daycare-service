@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, Users } from 'lucide-react';
+import { FileText, Users, History, Calendar, CheckCircle, XCircle, Heart, Activity, AlertCircle, User, Timer, Flag } from 'lucide-react';
 import { getPatientById, getActiveForms, getCompletedSubmissions } from '@/app/service/patient';
 import { getPatientGroupAssignments } from '@/app/service/group-assignment';
 import PatientHeader from '@/components/patient/PatientHeader';
@@ -12,6 +12,40 @@ import CompletedSurveys from '@/components/patient/CompletedSurveys';
 interface PatientHomePageProps {
     params: Promise<{ id: string }>;
 }
+
+const getCategoryIcon = (label?: string) => {
+    if (!label) return FileText;
+    
+    switch (label.toLowerCase()) {
+        case 'สุขภาพทั่วไป':
+        case 'สุขภาพ':
+            return Heart;
+        case 'สุขภาพจิต':
+        case 'จิตใจ':
+            return Activity;
+        case 'ความปลอดภัย':
+        case 'ปลอดภัย':
+            return AlertCircle;
+        case 'กิจกรรมประจำวัน':
+        case 'กิจกรรม':
+            return User;
+        default:
+            return FileText;
+    }
+};
+
+const getPriorityConfig = (priority?: string) => {
+    switch (priority) {
+        case 'high':
+            return { variant: 'destructive' as const, label: 'สำคัญมาก', color: 'text-red-600' };
+        case 'medium':
+            return { variant: 'default' as const, label: 'สำคัญปานกลาง', color: 'text-yellow-600' };
+        case 'low':
+            return { variant: 'secondary' as const, label: 'สำคัญน้อย', color: 'text-blue-600' };
+        default:
+            return { variant: 'outline' as const, label: 'ไม่ระบุ', color: 'text-gray-600' };
+    }
+};
 
 export default async function PatientHomePage({ params }: PatientHomePageProps) {
     try {
@@ -84,6 +118,83 @@ export default async function PatientHomePage({ params }: PatientHomePageProps) 
                                 <p className="text-lg text-muted-foreground">
                                     ยังไม่ได้กำหนดกลุ่มสำหรับผู้ป่วยนี้
                                 </p>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+
+                {/* Form Submission History */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <History className="h-5 w-5" />
+                            ประวัติการส่งแบบประเมิน
+                        </CardTitle>
+                        <CardDescription>
+                            ประวัติการส่งแบบประเมินและผลการประเมินของผู้ป่วย
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {completedSubmissions.length > 0 ? (
+                            <div className="space-y-4">
+                                {completedSubmissions.slice(0, 5).map((submission, index) => {
+                                    const IconComponent = getCategoryIcon(submission.form?.label);
+                                    const priorityConfig = getPriorityConfig(submission.form?.priority_level);
+                                    const submittedDate = new Date(submission.submitted_at || 'วว/ดด/ปปปป');
+
+                                    return (
+                                        <div key={index} className="flex items-center justify-between p-4 bg-muted/50 rounded-lg border">
+                                            <div className="flex items-center gap-3">
+                                                <div className="flex items-center gap-2">
+                                                    <IconComponent className="h-5 w-5 text-muted-foreground" />
+                                                    {
+                                                        <CheckCircle className="h-4 w-4 text-green-600" />
+                                                    }
+                                                </div>
+                                                <div className="flex-1">
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <p className="font-medium">{submission.form?.title || 'แบบประเมิน'}</p>
+                                                    </div>
+                                                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                                        {submission.form?.label && (
+                                                            <span>หมวด: {submission.form.label}</span>
+                                                        )}
+                                                        {
+                                                            <span>คะแนน: xxx</span>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                <p className='text-sm text-muted-foreground'>
+                                                    {submittedDate.toLocaleTimeString('th-TH', {
+                                                        hour: '2-digit',
+                                                        minute: '2-digit'
+                                                    })}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                                {completedSubmissions.length > 5 && (
+                                    <div className="text-center">
+                                        <p className="text-sm text-muted-foreground">
+                                            และอีก {completedSubmissions.length - 5} รายการ
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="flex items-center justify-center p-8 bg-muted/50 rounded-lg">
+                                <div className="text-center">
+                                    <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
+                                    <p className="text-lg text-muted-foreground">
+                                        ยังไม่มีประวัติการส่งแบบประเมิน
+                                    </p>
+                                    <p className="text-sm text-muted-foreground mt-1">
+                                        ผู้ป่วยยังไม่เคยส่งแบบประเมินใดๆ
+                                    </p>
+                                </div>
                             </div>
                         )}
                     </CardContent>
