@@ -167,9 +167,10 @@ export default async function PatientHomePage({ params }: PatientHomePageProps) 
                                             </div>
                                             <div className="flex items-center gap-1">
                                                 <p className='text-sm text-muted-foreground'>
-                                                    {submittedDate.toLocaleTimeString('th-TH', {
-                                                        hour: '2-digit',
-                                                        minute: '2-digit'
+                                                    {submittedDate.toLocaleDateString('th-TH', {
+                                                        day: 'numeric',
+                                                        month: 'short',
+                                                        year: 'numeric'
                                                     })}
                                                 </p>
                                             </div>
