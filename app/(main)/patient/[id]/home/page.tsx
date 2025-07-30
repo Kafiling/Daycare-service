@@ -1,8 +1,9 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText } from 'lucide-react';
+import { FileText, Users } from 'lucide-react';
 import { getPatientById, getActiveForms, getCompletedSubmissions } from '@/app/service/patient';
+import { getPatientGroupAssignments } from '@/app/service/group-assignment';
 import PatientHeader from '@/components/patient/PatientHeader';
 import PatientInfo from '@/components/patient/PatientInfo';
 import AvailableSurveys from '@/components/patient/AvailableSurveys';
@@ -18,6 +19,7 @@ export default async function PatientHomePage({ params }: PatientHomePageProps) 
         const patient = await getPatientById(resolvedParams.id);
         const availableForms = await getActiveForms();
         const completedSubmissions = await getCompletedSubmissions(resolvedParams.id);
+        const groupAssignments = await getPatientGroupAssignments(resolvedParams.id, 1);
 
         if (!patient) {
             return (
@@ -37,6 +39,55 @@ export default async function PatientHomePage({ params }: PatientHomePageProps) 
 
                 {/* Patient Information */}
                 <PatientInfo patient={patient} />
+
+                {/* Patient Group Information */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Users className="h-5 w-5" />
+                            กลุ่มผู้ใช้บริการ
+                        </CardTitle>
+                        <CardDescription>
+                            ข้อมูลกลุ่มที่ผู้ป่วยสังกัด
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {groupAssignments.length > 0 && groupAssignments[0].new_group ? (
+                            <div className="space-y-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="p-4 bg-muted/50 rounded-lg">
+                                        <div className="flex items-center gap-3 mb-2">
+                                            <div
+                                                className="w-4 h-4 rounded-full"
+                                                style={{ backgroundColor: groupAssignments[0].new_group.color || '#6B7280' }}
+                                            />
+                                            <p className="text-sm font-medium text-muted-foreground">ชื่อกลุ่ม</p>
+                                        </div>
+                                        <p className="text-lg font-semibold">{groupAssignments[0].new_group.name}</p>
+                                    </div>
+                                    <div className="p-4 bg-muted/50 rounded-lg">
+                                        <p className="text-sm font-medium text-muted-foreground">วันที่เข้าร่วมกลุ่ม</p>
+                                        <p className="text-lg font-semibold">
+                                            {new Date(groupAssignments[0].created_at).toLocaleDateString('th-TH')}
+                                        </p>
+                                    </div>
+                                </div>
+                                {groupAssignments[0].new_group.description && (
+                                    <div className="p-4 bg-muted/50 rounded-lg">
+                                        <p className="text-sm font-medium text-muted-foreground">รายละเอียดกลุ่ม</p>
+                                        <p className="text-sm mt-1">{groupAssignments[0].new_group.description}</p>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="flex items-center justify-center p-8 bg-muted/50 rounded-lg">
+                                <p className="text-lg text-muted-foreground">
+                                    ยังไม่ได้กำหนดกลุ่มสำหรับผู้ป่วยนี้
+                                </p>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
 
                 {/* Forms and Surveys */}
                 <Card>
