@@ -272,7 +272,7 @@ export default function ManageFormsPage() {
     };
 
     // Get unique categories for filter
-    const uniqueCategories = Array.from(new Set(forms.map(form => form.label).filter(Boolean)));
+    const uniqueCategories = Array.from(new Set(forms.map(form => form.label).filter(Boolean))) as string[];
 
     if (isLoading) {
         return (

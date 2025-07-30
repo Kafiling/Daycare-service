@@ -88,7 +88,12 @@ export function GroupAssignmentManagementClient() {
   const [rules, setRules] = useState<GroupAssignmentRule[]>([]);
   const [groups, setGroups] = useState<PatientGroup[]>([]);
   const [availableForms, setAvailableForms] = useState<Array<{ form_id: string, title: string }>>([]);
-  const [patients, setPatients] = useState<any[]>([]);
+  const [patients, setPatients] = useState<Array<{
+    id: string;
+    first_name: string;
+    last_name: string;
+    groups: PatientGroup[];
+  }>>([]);
   const [assignments, setAssignments] = useState<PatientGroupAssignment[]>([]);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingRule, setEditingRule] = useState<GroupAssignmentRule | null>(null);
