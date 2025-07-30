@@ -60,6 +60,7 @@ import {
   deletePatientGroup,
   manuallyAssignPatientGroup,
   recalculateAllPatientGroups,
+  removePatientFromGroup,
   GroupAssignmentRule,
   PatientGroup,
   PatientGroupAssignment
@@ -80,7 +81,6 @@ interface CreateRuleForm {
   min_score?: number;
   max_score?: number;
   operator: 'gte' | 'lte' | 'eq' | 'between';
-  priority: number;
   is_active: boolean;
 }
 
@@ -88,7 +88,12 @@ export function GroupAssignmentManagementClient() {
   const [rules, setRules] = useState<GroupAssignmentRule[]>([]);
   const [groups, setGroups] = useState<PatientGroup[]>([]);
   const [availableForms, setAvailableForms] = useState<Array<{ form_id: string, title: string }>>([]);
-  const [patients, setPatients] = useState<any[]>([]);
+  const [patients, setPatients] = useState<Array<{
+    id: string;
+    first_name: string;
+    last_name: string;
+    groups: PatientGroup[];
+  }>>([]);
   const [assignments, setAssignments] = useState<PatientGroupAssignment[]>([]);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingRule, setEditingRule] = useState<GroupAssignmentRule | null>(null);
@@ -108,7 +113,6 @@ export function GroupAssignmentManagementClient() {
     min_score: undefined,
     max_score: undefined,
     operator: 'gte',
-    priority: 0,
     is_active: true,
   });
 
@@ -121,7 +125,6 @@ export function GroupAssignmentManagementClient() {
     min_score: undefined,
     max_score: undefined,
     operator: 'gte',
-    priority: 0,
     is_active: true,
   });
 
@@ -186,7 +189,6 @@ export function GroupAssignmentManagementClient() {
         group_id: createForm.group_id,
         rule_type: createForm.rule_type,
         rule_config: ruleConfig,
-        priority: createForm.priority,
         is_active: createForm.is_active
       });
 
@@ -220,7 +222,6 @@ export function GroupAssignmentManagementClient() {
         group_id: editForm.group_id,
         rule_type: editForm.rule_type,
         rule_config: ruleConfig,
-        priority: editForm.priority,
         is_active: editForm.is_active
       });
 
@@ -271,12 +272,12 @@ export function GroupAssignmentManagementClient() {
       if (result.error) {
         toast.error(result.error);
       } else {
-        toast.success('กำหนดกลุ่มผู้รับบริการสำเร็จ');
+        toast.success(`ประเมินกลุ่มสำเร็จ: เพิ่มเข้า ${result.new_memberships || 0} กลุ่มใหม่`);
         loadData(); // Refresh data
       }
     } catch (error) {
       console.error('Error manually assigning patient:', error);
-      toast.error('เกิดข้อผิดพลาดในการกำหนดกลุ่ม');
+      toast.error('เกิดข้อผิดพลาดในการประเมินกลุ่ม');
     } finally {
       setIsLoading(false);
     }
@@ -355,7 +356,6 @@ export function GroupAssignmentManagementClient() {
       min_score: undefined,
       max_score: undefined,
       operator: 'gte',
-      priority: 0,
       is_active: true,
     });
   };
@@ -379,7 +379,6 @@ export function GroupAssignmentManagementClient() {
       min_score: rule.rule_config.min_score,
       max_score: rule.rule_config.max_score,
       operator: rule.rule_config.operator || 'gte',
-      priority: rule.priority,
       is_active: rule.is_active,
     });
     setIsEditDialogOpen(true);
@@ -605,7 +604,7 @@ export function GroupAssignmentManagementClient() {
           <div className="flex justify-between items-center">
             <div>
               <h2 className="text-xl font-semibold">เงื่อนไขการแบ่งกลุ่ม</h2>
-              <p className="text-gray-600">กำหนดเงื่อนไขการแบ่งกลุ่มผู้รับบริการอัตโนมัติ</p>
+              <p className="text-gray-600">กำหนดเงื่อนไขสำหรับเพิ่มผู้รับบริการเข้ากลุ่มอัตโนมัติ (สามารถอยู่ในหลายกลุ่มได้)</p>
             </div>
 
             <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
@@ -619,12 +618,12 @@ export function GroupAssignmentManagementClient() {
                 <DialogHeader>
                   <DialogTitle>เพิ่มเงื่อนไขการแบ่งกลุ่มใหม่</DialogTitle>
                   <DialogDescription>
-                    กำหนดเงื่อนไขสำหรับการแบ่งกลุ่มผู้รับบริการอัตโนมัติ
+                    กำหนดเงื่อนไขสำหรับเพิ่มผู้รับบริการเข้ากลุ่มอัตโนมัติ
                   </DialogDescription>
                 </DialogHeader>
 
                 <div className="grid gap-4 py-4">
-                  <div className="grid grid-cols-2 gap-3">
+                  <div>
                     <div>
                       <Label htmlFor="create-name">ชื่อเงื่อนไข *</Label>
                       <Input
@@ -632,16 +631,6 @@ export function GroupAssignmentManagementClient() {
                         value={createForm.name}
                         onChange={(e) => setCreateForm({ ...createForm, name: e.target.value })}
                         placeholder="เช่น ผู้รับบริการเสี่ยงสูง"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="create-priority">ลำดับความสำคัญ</Label>
-                      <Input
-                        id="create-priority"
-                        type="number"
-                        value={createForm.priority}
-                        onChange={(e) => setCreateForm({ ...createForm, priority: parseInt(e.target.value) || 0 })}
-                        placeholder="0"
                       />
                     </div>
                   </div>
@@ -823,9 +812,6 @@ export function GroupAssignmentManagementClient() {
                           <Badge variant={rule.is_active ? "default" : "secondary"}>
                             {rule.is_active ? 'ใช้งาน' : 'ปิดใช้งาน'}
                           </Badge>
-                          <Badge variant="outline">
-                            ลำดับ {rule.priority}
-                          </Badge>
                         </div>
 
                         {rule.description && (
@@ -899,7 +885,7 @@ export function GroupAssignmentManagementClient() {
           <div className="flex justify-between items-center">
             <div>
               <h2 className="text-xl font-semibold">ผู้รับบริการในกลุ่ม</h2>
-              <p className="text-gray-600">ดูการจัดกลุ่มผู้รับบริการปัจจุบัน</p>
+              <p className="text-gray-600">ดูการสมาชิกภาพในกลุ่มของผู้รับบริการ (สามารถอยู่ในหลายกลุ่มได้)</p>
             </div>
           </div>
 
@@ -917,14 +903,19 @@ export function GroupAssignmentManagementClient() {
                           {patient.first_name} {patient.last_name}
                         </h3>
                         <div className="flex items-center gap-2 text-sm text-gray-600">
-                          {patient.group ? (
-                            <>
-                              <div
-                                className="w-3 h-3 rounded-full"
-                                style={{ backgroundColor: patient.group.color }}
-                              />
-                              {patient.group.name}
-                            </>
+                          {patient.groups && patient.groups.length > 0 ? (
+                            <div className="flex flex-wrap gap-1">
+                              {patient.groups.map((group, index) => (
+                                <div key={group.id} className="flex items-center gap-1">
+                                  <div
+                                    className="w-3 h-3 rounded-full"
+                                    style={{ backgroundColor: group.color }}
+                                  />
+                                  <span>{group.name}</span>
+                                  {index < patient.groups.length - 1 && <span>,</span>}
+                                </div>
+                              ))}
+                            </div>
                           ) : (
                             <span className="text-gray-400">ยังไม่ได้จัดกลุ่ม</span>
                           )}
@@ -939,7 +930,7 @@ export function GroupAssignmentManagementClient() {
                       disabled={isLoading}
                     >
                       <Zap className="h-4 w-4 mr-1" />
-                      กำหนดกลุ่มใหม่
+                      ประเมินกลุ่มใหม่
                     </Button>
                   </div>
                 </CardContent>
@@ -1019,7 +1010,7 @@ export function GroupAssignmentManagementClient() {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 mb-4">
-                  คำนวณและกำหนดกลุ่มใหม่สำหรับผู้รับบริการทั้งหมดตามเงื่อนไขปัจจุบัน
+                  ประเมินและเพิ่มผู้รับบริการเข้ากลุ่มที่เหมาะสมทั้งหมดตามเงื่อนไขปัจจุบัน (สามารถอยู่ในหลายกลุ่มได้)
                 </p>
                 <Button
                   onClick={handleRecalculateAll}
@@ -1027,7 +1018,7 @@ export function GroupAssignmentManagementClient() {
                   className="bg-orange-600 hover:bg-orange-700"
                 >
                   <RefreshCw className="h-4 w-4 mr-2" />
-                  {isLoading ? 'กำลังคำนวณ...' : 'คำนวณกลุ่มใหม่ทั้งหมด'}
+                  {isLoading ? 'กำลังประเมิน...' : 'ประเมินกลุ่มใหม่ทั้งหมด'}
                 </Button>
               </CardContent>
             </Card>
@@ -1041,12 +1032,12 @@ export function GroupAssignmentManagementClient() {
           <DialogHeader>
             <DialogTitle>แก้ไขเงื่อนไขการแบ่งกลุ่ม</DialogTitle>
             <DialogDescription>
-              อัปเดตเงื่อนไขสำหรับการแบ่งกลุ่มผู้รับบริการอัตโนมัติ
+              อัปเดตเงื่อนไขสำหรับเพิ่มผู้รับบริการเข้ากลุ่มอัตโนมัติ
             </DialogDescription>
           </DialogHeader>
 
           <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-2 gap-3">
+            <div>
               <div>
                 <Label htmlFor="edit-name">ชื่อเงื่อนไข *</Label>
                 <Input
@@ -1054,16 +1045,6 @@ export function GroupAssignmentManagementClient() {
                   value={editForm.name}
                   onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
                   placeholder="เช่น ผู้รับบริการเสี่ยงสูง"
-                />
-              </div>
-              <div>
-                <Label htmlFor="edit-priority">ลำดับความสำคัญ</Label>
-                <Input
-                  id="edit-priority"
-                  type="number"
-                  value={editForm.priority}
-                  onChange={(e) => setEditForm({ ...editForm, priority: parseInt(e.target.value) || 0 })}
-                  placeholder="0"
                 />
               </div>
             </div>

@@ -18,8 +18,7 @@ interface Patient {
   id: string;
   first_name: string;
   last_name: string;
-  group_id?: string;
-  group?: PatientGroup;
+  groups: PatientGroup[];
 }
 
 interface GroupWithPatients extends PatientGroup {
@@ -71,7 +70,9 @@ export function DashboardActivityGrid() {
 
 				// Group patients by their group
 				const groupsWithPatients: GroupWithPatients[] = groupsData.map(group => {
-					const groupPatients = patientsData.filter(patient => patient.group_id === group.id);
+					const groupPatients = patientsData.filter(patient => 
+						patient.groups.some(patientGroup => patientGroup.id === group.id)
+					);
 					return {
 						...group,
 						patients: groupPatients,
