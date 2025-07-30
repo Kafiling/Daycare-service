@@ -73,6 +73,9 @@ export interface FormSubmissionWithForm {
     submitted_at: string;
     status?: string;
     notes?: string;
+    total_evaluation_score?: number;
+    evaluation_result?: string;
+    evaluation_description?: string;
     form: {
         form_id: string;
         title: string;
@@ -239,6 +242,9 @@ export async function getCompletedSubmissions(patientId: string): Promise<FormSu
       submitted_at,
       status,
       notes,
+      total_evaluation_score,
+      evaluation_result,
+      evaluation_description,
       forms (
         form_id,
         title,
@@ -264,6 +270,9 @@ export async function getCompletedSubmissions(patientId: string): Promise<FormSu
         submitted_at: item.submitted_at,
         status: item.status,
         notes: item.notes,
+        total_evaluation_score: item.total_evaluation_score,
+        evaluation_result: item.evaluation_result,
+        evaluation_description: item.evaluation_description,
         form: Array.isArray(item.forms) ? item.forms[0] : item.forms
     })).filter(item => item.form) || [];
 }

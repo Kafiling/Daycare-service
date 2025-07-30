@@ -38,7 +38,7 @@ export default function AdminPage() {
             </Card>
           </Link>
 
-          <Link href="/admin/create-form" className="hover:shadow-lg transition-shadow duration-300 rounded-lg">
+          <Link href="/admin/manage-forms" className="hover:shadow-lg transition-shadow duration-300 rounded-lg">
             <Card className="h-full">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-lg font-medium">

@@ -48,6 +48,19 @@ export default function QuestionPage() {
                 const questionsResponse = await getQuestionsByFormId(formId);
                 setQuestions(questionsResponse);
 
+                // Load existing answers from localStorage or session storage
+                const storageKey = `form_answers_${formId}_${patientId}`;
+                const savedAnswers = localStorage.getItem(storageKey);
+                if (savedAnswers) {
+                    try {
+                        const parsedAnswers = JSON.parse(savedAnswers);
+                        setAnswers(parsedAnswers);
+                        console.log('📚 Loaded existing answers:', parsedAnswers);
+                    } catch (error) {
+                        console.error('Error parsing saved answers:', error);
+                    }
+                }
+
             } catch (err: any) {
                 setError(err.message || "เกิดข้อผิดพลาดในการโหลดข้อมูล");
             } finally {
@@ -66,10 +79,17 @@ export default function QuestionPage() {
     const progressPercentage = totalQuestions > 0 ? ((currentQuestionIndex + 1) / totalQuestions) * 100 : 0;
 
     const handleAnswerChange = (value: string) => {
-        setAnswers(prev => ({
-            ...prev,
+        const newAnswers = {
+            ...answers,
             [currentQuestionId]: value
-        }));
+        };
+        setAnswers(newAnswers);
+        
+        // Save to localStorage to persist across navigation
+        const storageKey = `form_answers_${formId}_${patientId}`;
+        localStorage.setItem(storageKey, JSON.stringify(newAnswers));
+        console.log('💾 Saved answer for question', currentQuestionId, ':', value);
+        console.log('📝 All answers now:', newAnswers);
     };
 
     const handleNext = () => {
@@ -92,81 +112,98 @@ export default function QuestionPage() {
     const calculateTotalScore = (answers: Record<number, string>, questions: any[]) => {
         let totalScore = 0;
         
+        console.log('🔍 Starting score calculation...');
+        console.log('📝 All answers:', answers);
+        console.log('🔢 Number of answers:', Object.keys(answers).length);
+        console.log('❓ All questions:', questions.map(q => ({ id: q.question_id, type: q.question_type })));
+        console.log('🔢 Number of questions:', questions.length);
+        
+        // Check if we have answers for all questions
+        const questionIds = questions.map(q => q.question_id);
+        const answeredIds = Object.keys(answers).map(id => parseInt(id));
+        const missingAnswers = questionIds.filter(id => !answeredIds.includes(id));
+        
+        if (missingAnswers.length > 0) {
+            console.warn('⚠️ Missing answers for questions:', missingAnswers);
+        }
+        
         Object.entries(answers).forEach(([questionIdStr, answer]) => {
-            const questionId = parseInt(questionIdStr, 10); // Convert string back to number
+            const questionId = parseInt(questionIdStr, 10);
             const question = questions.find(q => q.question_id === questionId);
+            
             if (!question) {
                 console.log(`⚠️ Question not found for ID: ${questionId}`);
                 return;
             }
             
             let questionScore = 0;
-            console.log(`🔍 Processing question ${questionId}, type: ${question.question_type}, answer: ${answer}`);
+            console.log(`\n🔍 Processing question ${questionId}:`);
+            console.log(`   Type: ${question.question_type}`);
+            console.log(`   Answer: "${answer}"`);
+            console.log(`   Options:`, question.options);
             
             switch (question.question_type) {
                 case 'multiple_choice':
                 case 'multipleChoice':
-                    // Find the score for the selected option
                     const choices = question.options?.choices || [];
-                    console.log(`🔍 Multiple choice choices:`, choices);
+                    console.log(`   Choices available:`, choices);
+                    
                     const selectedChoice = choices.find((choice: any) => {
-                        const choiceText = typeof choice === 'string' ? choice : choice.text;
+                        const choiceText = typeof choice === 'string' ? choice : (choice.text || choice.choice);
                         return choiceText === answer;
                     });
                     
                     if (selectedChoice) {
-                        questionScore = typeof selectedChoice === 'string' ? 0 : (selectedChoice.score || 0);
-                        console.log(`✅ Multiple choice score: ${questionScore} for answer: ${answer}`);
+                        questionScore = typeof selectedChoice === 'string' ? 0 : (Number(selectedChoice.score) || 0);
+                        console.log(`   ✅ Found matching choice, score: ${questionScore}`);
                     } else {
-                        console.log(`⚠️ No matching choice found for answer: ${answer}`);
+                        console.log(`   ⚠️ No matching choice found for answer: "${answer}"`);
                     }
                     break;
                     
                 case 'true_false':
                 case 'trueFalse':
-                    // True/False scoring logic
                     const options = question.options || {};
                     if (answer === 'true' && options.trueScore !== undefined) {
-                        questionScore = options.trueScore;
-                        console.log(`✅ True/False score (true): ${questionScore}`);
+                        questionScore = Number(options.trueScore) || 0;
                     } else if (answer === 'false' && options.falseScore !== undefined) {
-                        questionScore = options.falseScore;
-                        console.log(`✅ True/False score (false): ${questionScore}`);
+                        questionScore = Number(options.falseScore) || 0;
                     }
+                    console.log(`   ✅ True/False score: ${questionScore}`);
                     break;
                     
                 case 'rating':
-                    // Rating scoring - can use the rating value directly or map it
                     const ratingValue = parseInt(answer || '0', 10);
-                    questionScore = question.options?.scoreMultiplier ? 
-                        ratingValue * question.options.scoreMultiplier : ratingValue;
-                    console.log(`✅ Rating score: ${questionScore} (${ratingValue} × ${question.options?.scoreMultiplier || 1})`);
+                    const multiplier = Number(question.options?.scoreMultiplier) || 1;
+                    questionScore = ratingValue * multiplier;
+                    console.log(`   ✅ Rating score: ${questionScore} (${ratingValue} × ${multiplier})`);
                     break;
                     
                 case 'number':
-                    // Number scoring - can use the number directly or apply ranges
-                    const numberValue = parseInt(answer || '0', 10);
-                    questionScore = question.options?.scoreMultiplier ? 
-                        numberValue * question.options.scoreMultiplier : numberValue;
-                    console.log(`✅ Number score: ${questionScore} (${numberValue} × ${question.options?.scoreMultiplier || 1})`);
+                    const numberValue = parseFloat(answer || '0');
+                    const numberMultiplier = Number(question.options?.scoreMultiplier) || 1;
+                    questionScore = numberValue * numberMultiplier;
+                    console.log(`   ✅ Number score: ${questionScore} (${numberValue} × ${numberMultiplier})`);
                     break;
                     
                 case 'text':
-                    // Text questions typically don't contribute to scoring
                     questionScore = 0;
-                    console.log(`✅ Text question score: ${questionScore}`);
+                    console.log(`   ✅ Text question score: ${questionScore}`);
                     break;
                     
                 default:
                     questionScore = 0;
-                    console.log(`⚠️ Unknown question type: ${question.question_type}, score: ${questionScore}`);
+                    console.log(`   ⚠️ Unknown question type: ${question.question_type}`);
             }
             
-            console.log(`📊 Question ${questionId} contributes ${questionScore} points`);
+            console.log(`   📊 Question ${questionId} contributes: ${questionScore} points`);
+            console.log(`   📈 Total before adding: ${totalScore}`);
             totalScore += questionScore;
+            console.log(`   📈 Total after adding: ${totalScore}`);
         });
         
-        console.log(`🎯 Final total score: ${totalScore}`);
+        console.log(`\n🎯 FINAL TOTAL SCORE: ${totalScore}`);
+        console.log(`📊 Summary: Processed ${Object.keys(answers).length} answers out of ${questions.length} questions`);
         return totalScore;
     };
 
@@ -265,6 +302,11 @@ export default function QuestionPage() {
 
             console.log('✅ Submission saved successfully:', submission);
             console.log('🔑 Submission ID:', submission.id);
+
+            // Clear saved answers from localStorage since form is completed
+            const storageKey = `form_answers_${formId}_${patientId}`;
+            localStorage.removeItem(storageKey);
+            console.log('🗑️ Cleared saved answers from localStorage');
 
             // Wait 1 second before redirect for better UX
             console.log('⏳ Waiting 1 second before redirect...');
