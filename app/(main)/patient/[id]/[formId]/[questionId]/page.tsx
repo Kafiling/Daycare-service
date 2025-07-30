@@ -469,7 +469,7 @@ export default function QuestionPage() {
                 </CardContent>
             </Card>
 
-            {/* Question Summary */}
+            {/* Question Summary
             <Card>
                 <CardHeader>
                     <CardTitle className="text-base">สรุปการตอบคำถาม</CardTitle>
@@ -495,7 +495,7 @@ export default function QuestionPage() {
                         ))}
                     </div>
                 </CardContent>
-            </Card>
+            </Card> */}
         </div>
     );
 }
