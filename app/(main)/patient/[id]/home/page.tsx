@@ -1,32 +1,19 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-import { FileText, Users, History, Calendar, CheckCircle, XCircle, Heart, Activity, AlertCircle, User, Timer, Flag, ChevronLeft, ChevronRight } from 'lucide-react';
+import { FileText, Users, History, Calendar } from 'lucide-react';
 import { getPatientById, getActiveForms, getCompletedSubmissions } from '@/app/service/patient';
-import { getPatientGroupAssignments } from '@/app/service/group-assignment';
+import { getPatientGroupsForPatient, getUpcomingGroupEvents } from '@/app/service/group-assignment';
 import PatientHeader from '@/components/patient/PatientHeader';
 import PatientInfo from '@/components/patient/PatientInfo';
 import AvailableSurveys from '@/components/patient/AvailableSurveys';
 import CompletedSurveys from '@/components/patient/CompletedSurveys';
 import SubmissionHistory from '@/components/patient/SubmissionHistory';
+import { GroupEventsList } from '@/components/group/GroupEventsList';
 
 interface PatientHomePageProps {
     params: Promise<{ id: string }>;
 }
-
-const getPriorityConfig = (priority?: string) => {
-    switch (priority) {
-        case 'high':
-            return { variant: 'destructive' as const, label: 'สำคัญมาก', color: 'text-red-600' };
-        case 'medium':
-            return { variant: 'default' as const, label: 'สำคัญปานกลาง', color: 'text-yellow-600' };
-        case 'low':
-            return { variant: 'secondary' as const, label: 'สำคัญน้อย', color: 'text-blue-600' };
-        default:
-            return { variant: 'outline' as const, label: 'ไม่ระบุ', color: 'text-gray-600' };
-    }
-};
 
 export default async function PatientHomePage({ params }: PatientHomePageProps) {
     try {
@@ -34,7 +21,11 @@ export default async function PatientHomePage({ params }: PatientHomePageProps) 
         const patient = await getPatientById(resolvedParams.id);
         const availableForms = await getActiveForms();
         const completedSubmissions = await getCompletedSubmissions(resolvedParams.id);
-        const groupAssignments = await getPatientGroupAssignments(resolvedParams.id, 1);
+        
+        // Get patient groups and upcoming events
+        const patientGroups = await getPatientGroupsForPatient(resolvedParams.id);
+        const groupIds = patientGroups.map(group => group.id);
+        const upcomingEvents = await getUpcomingGroupEvents(groupIds);
 
         if (!patient) {
             return (
@@ -55,6 +46,27 @@ export default async function PatientHomePage({ params }: PatientHomePageProps) 
                 {/* Patient Information */}
                 <PatientInfo patient={patient} />
 
+                {/* Upcoming Events */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Calendar className="h-5 w-5" />
+                            กิจกรรมที่กำลังจะมาถึง
+                        </CardTitle>
+                        <CardDescription>
+                            กิจกรรมที่กำลังจะมาถึงในกลุ่มของคุณ
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <GroupEventsList 
+                            events={upcomingEvents} 
+                            title="" 
+                            description="" 
+                            emptyMessage="ไม่มีกิจกรรมที่กำลังจะมาถึงในกลุ่มของคุณ"
+                        />
+                    </CardContent>
+                </Card>
+
                 {/* Patient Group Information */}
                 <Card>
                     <CardHeader>
@@ -67,32 +79,25 @@ export default async function PatientHomePage({ params }: PatientHomePageProps) 
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        {groupAssignments.length > 0 && groupAssignments[0].new_group ? (
+                        {patientGroups.length > 0 ? (
                             <div className="space-y-4">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="p-4 bg-muted/50 rounded-lg">
-                                        <div className="flex items-center gap-3 mb-2">
-                                            <div
-                                                className="w-4 h-4 rounded-full"
-                                                style={{ backgroundColor: groupAssignments[0].new_group.color || '#6B7280' }}
-                                            />
-                                            <p className="text-sm font-medium text-muted-foreground">ชื่อกลุ่ม</p>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    {patientGroups.map(group => (
+                                        <div key={group.id} className="p-4 bg-muted/50 rounded-lg">
+                                            <div className="flex items-center gap-3 mb-2">
+                                                <div
+                                                    className="w-4 h-4 rounded-full"
+                                                    style={{ backgroundColor: group.color || '#6B7280' }}
+                                                />
+                                                <p className="text-sm font-medium text-muted-foreground">ชื่อกลุ่ม</p>
+                                            </div>
+                                            <p className="text-lg font-semibold">{group.name}</p>
+                                            {group.description && (
+                                                <p className="text-sm mt-2 text-muted-foreground">{group.description}</p>
+                                            )}
                                         </div>
-                                        <p className="text-lg font-semibold">{groupAssignments[0].new_group.name}</p>
-                                    </div>
-                                    <div className="p-4 bg-muted/50 rounded-lg">
-                                        <p className="text-sm font-medium text-muted-foreground">วันที่เข้าร่วมกลุ่ม</p>
-                                        <p className="text-lg font-semibold">
-                                            {new Date(groupAssignments[0].created_at).toLocaleDateString('th-TH')}
-                                        </p>
-                                    </div>
+                                    ))}
                                 </div>
-                                {groupAssignments[0].new_group.description && (
-                                    <div className="p-4 bg-muted/50 rounded-lg">
-                                        <p className="text-sm font-medium text-muted-foreground">รายละเอียดกลุ่ม</p>
-                                        <p className="text-sm mt-1">{groupAssignments[0].new_group.description}</p>
-                                    </div>
-                                )}
                             </div>
                         ) : (
                             <div className="flex items-center justify-center p-8 bg-muted/50 rounded-lg">

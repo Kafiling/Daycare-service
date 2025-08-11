@@ -9,6 +9,18 @@ export interface PatientGroup {
     updated_at: string;
 }
 
+export interface GroupEvent {
+    id: string;
+    group_id: string;
+    title: string;
+    description?: string;
+    event_datetime: string;
+    is_active: boolean;
+    created_at: string;
+    updated_at: string;
+    group?: PatientGroup;
+}
+
 export interface GroupAssignmentRule {
     id: string;
     name: string;
@@ -400,4 +412,145 @@ export async function getPatientsWithGroups(): Promise<Array<{
     });
 
     return patientsWithGroups;
+}
+
+export async function getPatientGroupsForPatient(patientId: string): Promise<PatientGroup[]> {
+    const supabase = createClient();
+    const { data, error } = await supabase
+        .from('patient_group_memberships')
+        .select('group:patient_groups(*)')
+        .eq('patient_id', patientId);
+
+    if (error) {
+        console.error('Error getting patient groups for patient:', error);
+        return [];
+    }
+
+    return data?.map(item => item.group) || [];
+}
+
+// Group Events CRUD Functions
+export async function createGroupEvent(groupEvent: Omit<GroupEvent, 'id' | 'created_at' | 'updated_at'>): Promise<GroupEvent | null> {
+    const supabase = createClient();
+    
+    const { data, error } = await supabase
+        .from('group_events')
+        .insert({
+            group_id: groupEvent.group_id,
+            title: groupEvent.title,
+            description: groupEvent.description || '',
+            event_datetime: groupEvent.event_datetime,
+            is_active: groupEvent.is_active
+        })
+        .select('*')
+        .single();
+    
+    if (error) {
+        console.error('Error creating group event:', error);
+        return null;
+    }
+    
+    return data;
+}
+
+export async function getGroupEvents(groupId?: string): Promise<GroupEvent[]> {
+    const supabase = createClient();
+    
+    let query = supabase
+        .from('group_events')
+        .select('*, group:patient_groups(*)');
+    
+    if (groupId) {
+        query = query.eq('group_id', groupId);
+    }
+    
+    const { data, error } = await query.order('event_datetime', { ascending: true });
+    
+    if (error) {
+        console.error('Error fetching group events:', error);
+        return [];
+    }
+    
+    return data || [];
+}
+
+export async function getUpcomingGroupEvents(groupIds?: string[]): Promise<GroupEvent[]> {
+    const supabase = createClient();
+    
+    let query = supabase
+        .from('group_events')
+        .select('*, group:patient_groups(*)')
+        .gt('event_datetime', new Date().toISOString())
+        .eq('is_active', true)
+        .order('event_datetime', { ascending: true });
+    
+    if (groupIds && groupIds.length > 0) {
+        query = query.in('group_id', groupIds);
+    }
+    
+    const { data, error } = await query;
+    
+    if (error) {
+        console.error('Error fetching upcoming group events:', error);
+        return [];
+    }
+    
+    return data || [];
+}
+
+export async function getGroupEvent(eventId: string): Promise<GroupEvent | null> {
+    const supabase = createClient();
+    
+    const { data, error } = await supabase
+        .from('group_events')
+        .select('*, group:patient_groups(*)')
+        .eq('id', eventId)
+        .single();
+    
+    if (error) {
+        console.error('Error fetching group event:', error);
+        return null;
+    }
+    
+    return data;
+}
+
+export async function updateGroupEvent(eventId: string, updates: Partial<Omit<GroupEvent, 'id' | 'created_at' | 'updated_at'>>): Promise<GroupEvent | null> {
+    const supabase = createClient();
+    
+    const { data, error } = await supabase
+        .from('group_events')
+        .update({
+            group_id: updates.group_id,
+            title: updates.title,
+            description: updates.description,
+            event_datetime: updates.event_datetime,
+            is_active: updates.is_active
+        })
+        .eq('id', eventId)
+        .select('*')
+        .single();
+    
+    if (error) {
+        console.error('Error updating group event:', error);
+        return null;
+    }
+    
+    return data;
+}
+
+export async function deleteGroupEvent(eventId: string): Promise<boolean> {
+    const supabase = createClient();
+    
+    const { error } = await supabase
+        .from('group_events')
+        .delete()
+        .eq('id', eventId);
+    
+    if (error) {
+        console.error('Error deleting group event:', error);
+        return false;
+    }
+    
+    return true;
 }
