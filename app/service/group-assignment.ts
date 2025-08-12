@@ -571,9 +571,15 @@ function generateRecurringEventInstances(
                 break;
                 
             case 'biweekly':
+                // Calculate the number of weeks between the start date and current date
                 const diffTime = Math.abs(currentDate.getTime() - startDate.getTime());
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                shouldAddInstance = currentDate.getDay() === startDate.getDay() && diffDays % 14 === 0;
+                const diffWeeks = Math.floor(diffDays / 7);
+                
+                // Check if it's the same day of the week and falls on an even week count
+                shouldAddInstance = 
+                    currentDate.getDay() === startDate.getDay() && 
+                    diffWeeks % 2 === 0;
                 break;
                 
             case 'monthly':
