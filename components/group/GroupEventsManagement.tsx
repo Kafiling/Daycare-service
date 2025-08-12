@@ -7,13 +7,14 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, Clock, Edit, Trash2, Plus } from 'lucide-react';
-import { format } from 'date-fns';
+import { Calendar, Clock, Edit, Trash2, Plus, Repeat } from 'lucide-react';
+import { format, addMonths } from 'date-fns';
 import { th } from 'date-fns/locale';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface GroupEventsManagementProps {
   groups: PatientGroup[];
@@ -33,7 +34,10 @@ export function GroupEventsManagement({ groups, selectedGroupId }: GroupEventsMa
     event_date: '',
     event_time: '',
     group_id: selectedGroupId || '',
-    is_active: true
+    is_active: true,
+    is_recurring: false,
+    recurrence_pattern: 'weekly',
+    recurrence_end_date: ''
   });
 
   const loadEvents = async () => {
@@ -64,6 +68,16 @@ export function GroupEventsManagement({ groups, selectedGroupId }: GroupEventsMa
 
   const handleCheckboxChange = (name: string, checked: boolean) => {
     setFormData(prev => ({ ...prev, [name]: checked }));
+    
+    // Set default recurrence end date (3 months from event date) when enabling recurrence
+    if (name === 'is_recurring' && checked && formData.event_date && !formData.recurrence_end_date) {
+      const eventDate = new Date(formData.event_date);
+      const endDate = addMonths(eventDate, 3);
+      setFormData(prev => ({ 
+        ...prev, 
+        recurrence_end_date: format(endDate, 'yyyy-MM-dd')
+      }));
+    }
   };
 
   const resetForm = () => {
@@ -73,7 +87,10 @@ export function GroupEventsManagement({ groups, selectedGroupId }: GroupEventsMa
       event_date: '',
       event_time: '',
       group_id: selectedGroupId || '',
-      is_active: true
+      is_active: true,
+      is_recurring: false,
+      recurrence_pattern: 'weekly',
+      recurrence_end_date: ''
     });
   };
 
@@ -96,7 +113,10 @@ export function GroupEventsManagement({ groups, selectedGroupId }: GroupEventsMa
       event_date: eventDate,
       event_time: eventTime,
       group_id: event.group_id,
-      is_active: event.is_active
+      is_active: event.is_active,
+      is_recurring: event.is_recurring || false,
+      recurrence_pattern: event.recurrence_pattern || 'weekly',
+      recurrence_end_date: event.recurrence_end_date ? format(new Date(event.recurrence_end_date), 'yyyy-MM-dd') : ''
     });
     
     setIsEditDialogOpen(true);
@@ -113,6 +133,12 @@ export function GroupEventsManagement({ groups, selectedGroupId }: GroupEventsMa
       return;
     }
     
+    // Validate recurrence settings
+    if (formData.is_recurring && !formData.recurrence_end_date) {
+      toast.error('กรุณาระบุวันที่สิ้นสุดการทำซ้ำ');
+      return;
+    }
+    
     setIsLoading(true);
     try {
       const eventDatetime = new Date(`${formData.event_date}T${formData.event_time}`).toISOString();
@@ -122,7 +148,10 @@ export function GroupEventsManagement({ groups, selectedGroupId }: GroupEventsMa
         title: formData.title,
         description: formData.description,
         event_datetime: eventDatetime,
-        is_active: formData.is_active
+        is_active: formData.is_active,
+        is_recurring: formData.is_recurring,
+        recurrence_pattern: formData.is_recurring ? formData.recurrence_pattern : undefined,
+        recurrence_end_date: formData.is_recurring ? new Date(formData.recurrence_end_date).toISOString() : undefined
       });
       
       if (newEvent) {
@@ -147,6 +176,12 @@ export function GroupEventsManagement({ groups, selectedGroupId }: GroupEventsMa
       return;
     }
     
+    // Validate recurrence settings
+    if (formData.is_recurring && !formData.recurrence_end_date) {
+      toast.error('กรุณาระบุวันที่สิ้นสุดการทำซ้ำ');
+      return;
+    }
+    
     setIsLoading(true);
     try {
       const eventDatetime = new Date(`${formData.event_date}T${formData.event_time}`).toISOString();
@@ -156,7 +191,10 @@ export function GroupEventsManagement({ groups, selectedGroupId }: GroupEventsMa
         title: formData.title,
         description: formData.description,
         event_datetime: eventDatetime,
-        is_active: formData.is_active
+        is_active: formData.is_active,
+        is_recurring: formData.is_recurring,
+        recurrence_pattern: formData.is_recurring ? formData.recurrence_pattern : undefined,
+        recurrence_end_date: formData.is_recurring ? new Date(formData.recurrence_end_date).toISOString() : undefined
       });
       
       if (updatedEvent) {
@@ -198,6 +236,32 @@ export function GroupEventsManagement({ groups, selectedGroupId }: GroupEventsMa
     }
   };
 
+  // Function to get human-readable recurrence pattern
+  const getRecurrenceText = (event: GroupEvent) => {
+    if (!event.is_recurring) return null;
+    
+    const patternTexts: Record<string, string> = {
+      'daily': 'ทุกวัน',
+      'weekly': 'ทุกสัปดาห์',
+      'biweekly': 'ทุก 2 สัปดาห์',
+      'monthly': 'ทุกเดือน',
+      'yearly': 'ทุกปี'
+    };
+    
+    const pattern = patternTexts[event.recurrence_pattern || 'weekly'] || 'ทุกสัปดาห์';
+    let text = `ทำซ้ำ${pattern}`;
+    
+    if (event.recurrence_end_date) {
+      text += ` จนถึง ${format(new Date(event.recurrence_end_date), 'd MMM yyyy', { locale: th })}`;
+    }
+    
+    return text;
+  };
+
+  // Filter events by recurring and one-time
+  const recurringEvents = events.filter(event => event.is_recurring);
+  const oneTimeEvents = events.filter(event => !event.is_recurring);
+
   return (
     <Card className="h-full">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -220,42 +284,65 @@ export function GroupEventsManagement({ groups, selectedGroupId }: GroupEventsMa
             {selectedGroupId ? 'ไม่มีกิจกรรมในกลุ่มที่เลือก' : 'ไม่มีกิจกรรมในระบบ'}
           </div>
         ) : (
-          <div className="space-y-4">
-            {events.map((event) => (
-              <div key={event.id} className="border rounded-lg p-4 shadow-sm">
-                <div className="flex justify-between items-start mb-2">
-                  <div>
-                    <h3 className="font-medium text-lg flex items-center">
-                      {event.title}
-                      {!event.is_active && (
-                        <Badge variant="outline" className="ml-2 text-xs">ไม่ใช้งาน</Badge>
-                      )}
-                    </h3>
-                    {event.group && (
-                      <Badge style={{ backgroundColor: event.group.color || '#888888' }} className="mt-1">
-                        {event.group.name}
-                      </Badge>
-                    )}
+          <Tabs defaultValue="all">
+            <TabsList className="grid w-full grid-cols-3 mb-4">
+              <TabsTrigger value="all">ทั้งหมด ({events.length})</TabsTrigger>
+              <TabsTrigger value="recurring">
+                กิจกรรมประจำ ({recurringEvents.length})
+              </TabsTrigger>
+              <TabsTrigger value="oneTime">
+                กิจกรรมครั้งเดียว ({oneTimeEvents.length})
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="all" className="space-y-4">
+              {events.map((event) => (
+                <EventCard 
+                  key={event.id} 
+                  event={event} 
+                  onEdit={openEditDialog} 
+                  onDelete={openDeleteDialog}
+                  getRecurrenceText={getRecurrenceText}
+                />
+              ))}
+            </TabsContent>
+            
+            <TabsContent value="recurring" className="space-y-4">
+              {recurringEvents.length > 0 ? 
+                recurringEvents.map((event) => (
+                  <EventCard 
+                    key={event.id} 
+                    event={event} 
+                    onEdit={openEditDialog} 
+                    onDelete={openDeleteDialog}
+                    getRecurrenceText={getRecurrenceText}
+                  />
+                )) : (
+                  <div className="text-center text-muted-foreground py-4">
+                    ไม่มีกิจกรรมประจำ
                   </div>
-                  <div className="flex space-x-2">
-                    <Button variant="outline" size="icon" onClick={() => openEditDialog(event)}>
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button variant="outline" size="icon" onClick={() => openDeleteDialog(event)}>
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                )
+              }
+            </TabsContent>
+            
+            <TabsContent value="oneTime" className="space-y-4">
+              {oneTimeEvents.length > 0 ? 
+                oneTimeEvents.map((event) => (
+                  <EventCard 
+                    key={event.id} 
+                    event={event} 
+                    onEdit={openEditDialog} 
+                    onDelete={openDeleteDialog}
+                    getRecurrenceText={getRecurrenceText}
+                  />
+                )) : (
+                  <div className="text-center text-muted-foreground py-4">
+                    ไม่มีกิจกรรมครั้งเดียว
                   </div>
-                </div>
-                {event.description && <p className="text-muted-foreground mb-3">{event.description}</p>}
-                <div className="flex items-center text-sm text-muted-foreground">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  <span>{format(new Date(event.event_datetime), 'EEEE d MMMM yyyy', { locale: th })}</span>
-                  <Clock className="h-4 w-4 ml-4 mr-2" />
-                  <span>{format(new Date(event.event_datetime), 'HH:mm น.')}</span>
-                </div>
-              </div>
-            ))}
-          </div>
+                )
+              }
+            </TabsContent>
+          </Tabs>
         )}
       </CardContent>
 
@@ -336,6 +423,50 @@ export function GroupEventsManagement({ groups, selectedGroupId }: GroupEventsMa
                 />
               </div>
             </div>
+            
+            <div className="flex items-center space-x-2">
+              <Checkbox 
+                id="is_recurring" 
+                checked={formData.is_recurring}
+                onCheckedChange={(checked) => handleCheckboxChange('is_recurring', checked as boolean)}
+              />
+              <Label htmlFor="is_recurring">กิจกรรมประจำ (ทำซ้ำ)</Label>
+            </div>
+            
+            {formData.is_recurring && (
+              <div className="space-y-4 p-4 border rounded-md bg-slate-50">
+                <div className="space-y-2">
+                  <Label htmlFor="recurrence_pattern">รูปแบบการทำซ้ำ</Label>
+                  <Select 
+                    value={formData.recurrence_pattern} 
+                    onValueChange={(value) => handleSelectChange('recurrence_pattern', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="daily">ทุกวัน</SelectItem>
+                      <SelectItem value="weekly">ทุกสัปดาห์</SelectItem>
+                      <SelectItem value="biweekly">ทุก 2 สัปดาห์</SelectItem>
+                      <SelectItem value="monthly">ทุกเดือน</SelectItem>
+                      <SelectItem value="yearly">ทุกปี</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="recurrence_end_date">วันที่สิ้นสุดการทำซ้ำ</Label>
+                  <Input
+                    id="recurrence_end_date"
+                    name="recurrence_end_date"
+                    type="date"
+                    value={formData.recurrence_end_date}
+                    onChange={handleInputChange}
+                    min={formData.event_date}
+                  />
+                </div>
+              </div>
+            )}
             
             <div className="flex items-center space-x-2">
               <Checkbox 
@@ -436,6 +567,50 @@ export function GroupEventsManagement({ groups, selectedGroupId }: GroupEventsMa
             
             <div className="flex items-center space-x-2">
               <Checkbox 
+                id="edit_is_recurring" 
+                checked={formData.is_recurring}
+                onCheckedChange={(checked) => handleCheckboxChange('is_recurring', checked as boolean)}
+              />
+              <Label htmlFor="edit_is_recurring">กิจกรรมประจำ (ทำซ้ำ)</Label>
+            </div>
+            
+            {formData.is_recurring && (
+              <div className="space-y-4 p-4 border rounded-md bg-slate-50">
+                <div className="space-y-2">
+                  <Label htmlFor="edit_recurrence_pattern">รูปแบบการทำซ้ำ</Label>
+                  <Select 
+                    value={formData.recurrence_pattern} 
+                    onValueChange={(value) => handleSelectChange('recurrence_pattern', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="daily">ทุกวัน</SelectItem>
+                      <SelectItem value="weekly">ทุกสัปดาห์</SelectItem>
+                      <SelectItem value="biweekly">ทุก 2 สัปดาห์</SelectItem>
+                      <SelectItem value="monthly">ทุกเดือน</SelectItem>
+                      <SelectItem value="yearly">ทุกปี</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="edit_recurrence_end_date">วันที่สิ้นสุดการทำซ้ำ</Label>
+                  <Input
+                    id="edit_recurrence_end_date"
+                    name="recurrence_end_date"
+                    type="date"
+                    value={formData.recurrence_end_date}
+                    onChange={handleInputChange}
+                    min={formData.event_date}
+                  />
+                </div>
+              </div>
+            )}
+            
+            <div className="flex items-center space-x-2">
+              <Checkbox 
                 id="edit_is_active" 
                 checked={formData.is_active}
                 onCheckedChange={(checked) => handleCheckboxChange('is_active', checked as boolean)}
@@ -472,5 +647,68 @@ export function GroupEventsManagement({ groups, selectedGroupId }: GroupEventsMa
         </AlertDialogContent>
       </AlertDialog>
     </Card>
+  );
+}
+
+// Extracted Event Card component
+interface EventCardProps {
+  event: GroupEvent;
+  onEdit: (event: GroupEvent) => void;
+  onDelete: (event: GroupEvent) => void;
+  getRecurrenceText: (event: GroupEvent) => string | null;
+}
+
+function EventCard({ event, onEdit, onDelete, getRecurrenceText }: EventCardProps) {
+  const recurrenceText = getRecurrenceText(event);
+  
+  return (
+    <div className="border rounded-lg p-4 shadow-sm">
+      <div className="flex justify-between items-start mb-2">
+        <div>
+          <h3 className="font-medium text-lg flex items-center">
+            {event.title}
+            {!event.is_active && (
+              <Badge variant="outline" className="ml-2 text-xs">ไม่ใช้งาน</Badge>
+            )}
+            {event.is_recurring && (
+              <Badge variant="secondary" className="ml-2 text-xs">
+                <Repeat className="h-3 w-3 mr-1" />
+                กิจกรรมประจำ
+              </Badge>
+            )}
+          </h3>
+          {event.group && (
+            <Badge style={{ backgroundColor: event.group.color || '#888888' }} className="mt-1">
+              {event.group.name}
+            </Badge>
+          )}
+        </div>
+        <div className="flex space-x-2">
+          <Button variant="outline" size="icon" onClick={() => onEdit(event)}>
+            <Edit className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" size="icon" onClick={() => onDelete(event)}>
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+      {event.description && <p className="text-muted-foreground mb-3">{event.description}</p>}
+      <div className="flex flex-col space-y-1 text-sm text-muted-foreground">
+        <div className="flex items-center">
+          <Calendar className="h-4 w-4 mr-2" />
+          <span>{format(new Date(event.event_datetime), 'EEEE d MMMM yyyy', { locale: th })}</span>
+        </div>
+        <div className="flex items-center">
+          <Clock className="h-4 w-4 mr-2" />
+          <span>{format(new Date(event.event_datetime), 'HH:mm น.')}</span>
+        </div>
+        {recurrenceText && (
+          <div className="flex items-center mt-1">
+            <Repeat className="h-4 w-4 mr-2" />
+            <span>{recurrenceText}</span>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

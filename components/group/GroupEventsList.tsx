@@ -1,7 +1,7 @@
 import React from 'react';
 import { GroupEvent } from '@/app/service/group-assignment';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calendar, Clock } from 'lucide-react';
+import { Calendar, Clock, Repeat } from 'lucide-react';
 import { format } from 'date-fns';
 import { th } from 'date-fns/locale';
 import { Badge } from '@/components/ui/badge';
@@ -25,6 +25,28 @@ export function GroupEventsList({
 }: GroupEventsListProps) {
   const displayEvents = maxEvents ? events.slice(0, maxEvents) : events;
 
+  // Function to get human-readable recurrence pattern
+  const getRecurrenceText = (event: GroupEvent) => {
+    if (!event.is_recurring) return null;
+    
+    const patternTexts: Record<string, string> = {
+      'daily': 'ทุกวัน',
+      'weekly': 'ทุกสัปดาห์',
+      'biweekly': 'ทุก 2 สัปดาห์',
+      'monthly': 'ทุกเดือน',
+      'yearly': 'ทุกปี'
+    };
+    
+    const pattern = patternTexts[event.recurrence_pattern || 'weekly'] || 'ทุกสัปดาห์';
+    let text = `ทำซ้ำ${pattern}`;
+    
+    if (event.recurrence_end_date) {
+      text += ` จนถึง ${format(new Date(event.recurrence_end_date), 'd MMM yyyy', { locale: th })}`;
+    }
+    
+    return text;
+  };
+
   return (
     <Card className="h-full">
       <CardHeader>
@@ -39,7 +61,20 @@ export function GroupEventsList({
             {displayEvents.map((event) => (
               <div key={event.id} className="border rounded-lg p-4 shadow-sm">
                 <div className="flex justify-between items-start mb-2">
-                  <h3 className="font-medium text-lg">{event.title}</h3>
+                  <div>
+                    <h3 className="font-medium text-lg flex items-center">
+                      {event.title}
+                      {event.isRecurringInstance && (
+                        <Badge variant="outline" className="ml-2 text-xs">ซ้ำ</Badge>
+                      )}
+                      {event.is_recurring && !event.isRecurringInstance && (
+                        <Badge variant="secondary" className="ml-2 text-xs">
+                          <Repeat className="h-3 w-3 mr-1" />
+                          กิจกรรมประจำ
+                        </Badge>
+                      )}
+                    </h3>
+                  </div>
                   {showGroup && event.group && (
                     <Badge style={{ backgroundColor: event.group.color || '#888888' }}>
                       {event.group.name}
@@ -47,11 +82,21 @@ export function GroupEventsList({
                   )}
                 </div>
                 {event.description && <p className="text-muted-foreground mb-3">{event.description}</p>}
-                <div className="flex items-center text-sm text-muted-foreground">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  <span>{format(new Date(event.event_datetime), 'EEEE d MMMM yyyy', { locale: th })}</span>
-                  <Clock className="h-4 w-4 ml-4 mr-2" />
-                  <span>{format(new Date(event.event_datetime), 'HH:mm น.')}</span>
+                <div className="flex flex-col space-y-1 text-sm text-muted-foreground">
+                  <div className="flex items-center">
+                    <Calendar className="h-4 w-4 mr-2" />
+                    <span>{format(new Date(event.event_datetime), 'EEEE d MMMM yyyy', { locale: th })}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Clock className="h-4 w-4 mr-2" />
+                    <span>{format(new Date(event.event_datetime), 'HH:mm น.')}</span>
+                  </div>
+                  {event.is_recurring && !event.isRecurringInstance && (
+                    <div className="flex items-center mt-1">
+                      <Repeat className="h-4 w-4 mr-2" />
+                      <span>{getRecurrenceText(event)}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
