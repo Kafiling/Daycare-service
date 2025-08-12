@@ -430,7 +430,12 @@ export async function getPatientGroupsForPatient(patientId: string): Promise<Pat
         return [];
     }
 
-    return data?.map(item => item.group) || [];
+    // Ensure we properly extract the group objects and handle potential array structure
+    return data?.map(item => {
+        // Handle possible array format (from foreign table joins)
+        const group = Array.isArray(item.group) ? item.group[0] : item.group;
+        return group as PatientGroup;
+    }).filter(Boolean) || [];
 }
 
 // Group Events CRUD Functions
