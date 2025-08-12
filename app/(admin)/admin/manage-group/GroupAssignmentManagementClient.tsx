@@ -43,7 +43,8 @@ import {
   Activity,
   RefreshCw,
   Target,
-  Zap
+  Zap,
+  Calendar
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -65,8 +66,9 @@ import {
   PatientGroup,
   PatientGroupAssignment
 } from '@/app/service/group-assignment';
+import { GroupEventsManagement } from '@/components/group/GroupEventsManagement';
 
-interface FormConfig {
+export interface FormConfig {
   form_id: string;
   weight: number;
   threshold?: number;
@@ -103,6 +105,7 @@ export function GroupAssignmentManagementClient() {
   const [isEditGroupDialogOpen, setIsEditGroupDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('rules');
+  const [selectedGroupIdForEvents, setSelectedGroupIdForEvents] = useState<string>('');
 
   const [createForm, setCreateForm] = useState<CreateRuleForm>({
     name: '',
@@ -431,9 +434,10 @@ export function GroupAssignmentManagementClient() {
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="groups">จัดการกลุ่ม</TabsTrigger>
           <TabsTrigger value="rules">เงื่อนไขการแบ่งกลุ่ม</TabsTrigger>
+          <TabsTrigger value="events">กิจกรรมกลุ่ม</TabsTrigger>
           <TabsTrigger value="patients">ผู้รับบริการในกลุ่ม</TabsTrigger>
           <TabsTrigger value="history">ประวัติการแบ่งกลุ่ม</TabsTrigger>
           <TabsTrigger value="tools">เครื่องมือ</TabsTrigger>
@@ -878,6 +882,43 @@ export function GroupAssignmentManagementClient() {
               ))
             )}
           </div>
+        </TabsContent>
+        
+        {/* Events Tab */}
+        <TabsContent value="events" className="space-y-4">
+          <div className="flex justify-between items-center">
+            <div>
+              <h2 className="text-xl font-semibold">กิจกรรมกลุ่ม</h2>
+              <p className="text-gray-600">จัดการกิจกรรมสำหรับแต่ละกลุ่มผู้รับบริการ</p>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Select
+                value={activeTab === 'events' ? (selectedGroupIdForEvents || 'all') : 'all'}
+                onValueChange={(value) => setSelectedGroupIdForEvents(value === 'all' ? '' : value)}
+              >
+                <SelectTrigger className="w-[240px]">
+                  <SelectValue placeholder="ทุกกลุ่ม" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">ทุกกลุ่ม</SelectItem>
+                  {groups.map((group) => (
+                    <SelectItem key={group.id} value={group.id}>
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="w-3 h-3 rounded-full"
+                          style={{ backgroundColor: group.color }}
+                        />
+                        {group.name}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          
+          <GroupEventsManagement groups={groups} selectedGroupId={selectedGroupIdForEvents} />
         </TabsContent>
 
         {/* Patients Tab */}
