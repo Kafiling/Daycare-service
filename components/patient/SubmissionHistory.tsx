@@ -94,7 +94,7 @@ export default function SubmissionHistory({ submissions }: SubmissionHistoryProp
                                         {submission.form?.label && (
                                             <span>หมวด: {submission.form.label}</span>
                                         )}
-                                        <span>คะแนน: {submission.total_evaluation_score || 0}</span>
+                                        <span>คะแนน: {typeof submission.total_evaluation_score === 'number' ? submission.total_evaluation_score.toFixed(2) : '0.00'}</span>
                                         {submission.evaluation_result && (
                                             <span>ผล: {submission.evaluation_result}</span>
                                         )}
