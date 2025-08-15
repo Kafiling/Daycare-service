@@ -84,7 +84,14 @@ export default function SubmissionHistory({ submissions }: SubmissionHistoryProp
                             <div className="flex items-center gap-3">
                                 <div className="flex items-center gap-2">
                                     <IconComponent className="h-5 w-5 text-muted-foreground" />
-                                    <CheckCircle className="h-4 w-4 text-green-600" />
+                                    <CheckCircle 
+                                        className={`h-4 w-4 ${
+                                            submission.evaluation_result === "ต้องปรับปรุง" || 
+                                            submission.evaluation_result === "ปานกลาง" 
+                                                ? "text-yellow-500" 
+                                                : "text-green-600"
+                                        }`} 
+                                    />
                                 </div>
                                 <div className="flex-1">
                                     <div className="flex items-center gap-2 mb-1">
