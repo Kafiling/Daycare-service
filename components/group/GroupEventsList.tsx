@@ -1,6 +1,5 @@
 import React from 'react';
 import { GroupEvent } from '@/app/service/group-assignment';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calendar, Clock, Repeat } from 'lucide-react';
 import { format } from 'date-fns';
 import { th } from 'date-fns/locale';
@@ -48,17 +47,19 @@ export function GroupEventsList({
   };
 
   return (
-    <Card className="h-full">
-      <CardHeader>
-        <CardTitle>{title}</CardTitle>
-        <CardDescription>{description}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        {displayEvents.length === 0 ? (
-          <div className="text-center text-muted-foreground py-8">{emptyMessage}</div>
-        ) : (
-          <div className="space-y-4">
-            {displayEvents.map((event) => (
+    <div className="h-full">
+      {(title || description) && (
+        <div className="mb-4">
+          {title && <h3 className="text-lg font-semibold">{title}</h3>}
+          {description && <p className="text-muted-foreground text-sm">{description}</p>}
+        </div>
+      )}
+      
+      {displayEvents.length === 0 ? (
+        <div className="text-center text-muted-foreground py-8">{emptyMessage}</div>
+      ) : (
+        <div className="space-y-4">
+          {displayEvents.map((event) => (
               <div key={event.id} className="border rounded-lg p-4 shadow-sm">
                 <div className="flex justify-between items-start mb-2">
                   <div>
@@ -100,16 +101,15 @@ export function GroupEventsList({
                 </div>
               </div>
             ))}
-            {maxEvents && events.length > maxEvents && (
-              <div className="text-center text-sm">
-                <span className="text-primary hover:underline cursor-pointer">
-                  + แสดงทั้งหมด {events.length} กิจกรรม
-                </span>
-              </div>
-            )}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          {maxEvents && events.length > maxEvents && (
+            <div className="text-center text-sm">
+              <span className="text-primary hover:underline cursor-pointer">
+                + แสดงทั้งหมด {events.length} กิจกรรม
+              </span>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   );
 }

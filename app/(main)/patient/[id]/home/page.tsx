@@ -21,11 +21,24 @@ export default async function PatientHomePage({ params }: PatientHomePageProps) 
         const patient = await getPatientById(resolvedParams.id);
         const availableForms = await getActiveForms();
         const completedSubmissions = await getCompletedSubmissions(resolvedParams.id);
-        
+
         // Get patient groups and upcoming events
         const patientGroups = await getPatientGroupsForPatient(resolvedParams.id);
         const groupIds = patientGroups.map(group => group.id);
-        const upcomingEvents = await getUpcomingGroupEvents(groupIds);
+
+        // Get upcoming events and filter to only show events within the next month
+        const allUpcomingEvents = await getUpcomingGroupEvents(groupIds);
+
+        // Filter events to only include those within the next month (30 days)
+        const oneMonthFromNow = new Date();
+        oneMonthFromNow.setDate(oneMonthFromNow.getDate() + 30);
+
+        const upcomingEvents = allUpcomingEvents
+            .filter(event => {
+                const eventDate = new Date(event.event_datetime);
+                return eventDate <= oneMonthFromNow;
+            })
+            .slice(0, 3); // Limit to maximum 3 events
 
         if (!patient) {
             return (
@@ -54,15 +67,16 @@ export default async function PatientHomePage({ params }: PatientHomePageProps) 
                             กิจกรรมที่กำลังจะมาถึง
                         </CardTitle>
                         <CardDescription>
-                            กิจกรรมที่กำลังจะมาถึงในกลุ่มของคุณ
+                            กิจกรรมที่กำลังจะมาถึงในเดือนนี้ (แสดงสูงสุด 3 รายการ)
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <GroupEventsList 
-                            events={upcomingEvents} 
-                            title="" 
-                            description="" 
+                        <GroupEventsList
+                            events={upcomingEvents}
+                            title=""
+                            description=""
                             emptyMessage="ไม่มีกิจกรรมที่กำลังจะมาถึงในกลุ่มของคุณ"
+                            maxEvents={3}
                         />
                     </CardContent>
                 </Card>
