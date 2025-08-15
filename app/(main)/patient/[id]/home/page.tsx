@@ -54,7 +54,7 @@ export default async function PatientHomePage({ params }: PatientHomePageProps) 
         return (
             <div className="container mx-auto px-4 py-8 max-w-6xl flex flex-col gap-y-4">
                 {/* Patient Header */}
-                <PatientHeader patient={patient} patientId={resolvedParams.id} />
+                <PatientHeader patient={patient} patientId={resolvedParams.id} patientGroups={patientGroups} />
 
                 {/* Patient Information */}
                 <PatientInfo patient={patient} />
@@ -98,15 +98,17 @@ export default async function PatientHomePage({ params }: PatientHomePageProps) 
                         {patientGroups.length > 0 ? (
                             <div className="space-y-4">
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    {patientGroups.map(group => (
-                                        <div key={group.id} className="p-4 bg-muted/50 rounded-lg">
-                                            <div className="flex items-center gap-3 mb-2">
-                                                <div
-                                                    className="w-4 h-4 rounded-full"
-                                                    style={{ backgroundColor: group.color || '#6B7280' }}
-                                                />
-                                                <p className="text-sm font-medium text-muted-foreground">ชื่อกลุ่ม</p>
-                                            </div>
+                                    {patientGroups
+                                        .sort((a, b) => a.name.localeCompare(b.name, 'th'))
+                                        .map(group => (
+                                            <div key={group.id} className="p-4 bg-muted/50 rounded-lg">
+                                                <div className="flex items-center gap-3 mb-2">
+                                                    <div
+                                                        className="w-4 h-4 rounded-full"
+                                                        style={{ backgroundColor: group.color || '#6B7280' }}
+                                                    />
+                                                    <p className="text-sm font-medium text-muted-foreground">ชื่อกลุ่ม</p>
+                                                </div>
                                             <p className="text-lg font-semibold">{group.name}</p>
                                             {group.description && (
                                                 <p className="text-sm mt-2 text-muted-foreground">{group.description}</p>

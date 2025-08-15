@@ -175,8 +175,10 @@ export function DashboardActivityGrid() {
 				initial="hidden"
 				animate="show"
 			>
-				{groups.map((group) => {
-					const groupEvents = upcomingEvents.filter(event => event.group_id === group.id);
+				{[...groups]
+					.sort((a, b) => a.name.localeCompare(b.name, 'th'))
+					.map((group) => {
+						const groupEvents = upcomingEvents.filter(event => event.group_id === group.id);
 					
 					// For each group, filter to show at most one event per recurring series
 					const uniqueEvents = groupEvents.reduce((acc, event) => {

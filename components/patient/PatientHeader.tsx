@@ -2,13 +2,16 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import type { Patient } from '@/app/service/patient';
+import { PatientGroup } from '@/app/service/group-assignment';
+import { Users } from 'lucide-react';
 
 interface PatientHeaderProps {
     patient: Patient;
     patientId: string;
+    patientGroups?: PatientGroup[];
 }
 
-export default function PatientHeader({ patient, patientId }: PatientHeaderProps) {
+export default function PatientHeader({ patient, patientId, patientGroups = [] }: PatientHeaderProps) {
     const calculateAge = (birthDate: string) => {
         const today = new Date();
         const birth = new Date(birthDate);
@@ -54,6 +57,27 @@ export default function PatientHeader({ patient, patientId }: PatientHeaderProps
                                 ลงทะเบียนเมื่อ {formatDate(patient.created_at)}
                             </Badge>
                         </div>
+                        
+                        {patientGroups && patientGroups.length > 0 && (
+                            <div className="flex flex-wrap items-center gap-2 mt-3">
+                                <div className="flex items-center mr-1">
+                                    <Users className="h-4 w-4 text-muted-foreground mr-1" />
+                                    <span className="text-sm text-muted-foreground">กลุ่ม:</span>
+                                </div>
+                                {[...patientGroups]
+                                    .sort((a, b) => a.name.localeCompare(b.name, 'th'))
+                                    .map(group => (
+                                        <Badge 
+                                            key={group.id} 
+                                            style={{ backgroundColor: group.color || '#6B7280' }}
+                                            className="font-normal"
+                                        >
+                                            {group.name}
+                                        </Badge>
+                                    ))
+                                }
+                            </div>
+                        )}
                     </div>
                 </div>
             </CardHeader>
