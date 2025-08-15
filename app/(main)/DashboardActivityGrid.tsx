@@ -73,6 +73,10 @@ export function DashboardActivityGrid() {
 					getUpcomingGroupEvents()
 				]);
 
+				// Filter out recurring instances for staff dashboard
+				// For recurring events, only keep the original event (not the generated instances)
+				const filteredEvents = eventsData.filter(event => !event.isRecurringInstance);
+
 				// Group patients by their group
 				const groupsWithPatients: GroupWithPatients[] = groupsData.map(group => {
 					const groupPatients = patientsData.filter(patient => 
@@ -89,7 +93,7 @@ export function DashboardActivityGrid() {
 				const groupsWithMembers = groupsWithPatients.filter(group => group.patientCount > 0);
 
 				setGroups(groupsWithMembers);
-				setUpcomingEvents(eventsData);
+				setUpcomingEvents(filteredEvents);
 			} catch (error) {
 				console.error('Error loading data:', error);
 				setError('เกิดข้อผิดพลาดในการโหลดข้อมูล');
@@ -129,11 +133,30 @@ export function DashboardActivityGrid() {
 		);
 	}
 
+	// Filter upcomingEvents to show only one instance per recurring event
+	const filteredUpcomingEvents = upcomingEvents.reduce((acc, event) => {
+		// For recurring events, check if we already have an event with this title
+		if (event.is_recurring) {
+			const existingEventIndex = acc.findIndex(e => 
+				e.is_recurring && e.title === event.title && e.group_id === event.group_id
+			);
+			
+			// If not found, add it
+			if (existingEventIndex === -1) {
+				acc.push(event);
+			}
+		} else {
+			// For non-recurring events, always add
+			acc.push(event);
+		}
+		return acc;
+	}, [] as GroupEvent[]);
+
 	return (
 		<>
 			<div className="mb-8">
 				<GroupEventsList 
-					events={upcomingEvents} 
+					events={filteredUpcomingEvents} 
 					title="กิจกรรมที่กำลังจะมาถึง" 
 					description="กิจกรรมที่กำลังจะมาถึงสำหรับกลุ่มผู้รับบริการ" 
 					maxEvents={3}
@@ -154,6 +177,25 @@ export function DashboardActivityGrid() {
 			>
 				{groups.map((group) => {
 					const groupEvents = upcomingEvents.filter(event => event.group_id === group.id);
+					
+					// For each group, filter to show at most one event per recurring series
+					const uniqueEvents = groupEvents.reduce((acc, event) => {
+						// For recurring events, check if we already have an event with this title
+						if (event.is_recurring) {
+							const existingEventIndex = acc.findIndex(e => 
+								e.is_recurring && e.title === event.title && e.group_id === event.group_id
+							);
+							
+							// If not found, add it
+							if (existingEventIndex === -1) {
+								acc.push(event);
+							}
+						} else {
+							// For non-recurring events, always add
+							acc.push(event);
+						}
+						return acc;
+					}, [] as GroupEvent[]);
 					
 					return (
 						<motion.div key={group.id} variants={cardVariants}>
@@ -188,19 +230,27 @@ export function DashboardActivityGrid() {
 									</div>
 								</CardHeader>
 								<CardContent>
-									{groupEvents.length > 0 && (
+									{uniqueEvents.length > 0 && (
 										<div className="mb-4">
 											<div className="flex items-center gap-2 mb-2">
 												<Calendar className="h-5 w-5" />
 												<h3 className="text-lg font-semibold">กิจกรรมที่กำลังจะมา</h3>
 											</div>
 											<div className="space-y-2 mb-4">
-												{groupEvents.slice(0, 2).map((event) => (
+												{uniqueEvents.slice(0, 2).map((event) => (
 													<div key={event.id} className="border-l-2 pl-3" style={{ borderColor: group.color || '#6B7280' }}>
 														<p className="font-medium">{event.title}</p>
 														<p className="text-sm text-gray-500">
 															{format(new Date(event.event_datetime), 'EEEE d MMMM yyyy, HH:mm น.', { locale: th })}
 														</p>
+														{event.is_recurring && (
+															<p className="text-xs text-gray-500">
+																<span className="inline-flex items-center">
+																	<span className="mr-1">🔄</span> 
+																	กิจกรรมประจำ
+																</span>
+															</p>
+														)}
 													</div>
 												))}
 											</div>
