@@ -147,7 +147,7 @@ export default async function ResultPage({ params, searchParams }: ResultPagePro
     const formTitle = submission.forms?.title || 'แบบประเมิน';
     const patientName = patient?.first_name || patient?.last_name ? 
         `${patient.first_name || ''} ${patient.last_name || ''}`.trim() : 
-        'ผู้ป่วย';
+        'ผู้ใช้บริการ';
 
     console.log('📈 Displaying result data:', {
         totalScore,
@@ -176,7 +176,9 @@ export default async function ResultPage({ params, searchParams }: ResultPagePro
                     <div className="p-6 bg-gray-50 rounded-lg text-center">
                         <p className="text-lg text-muted-foreground">คะแนนรวมของคุณคือ</p>
                         <div className="flex items-center justify-center gap-4 mt-2">
-                            <p className="text-6xl font-bold text-primary">{totalScore}</p>
+                            <p className="text-6xl font-bold text-primary">
+                                {typeof totalScore === 'number' ? totalScore.toFixed(2) : '0.00'}
+                            </p>
                         </div>
                     </div>
 

@@ -213,7 +213,7 @@ function PatientCreateForm({ patientId }: { patientId?: string }) {
         toast.error("เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ");
       }
     } else {
-      toast.error("ไม่สามารถอัปโหลดรูปภาพได้: ไม่มีรหัสผู้ป่วย");
+      toast.error("ไม่สามารถอัปโหลดรูปภาพได้: ไม่มีรหัสผู้ใช้บริการ");
     }
   }, [formData.patientId]);
 

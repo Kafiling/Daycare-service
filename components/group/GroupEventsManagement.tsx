@@ -367,7 +367,7 @@ export function GroupEventsManagement({ groups, selectedGroupId }: GroupEventsMa
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    {groups.map((group) => (
+                    {[...groups].sort((a, b) => a.name.localeCompare(b.name)).map((group) => (
                       <SelectItem key={group.id} value={group.id}>
                         {group.name}
                       </SelectItem>
@@ -508,7 +508,7 @@ export function GroupEventsManagement({ groups, selectedGroupId }: GroupEventsMa
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    {groups.map((group) => (
+                    {[...groups].sort((a, b) => a.name.localeCompare(b.name)).map((group) => (
                       <SelectItem key={group.id} value={group.id}>
                         {group.name}
                       </SelectItem>

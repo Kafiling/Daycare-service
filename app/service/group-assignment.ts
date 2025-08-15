@@ -408,10 +408,13 @@ export async function getPatientsWithGroups(): Promise<Array<{
         const groups = patientMemberships
             .map(m => Array.isArray(m.group) ? m.group[0] : m.group)
             .filter(g => g); // Remove null/undefined groups
+        
+        // Sort groups alphabetically by name
+        const sortedGroups = [...groups].sort((a, b) => a.name.localeCompare(b.name));
 
         return {
             ...patient,
-            groups: groups
+            groups: sortedGroups
         };
     });
 

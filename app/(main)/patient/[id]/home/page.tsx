@@ -21,18 +21,31 @@ export default async function PatientHomePage({ params }: PatientHomePageProps) 
         const patient = await getPatientById(resolvedParams.id);
         const availableForms = await getActiveForms();
         const completedSubmissions = await getCompletedSubmissions(resolvedParams.id);
-        
+
         // Get patient groups and upcoming events
         const patientGroups = await getPatientGroupsForPatient(resolvedParams.id);
         const groupIds = patientGroups.map(group => group.id);
-        const upcomingEvents = await getUpcomingGroupEvents(groupIds);
+
+        // Get upcoming events and filter to only show events within the next month
+        const allUpcomingEvents = await getUpcomingGroupEvents(groupIds);
+
+        // Filter events to only include those within the next month (30 days)
+        const oneMonthFromNow = new Date();
+        oneMonthFromNow.setDate(oneMonthFromNow.getDate() + 30);
+
+        const upcomingEvents = allUpcomingEvents
+            .filter(event => {
+                const eventDate = new Date(event.event_datetime);
+                return eventDate <= oneMonthFromNow;
+            })
+            .slice(0, 4); // Limit to maximum 4 events
 
         if (!patient) {
             return (
                 <div className="container mx-auto px-4 py-8">
                     <div className="text-center">
-                        <h1 className="text-2xl font-bold text-red-600">ไม่พบข้อมูลผู้ป่วย</h1>
-                        <p className="text-muted-foreground mt-2">กรุณาตรวจสอบรหัสผู้ป่วยและลองใหม่อีกครั้ง</p>
+                        <h1 className="text-2xl font-bold text-red-600">ไม่พบข้อมูลผู้ใช้บริการ</h1>
+                        <p className="text-muted-foreground mt-2">กรุณาตรวจสอบรหัสผู้ใช้บริการและลองใหม่อีกครั้ง</p>
                     </div>
                 </div>
             );
@@ -41,7 +54,7 @@ export default async function PatientHomePage({ params }: PatientHomePageProps) 
         return (
             <div className="container mx-auto px-4 py-8 max-w-6xl flex flex-col gap-y-4">
                 {/* Patient Header */}
-                <PatientHeader patient={patient} patientId={resolvedParams.id} />
+                <PatientHeader patient={patient} patientId={resolvedParams.id} patientGroups={patientGroups} />
 
                 {/* Patient Information */}
                 <PatientInfo patient={patient} />
@@ -54,20 +67,23 @@ export default async function PatientHomePage({ params }: PatientHomePageProps) 
                             กิจกรรมที่กำลังจะมาถึง
                         </CardTitle>
                         <CardDescription>
-                            กิจกรรมที่กำลังจะมาถึงในกลุ่มของคุณ
+                            กิจกรรมที่กำลังจะมาถึงในเดือนนี้ (แสดงสูงสุด 4 รายการ)
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <GroupEventsList 
-                            events={upcomingEvents} 
-                            title="" 
-                            description="" 
+                        <GroupEventsList
+                            events={upcomingEvents}
+                            title=""
+                            description=""
                             emptyMessage="ไม่มีกิจกรรมที่กำลังจะมาถึงในกลุ่มของคุณ"
+                            maxEvents={4}
                         />
                     </CardContent>
                 </Card>
 
                 {/* Patient Group Information */}
+
+                {/* 
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
@@ -75,22 +91,24 @@ export default async function PatientHomePage({ params }: PatientHomePageProps) 
                             กลุ่มผู้ใช้บริการ
                         </CardTitle>
                         <CardDescription>
-                            ข้อมูลกลุ่มที่ผู้ป่วยสังกัด
+                            ข้อมูลกลุ่มที่ผู้ใช้บริการสังกัด
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
                         {patientGroups.length > 0 ? (
                             <div className="space-y-4">
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    {patientGroups.map(group => (
-                                        <div key={group.id} className="p-4 bg-muted/50 rounded-lg">
-                                            <div className="flex items-center gap-3 mb-2">
-                                                <div
-                                                    className="w-4 h-4 rounded-full"
-                                                    style={{ backgroundColor: group.color || '#6B7280' }}
-                                                />
-                                                <p className="text-sm font-medium text-muted-foreground">ชื่อกลุ่ม</p>
-                                            </div>
+                                    {patientGroups
+                                        .sort((a, b) => a.name.localeCompare(b.name, 'th'))
+                                        .map(group => (
+                                            <div key={group.id} className="p-4 bg-muted/50 rounded-lg">
+                                                <div className="flex items-center gap-3 mb-2">
+                                                    <div
+                                                        className="w-4 h-4 rounded-full"
+                                                        style={{ backgroundColor: group.color || '#6B7280' }}
+                                                    />
+                                                    <p className="text-sm font-medium text-muted-foreground">ชื่อกลุ่ม</p>
+                                                </div>
                                             <p className="text-lg font-semibold">{group.name}</p>
                                             {group.description && (
                                                 <p className="text-sm mt-2 text-muted-foreground">{group.description}</p>
@@ -102,12 +120,14 @@ export default async function PatientHomePage({ params }: PatientHomePageProps) 
                         ) : (
                             <div className="flex items-center justify-center p-8 bg-muted/50 rounded-lg">
                                 <p className="text-lg text-muted-foreground">
-                                    ยังไม่ได้กำหนดกลุ่มสำหรับผู้ป่วยนี้
+                                    ยังไม่ได้กำหนดกลุ่มสำหรับผู้ใช้บริการนี้
                                 </p>
                             </div>
                         )}
                     </CardContent>
                 </Card>
+
+                */}
 
                 {/* Form Submission History */}
                 <Card>
@@ -117,7 +137,7 @@ export default async function PatientHomePage({ params }: PatientHomePageProps) 
                             ประวัติการส่งแบบประเมิน
                         </CardTitle>
                         <CardDescription>
-                            ประวัติการส่งแบบประเมินและผลการประเมินของผู้ป่วย
+                            ประวัติการส่งแบบประเมินและผลการประเมินของผู้ใช้บริการ
                         </CardDescription>
                     </CardHeader>
                     <CardContent>

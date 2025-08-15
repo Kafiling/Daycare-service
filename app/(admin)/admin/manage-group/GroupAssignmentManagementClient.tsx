@@ -659,7 +659,7 @@ export function GroupAssignmentManagementClient() {
                         <SelectValue placeholder="เลือกกลุ่ม" />
                       </SelectTrigger>
                       <SelectContent>
-                        {groups.map((group) => (
+                        {[...groups].sort((a, b) => a.name.localeCompare(b.name)).map((group) => (
                           <SelectItem key={group.id} value={group.id}>
                             <div className="flex items-center gap-2">
                               <div
@@ -902,7 +902,7 @@ export function GroupAssignmentManagementClient() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">ทุกกลุ่ม</SelectItem>
-                  {groups.map((group) => (
+                  {[...groups].sort((a, b) => a.name.localeCompare(b.name)).map((group) => (
                     <SelectItem key={group.id} value={group.id}>
                       <div className="flex items-center gap-2">
                         <div
@@ -946,7 +946,7 @@ export function GroupAssignmentManagementClient() {
                         <div className="flex items-center gap-2 text-sm text-gray-600">
                           {patient.groups && patient.groups.length > 0 ? (
                             <div className="flex flex-wrap gap-1">
-                              {patient.groups.map((group, index) => (
+                              {[...patient.groups].sort((a, b) => a.name.localeCompare(b.name)).map((group, index) => (
                                 <div key={group.id} className="flex items-center gap-1">
                                   <div
                                     className="w-3 h-3 rounded-full"
@@ -1110,7 +1110,7 @@ export function GroupAssignmentManagementClient() {
                   <SelectValue placeholder="เลือกกลุ่ม" />
                 </SelectTrigger>
                 <SelectContent>
-                  {groups.map((group) => (
+                  {[...groups].sort((a, b) => a.name.localeCompare(b.name)).map((group) => (
                     <SelectItem key={group.id} value={group.id}>
                       <div className="flex items-center gap-2">
                         <div
