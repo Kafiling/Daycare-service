@@ -82,6 +82,8 @@ export default async function PatientHomePage({ params }: PatientHomePageProps) 
                 </Card>
 
                 {/* Patient Group Information */}
+
+                {/* 
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
@@ -122,6 +124,8 @@ export default async function PatientHomePage({ params }: PatientHomePageProps) 
                         )}
                     </CardContent>
                 </Card>
+
+                */}
 
                 {/* Form Submission History */}
                 <Card>
