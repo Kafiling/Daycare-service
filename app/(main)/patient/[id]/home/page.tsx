@@ -38,7 +38,7 @@ export default async function PatientHomePage({ params }: PatientHomePageProps) 
                 const eventDate = new Date(event.event_datetime);
                 return eventDate <= oneMonthFromNow;
             })
-            .slice(0, 3); // Limit to maximum 3 events
+            .slice(0, 4); // Limit to maximum 4 events
 
         if (!patient) {
             return (
@@ -67,7 +67,7 @@ export default async function PatientHomePage({ params }: PatientHomePageProps) 
                             กิจกรรมที่กำลังจะมาถึง
                         </CardTitle>
                         <CardDescription>
-                            กิจกรรมที่กำลังจะมาถึงในเดือนนี้ (แสดงสูงสุด 3 รายการ)
+                            กิจกรรมที่กำลังจะมาถึงในเดือนนี้ (แสดงสูงสุด 4 รายการ)
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -76,7 +76,7 @@ export default async function PatientHomePage({ params }: PatientHomePageProps) 
                             title=""
                             description=""
                             emptyMessage="ไม่มีกิจกรรมที่กำลังจะมาถึงในกลุ่มของคุณ"
-                            maxEvents={3}
+                            maxEvents={4}
                         />
                     </CardContent>
                 </Card>
