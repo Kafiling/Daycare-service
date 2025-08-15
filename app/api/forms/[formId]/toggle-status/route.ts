@@ -1,17 +1,15 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
 
 // PATCH handler to toggle form active status
 export async function PATCH(
     request: Request,
-    { params }: { params: { formId: string } }
+    context: { params: Promise<{ formId: string }> }
 ) {
     try {
-        const { formId } = params;
+        const { formId } = await context.params;
         const { is_active } = await request.json();
-        const cookieStore = cookies();
-        const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
+        const supabase = await createClient();
 
         // Update the form status
         const { data: updatedForm, error: updateError } = await supabase

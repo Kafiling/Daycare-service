@@ -44,8 +44,8 @@ export default async function PatientHomePage({ params }: PatientHomePageProps) 
             return (
                 <div className="container mx-auto px-4 py-8">
                     <div className="text-center">
-                        <h1 className="text-2xl font-bold text-red-600">ไม่พบข้อมูลผู้ป่วย</h1>
-                        <p className="text-muted-foreground mt-2">กรุณาตรวจสอบรหัสผู้ป่วยและลองใหม่อีกครั้ง</p>
+                        <h1 className="text-2xl font-bold text-red-600">ไม่พบข้อมูลผู้ใช้บริการ</h1>
+                        <p className="text-muted-foreground mt-2">กรุณาตรวจสอบรหัสผู้ใช้บริการและลองใหม่อีกครั้ง</p>
                     </div>
                 </div>
             );
@@ -91,7 +91,7 @@ export default async function PatientHomePage({ params }: PatientHomePageProps) 
                             กลุ่มผู้ใช้บริการ
                         </CardTitle>
                         <CardDescription>
-                            ข้อมูลกลุ่มที่ผู้ป่วยสังกัด
+                            ข้อมูลกลุ่มที่ผู้ใช้บริการสังกัด
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -120,7 +120,7 @@ export default async function PatientHomePage({ params }: PatientHomePageProps) 
                         ) : (
                             <div className="flex items-center justify-center p-8 bg-muted/50 rounded-lg">
                                 <p className="text-lg text-muted-foreground">
-                                    ยังไม่ได้กำหนดกลุ่มสำหรับผู้ป่วยนี้
+                                    ยังไม่ได้กำหนดกลุ่มสำหรับผู้ใช้บริการนี้
                                 </p>
                             </div>
                         )}
@@ -137,7 +137,7 @@ export default async function PatientHomePage({ params }: PatientHomePageProps) 
                             ประวัติการส่งแบบประเมิน
                         </CardTitle>
                         <CardDescription>
-                            ประวัติการส่งแบบประเมินและผลการประเมินของผู้ป่วย
+                            ประวัติการส่งแบบประเมินและผลการประเมินของผู้ใช้บริการ
                         </CardDescription>
                     </CardHeader>
                     <CardContent>

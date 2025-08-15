@@ -64,7 +64,7 @@ export default function AdminPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  ตั้งค่าเงื่อนไขการแบ่งกลุ่มผู้ป่วยอัตโนมัติตามคะแนนจากแบบฟอร์ม
+                  ตั้งค่าเงื่อนไขการแบ่งกลุ่มผู้ใช้บริการอัตโนมัติตามคะแนนจากแบบฟอร์ม
                 </p>
               </CardContent>
             </Card>

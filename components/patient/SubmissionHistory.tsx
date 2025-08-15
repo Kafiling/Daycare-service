@@ -64,7 +64,7 @@ export default function SubmissionHistory({ submissions }: SubmissionHistoryProp
                         ยังไม่มีประวัติการส่งแบบประเมิน
                     </p>
                     <p className="text-sm text-muted-foreground mt-1">
-                        ผู้ป่วยยังไม่เคยส่งแบบประเมินใดๆ
+                        ผู้ใช้บริการยังไม่เคยส่งแบบประเมินใดๆ
                     </p>
                 </div>
             </div>

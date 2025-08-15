@@ -1,4 +1,4 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { createClient } from '@/utils/supabase/server';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { randomUUID } from 'crypto';
@@ -7,8 +7,7 @@ import { randomUUID } from 'crypto';
 export async function POST(request: Request) {
     try {
         const formData = await request.json();
-        const cookieStore = cookies();
-        const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
+        const supabase = await createClient();
 
         // Get user information
         const { data: { user }, error: userError } = await supabase.auth.getUser();
@@ -45,6 +44,8 @@ export async function POST(request: Request) {
                 priority_level,
                 created_by: user.id,
                 is_active: true,
+                // If evaluation_thresholds exists in the original form, include it
+                ...(evaluation_thresholds && { evaluation_thresholds }),
             })
             .select()
             .single();
@@ -98,40 +99,6 @@ export async function POST(request: Request) {
                     { error: 'Failed to insert new questions', details: insertQuestionsError.message },
                     { status: 500 }
                 );
-            }
-        }
-
-        // Fetch the original form's evaluation thresholds
-        if (originalFormId) {
-            const { data: originalThresholds, error: thresholdsError } = await supabase
-                .from('form_evaluation_thresholds')
-                .select('*')
-                .eq('form_id', originalFormId)
-                .order('min_score', { ascending: true });
-
-            if (thresholdsError) {
-                console.error('Error fetching original thresholds:', thresholdsError);
-                // Continue anyway as thresholds are optional
-            }
-
-            // Insert the thresholds for the new form
-            if (originalThresholds && originalThresholds.length > 0) {
-                const newThresholds = originalThresholds.map(t => ({
-                    form_id: newFormId,
-                    min_score: t.min_score,
-                    max_score: t.max_score,
-                    result: t.result,
-                    description: t.description || ''
-                }));
-
-                const { error: insertThresholdsError } = await supabase
-                    .from('form_evaluation_thresholds')
-                    .insert(newThresholds);
-
-                if (insertThresholdsError) {
-                    console.error('Error inserting new thresholds:', insertThresholdsError);
-                    // Continue anyway as thresholds are optional
-                }
             }
         }
 

@@ -425,7 +425,7 @@ export default function QuestionPage() {
                             </CardTitle>
                             <CardDescription className="text-base mt-2">
                                 {/* Replace with actual patient data later */}
-                                ผู้ป่วย: นายสมชาย ใจดี
+                                ผู้ใช้บริการ: นายสมชาย ใจดี
                             </CardDescription>
                         </div>
                         <div className="text-right">

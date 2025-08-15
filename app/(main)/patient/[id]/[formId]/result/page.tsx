@@ -147,7 +147,7 @@ export default async function ResultPage({ params, searchParams }: ResultPagePro
     const formTitle = submission.forms?.title || 'แบบประเมิน';
     const patientName = patient?.first_name || patient?.last_name ? 
         `${patient.first_name || ''} ${patient.last_name || ''}`.trim() : 
-        'ผู้ป่วย';
+        'ผู้ใช้บริการ';
 
     console.log('📈 Displaying result data:', {
         totalScore,

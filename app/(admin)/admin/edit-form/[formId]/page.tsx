@@ -15,7 +15,7 @@ import { useRouter } from 'next/navigation';
 import { QUESTION_TYPES, getQuestionTypeOptions, getDefaultOptions, type QuestionType } from '@/lib/question-types';
 import { createClient } from "@/utils/supabase/client";
 import { updateForm as updateFormAction } from './action';
-import { use } from 'react';
+import { useParams } from 'next/navigation';
 
 interface Question {
     id: string;
@@ -371,7 +371,12 @@ async function fetchFormById(formId: string) {
         
         // Get evaluation thresholds from the form data itself
         // The schema indicates evaluation_thresholds is a JSON column in the forms table
-        let formattedThresholds = [];
+        let formattedThresholds: Array<{
+            minScore: number;
+            maxScore: number;
+            result: string;
+            description: string;
+        }> = [];
         
         if (formData.evaluation_thresholds) {
             console.log('Using evaluation_thresholds from forms table:', formData.evaluation_thresholds);
@@ -403,10 +408,9 @@ async function fetchFormById(formId: string) {
     }
 }
 
-export default function EditFormPage({ params }: { params: { formId: string } }) {
-    // Unwrap params using React.use()
-    const unwrappedParams = use(params);
-    const { formId } = unwrappedParams;
+export default function EditFormPage() {
+    const params = useParams();
+    const formId = params.formId as string;
     
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(true);
