@@ -154,7 +154,7 @@ export default function QuestionPage() {
                     });
                     
                     if (selectedChoice) {
-                        questionScore = typeof selectedChoice === 'string' ? 0 : (Number(selectedChoice.score) || 0);
+                        questionScore = typeof selectedChoice === 'string' ? 0 : (parseFloat(selectedChoice.score) || 0);
                         console.log(`   ✅ Found matching choice, score: ${questionScore}`);
                     } else {
                         console.log(`   ⚠️ No matching choice found for answer: "${answer}"`);
@@ -165,24 +165,26 @@ export default function QuestionPage() {
                 case 'trueFalse':
                     const options = question.options || {};
                     if (answer === 'true' && options.trueScore !== undefined) {
-                        questionScore = Number(options.trueScore) || 0;
+                        questionScore = parseFloat(options.trueScore) || 0;
                     } else if (answer === 'false' && options.falseScore !== undefined) {
-                        questionScore = Number(options.falseScore) || 0;
+                        questionScore = parseFloat(options.falseScore) || 0;
                     }
                     console.log(`   ✅ True/False score: ${questionScore}`);
                     break;
                     
                 case 'rating':
-                    const ratingValue = parseInt(answer || '0', 10);
+                    const ratingValue = parseFloat(answer || '0');
                     const multiplier = Number(question.options?.scoreMultiplier) || 1;
-                    questionScore = ratingValue * multiplier;
+                    // Calculate exact score with precision, no rounding to integer
+                    questionScore = parseFloat((ratingValue * multiplier).toFixed(2));
                     console.log(`   ✅ Rating score: ${questionScore} (${ratingValue} × ${multiplier})`);
                     break;
                     
                 case 'number':
                     const numberValue = parseFloat(answer || '0');
                     const numberMultiplier = Number(question.options?.scoreMultiplier) || 1;
-                    questionScore = numberValue * numberMultiplier;
+                    // Calculate exact score with precision, no rounding to integer
+                    questionScore = parseFloat((numberValue * numberMultiplier).toFixed(2));
                     console.log(`   ✅ Number score: ${questionScore} (${numberValue} × ${numberMultiplier})`);
                     break;
                     
@@ -423,7 +425,7 @@ export default function QuestionPage() {
                             </CardTitle>
                             <CardDescription className="text-base mt-2">
                                 {/* Replace with actual patient data later */}
-                                ผู้ป่วย: นายสมชาย ใจดี
+                                ผู้ใช้บริการ: นายสมชาย ใจดี
                             </CardDescription>
                         </div>
                         <div className="text-right">

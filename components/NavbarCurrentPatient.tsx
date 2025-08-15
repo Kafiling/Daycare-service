@@ -40,7 +40,7 @@ export default function navbarCurrentPatient() {
     if (isLoading) {
         return (
             <span className="text-sm font-medium text-muted-foreground">
-                กำลังโหลดข้อมูลผู้ป่วย...
+                กำลังโหลดข้อมูลผู้ใช้บริการ...
             </span>
         );
     }
@@ -48,7 +48,7 @@ export default function navbarCurrentPatient() {
     if (!patient) {
         return (
             <span className="text-sm font-medium text-red-600">
-                ไม่พบข้อมูลผู้ป่วย
+                ไม่พบข้อมูลผู้ใช้บริการ
             </span>
         );
     }

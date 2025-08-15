@@ -22,8 +22,8 @@ export default async function PatientHomePage({ params }: PatientHomePageProps) 
             return (
                 <div className="container mx-auto px-4 py-8">
                     <div className="text-center">
-                        <h1 className="text-2xl font-bold text-red-600">ไม่พบข้อมูลผู้ป่วย</h1>
-                        <p className="text-muted-foreground mt-2">กรุณาตรวจสอบรหัสผู้ป่วยและลองใหม่อีกครั้ง</p>
+                        <h1 className="text-2xl font-bold text-red-600">ไม่พบข้อมูลผู้ใช้บริการ</h1>
+                        <p className="text-muted-foreground mt-2">กรุณาตรวจสอบรหัสผู้ใช้บริการและลองใหม่อีกครั้ง</p>
                     </div>
                 </div>
             );

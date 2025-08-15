@@ -64,7 +64,7 @@ export default function SubmissionHistory({ submissions }: SubmissionHistoryProp
                         ยังไม่มีประวัติการส่งแบบประเมิน
                     </p>
                     <p className="text-sm text-muted-foreground mt-1">
-                        ผู้ป่วยยังไม่เคยส่งแบบประเมินใดๆ
+                        ผู้ใช้บริการยังไม่เคยส่งแบบประเมินใดๆ
                     </p>
                 </div>
             </div>
@@ -84,7 +84,14 @@ export default function SubmissionHistory({ submissions }: SubmissionHistoryProp
                             <div className="flex items-center gap-3">
                                 <div className="flex items-center gap-2">
                                     <IconComponent className="h-5 w-5 text-muted-foreground" />
-                                    <CheckCircle className="h-4 w-4 text-green-600" />
+                                    <CheckCircle 
+                                        className={`h-4 w-4 ${
+                                            submission.evaluation_result === "ต้องปรับปรุง" || 
+                                            submission.evaluation_result === "ปานกลาง" 
+                                                ? "text-yellow-500" 
+                                                : "text-green-600"
+                                        }`} 
+                                    />
                                 </div>
                                 <div className="flex-1">
                                     <div className="flex items-center gap-2 mb-1">
@@ -94,7 +101,7 @@ export default function SubmissionHistory({ submissions }: SubmissionHistoryProp
                                         {submission.form?.label && (
                                             <span>หมวด: {submission.form.label}</span>
                                         )}
-                                        <span>คะแนน: {submission.total_evaluation_score || 0}</span>
+                                        <span>คะแนน: {typeof submission.total_evaluation_score === 'number' ? submission.total_evaluation_score.toFixed(2) : '0.00'}</span>
                                         {submission.evaluation_result && (
                                             <span>ผล: {submission.evaluation_result}</span>
                                         )}
