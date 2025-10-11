@@ -54,13 +54,13 @@ export async function GET(
             result: string;
             description: string;
         }> = [];
-        
+
         if (formData.evaluation_thresholds) {
             // Parse if it's a string, or use directly if it's already an object
-            let thresholds = typeof formData.evaluation_thresholds === 'string' 
-                ? JSON.parse(formData.evaluation_thresholds) 
+            let thresholds = typeof formData.evaluation_thresholds === 'string'
+                ? JSON.parse(formData.evaluation_thresholds)
                 : formData.evaluation_thresholds;
-                
+
             // Format thresholds for the UI
             formattedThresholds = Array.isArray(thresholds) ? thresholds.map(threshold => ({
                 minScore: threshold.min_score || threshold.minScore,
@@ -111,10 +111,10 @@ export async function PUT(
 
         // Format evaluation thresholds for saving in the forms table
         const formattedThresholds = evaluation_thresholds ? evaluation_thresholds.map((t: any) => ({
-          min_score: t.minScore,
-          max_score: t.maxScore,
-          result: t.result,
-          description: t.description || "",
+            min_score: t.minScore,
+            max_score: t.maxScore,
+            result: t.result,
+            description: t.description || "",
         })) : [];
 
         console.log(`Updating form ${formId} with evaluation_thresholds:`, JSON.stringify(formattedThresholds));
@@ -150,7 +150,7 @@ export async function PUT(
 
         // Delete existing questions and re-insert new ones
         // Use admin client (already created above) to bypass RLS for deletion
-        
+
         // First, check what questions exist before deletion
         const { data: existingQuestions, error: checkBeforeError } = await adminClient
             .from('questions')

@@ -9,7 +9,7 @@ export async function updateForm(formId: string, formData: any) {
     console.log('=== UPDATE FORM START ===');
     console.log('Form ID:', formId);
     console.log('Received evaluation_thresholds:', JSON.stringify(formData.evaluation_thresholds));
-    
+
     const supabase = await createClient();
 
     // Extract form base data
@@ -77,7 +77,7 @@ export async function updateForm(formId: string, formData: any) {
     // This approach ensures no duplicate key conflicts with the composite primary key (question_id, form_id)
     // Use admin client to bypass RLS for deletion
     // (adminClient already created above)
-    
+
     // First, let's check what questions exist before deletion
     const { data: existingQuestions, error: checkBeforeError } = await adminClient
       .from("questions")
