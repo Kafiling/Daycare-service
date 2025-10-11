@@ -16,8 +16,6 @@ import { useRouter } from 'next/navigation';
 import { QUESTION_TYPES, getQuestionTypeOptions, getDefaultOptions, type QuestionType } from '@/lib/question-types';
 
 
-// TODO add ประเมิน
-
 interface Question {
     id: string;
     question_text: string;
@@ -492,8 +490,8 @@ export default function CreateFormPage() {
                 });
             } else {
                 toast.success("Form saved successfully!");
-                // Optionally redirect or clear the form
-                router.push('/admin'); // or some other relevant page
+                // Redirect to manage forms page
+                router.push('/admin/manage-forms');
             }
         } catch (error) {
             toast.error("An unexpected error occurred.");

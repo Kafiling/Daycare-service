@@ -1,4 +1,4 @@
-import { createClient } from '@/utils/supabase/server';
+import { createClient, createAdminClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
 
 // GET handler to fetch a form by its ID
@@ -54,13 +54,13 @@ export async function GET(
             result: string;
             description: string;
         }> = [];
-        
+
         if (formData.evaluation_thresholds) {
             // Parse if it's a string, or use directly if it's already an object
-            let thresholds = typeof formData.evaluation_thresholds === 'string' 
-                ? JSON.parse(formData.evaluation_thresholds) 
+            let thresholds = typeof formData.evaluation_thresholds === 'string'
+                ? JSON.parse(formData.evaluation_thresholds)
                 : formData.evaluation_thresholds;
-                
+
             // Format thresholds for the UI
             formattedThresholds = Array.isArray(thresholds) ? thresholds.map(threshold => ({
                 minScore: threshold.min_score || threshold.minScore,
@@ -111,14 +111,17 @@ export async function PUT(
 
         // Format evaluation thresholds for saving in the forms table
         const formattedThresholds = evaluation_thresholds ? evaluation_thresholds.map((t: any) => ({
-          min_score: t.minScore,
-          max_score: t.maxScore,
-          result: t.result,
-          description: t.description || "",
+            min_score: t.minScore,
+            max_score: t.maxScore,
+            result: t.result,
+            description: t.description || "",
         })) : [];
 
-        // Update the form base data
-        const { error: formUpdateError } = await supabase
+        console.log(`Updating form ${formId} with evaluation_thresholds:`, JSON.stringify(formattedThresholds));
+
+        // Update the form base data - use admin client to bypass RLS
+        const adminClient = createAdminClient();
+        const { data: updateData, error: formUpdateError } = await adminClient
             .from('forms')
             .update({
                 title,
@@ -130,7 +133,10 @@ export async function PUT(
                 evaluation_thresholds: formattedThresholds,
                 updated_at: new Date().toISOString()
             })
-            .eq('form_id', formId);
+            .eq('form_id', formId)
+            .select();
+
+        console.log('Update result:', { data: updateData, error: formUpdateError });
 
         if (formUpdateError) {
             console.error('Error updating form:', formUpdateError);
@@ -140,32 +146,98 @@ export async function PUT(
             );
         }
 
+        console.log(`Form ${formId} updated successfully, verified data:`, JSON.stringify(updateData));
+
         // Delete existing questions and re-insert new ones
-        // This is simpler than trying to update/insert/delete individual questions
-        const { error: questionsDeleteError } = await supabase
+        // Use admin client (already created above) to bypass RLS for deletion
+
+        // First, check what questions exist before deletion
+        const { data: existingQuestions, error: checkBeforeError } = await adminClient
             .from('questions')
-            .delete()
+            .select('question_id, form_id')
             .eq('form_id', formId);
 
-        if (questionsDeleteError) {
-            console.error('Error deleting existing questions:', questionsDeleteError);
+        if (checkBeforeError) {
+            console.error('Error checking existing questions:', checkBeforeError);
             return NextResponse.json(
-                { error: 'Failed to update form questions', details: questionsDeleteError.message },
+                { error: 'Failed to check existing questions', details: checkBeforeError.message },
                 { status: 500 }
             );
         }
 
-        // Insert new questions
+        console.log(`Found ${existingQuestions?.length || 0} existing questions before deletion`);
+
+        // Attempt to delete using admin client
+        const { data: deletedData, error: questionsDeleteError, count } = await adminClient
+            .from('questions')
+            .delete({ count: 'exact' })
+            .eq('form_id', formId)
+            .select();
+
+        console.log(`Delete operation returned: error=${questionsDeleteError}, deletedCount=${deletedData?.length}, count=${count}`);
+
+        if (questionsDeleteError) {
+            console.error('Error deleting existing questions:', questionsDeleteError);
+            return NextResponse.json(
+                { error: 'Failed to delete existing questions', details: questionsDeleteError.message },
+                { status: 500 }
+            );
+        }
+
+        console.log(`Deleted ${deletedData?.length || 0} existing questions for form ${formId}`);
+
+        // Insert new questions with their original question_id from the form
         if (questions && questions.length > 0) {
-            const formattedQuestions = questions.map((q: any) => ({
+            // Verify deletion was successful by checking if any questions still exist
+            const { data: remainingQuestions, error: checkError } = await adminClient
+                .from('questions')
+                .select('question_id')
+                .eq('form_id', formId);
+
+            if (checkError) {
+                console.error('Error checking remaining questions:', checkError);
+            } else if (remainingQuestions && remainingQuestions.length > 0) {
+                console.warn(`Warning: ${remainingQuestions.length} questions still exist after deletion!`);
+                return NextResponse.json(
+                    { error: 'Failed to properly delete existing questions', details: `${remainingQuestions.length} questions still remain` },
+                    { status: 500 }
+                );
+            }
+
+            // Get the maximum question_id across ALL forms to ensure uniqueness
+            const { data: maxIdData, error: maxIdError } = await supabase
+                .from('questions')
+                .select('question_id')
+                .order('question_id', { ascending: false })
+                .limit(1)
+                .maybeSingle();
+
+            if (maxIdError) {
+                console.error('Error fetching max question_id:', maxIdError);
+                return NextResponse.json(
+                    { error: 'Failed to get max question_id', details: maxIdError.message },
+                    { status: 500 }
+                );
+            }
+
+            // Start from max + 1, or from 1 if no questions exist yet
+            const startId = maxIdData?.question_id ? Number(maxIdData.question_id) + 1 : 1;
+
+            console.log(`Starting question IDs from: ${startId} (max existing ID: ${maxIdData?.question_id || 'none'})`);
+
+            // Map questions with globally unique question_ids
+            const formattedQuestions = questions.map((q: any, index: number) => ({
                 form_id: formId,
-                question_id: q.question_id,
+                question_id: startId + index, // Use sequential IDs starting from max + 1
                 question_text: q.question_text,
                 question_type: q.question_type,
                 is_required: q.is_required,
                 helper_text: q.helper_text || '',
                 options: q.options || {},
+                evaluation_scores: q.evaluation_scores || {},
             }));
+
+            console.log(`Inserting ${formattedQuestions.length} new questions with IDs: ${formattedQuestions.map((q: any) => q.question_id).join(', ')}`);
 
             const { error: questionsInsertError } = await supabase
                 .from('questions')
@@ -197,21 +269,37 @@ export async function DELETE(
 ) {
     try {
         const { formId } = await context.params;
-        const supabase = await createClient();
+        
+        console.log(`[Delete Form] Attempting to delete form ${formId}`);
+        
+        // Use admin client to bypass RLS
+        const supabase = await createAdminClient();
+        
+        // Verify user is authenticated
+        const authClient = await createClient();
+        const { data: { user }, error: userError } = await authClient.auth.getUser();
+        if (userError || !user) {
+            return NextResponse.json(
+                { error: 'Unauthorized. You must be logged in to delete forms.' },
+                { status: 401 }
+            );
+        }
 
-        // First, delete form questions
+        // First, delete form questions (should cascade, but let's be explicit)
         const { error: questionsDeleteError } = await supabase
             .from('questions')
             .delete()
             .eq('form_id', formId);
 
         if (questionsDeleteError) {
-            console.error('Error deleting questions:', questionsDeleteError);
+            console.error('[Delete Form] Error deleting questions:', questionsDeleteError);
             return NextResponse.json(
                 { error: 'Failed to delete form questions', details: questionsDeleteError.message },
                 { status: 500 }
             );
         }
+        
+        console.log(`[Delete Form] Successfully deleted questions for form ${formId}`);
 
         // Finally, delete the form itself
         const { error: formDeleteError } = await supabase
@@ -220,16 +308,18 @@ export async function DELETE(
             .eq('form_id', formId);
 
         if (formDeleteError) {
-            console.error('Error deleting form:', formDeleteError);
+            console.error('[Delete Form] Error deleting form:', formDeleteError);
             return NextResponse.json(
                 { error: 'Failed to delete form', details: formDeleteError.message },
                 { status: 500 }
             );
         }
+        
+        console.log(`[Delete Form] Successfully deleted form ${formId}`);
 
         return NextResponse.json({ success: true, message: 'Form deleted successfully' });
     } catch (error) {
-        console.error('Unexpected error:', error);
+        console.error('[Delete Form] Unexpected error:', error);
         return NextResponse.json(
             { error: 'An unexpected error occurred' },
             { status: 500 }
