@@ -1,4 +1,4 @@
-import { createClient } from '@/utils/supabase/server';
+import { createClient, createAdminClient } from '@/utils/supabase/server';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { randomUUID } from 'crypto';
@@ -7,10 +7,11 @@ import { randomUUID } from 'crypto';
 export async function POST(request: Request) {
     try {
         const formData = await request.json();
-        const supabase = await createClient();
+        const supabase = await createAdminClient(); // Use admin client to bypass RLS
 
         // Get user information
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        const authClient = await createClient();
+        const { data: { user }, error: userError } = await authClient.auth.getUser();
         if (userError || !user) {
             return NextResponse.json(
                 { error: 'Unauthorized. You must be logged in to duplicate a form.' },
@@ -31,6 +32,16 @@ export async function POST(request: Request) {
             evaluation_thresholds,
             form_id: originalFormId,
         } = formData;
+
+        // Validate originalFormId
+        if (!originalFormId || originalFormId === 'undefined' || originalFormId === '') {
+            return NextResponse.json(
+                { error: 'Invalid form_id. Cannot duplicate form without a valid original form ID.' },
+                { status: 400 }
+            );
+        }
+
+        console.log(`Duplicating form ${originalFormId} with new title: "${title}"`);
 
         // Insert the new form
         const { data: newForm, error: formError } = await supabase
@@ -77,6 +88,8 @@ export async function POST(request: Request) {
 
         // Insert the questions for the new form
         if (originalQuestions && originalQuestions.length > 0) {
+            console.log(`[Duplicate API] Copying ${originalQuestions.length} questions...`);
+            
             const newQuestions = originalQuestions.map(q => ({
                 form_id: newFormId,
                 question_id: q.question_id,
@@ -84,7 +97,8 @@ export async function POST(request: Request) {
                 question_type: q.question_type,
                 is_required: q.is_required,
                 helper_text: q.helper_text || '',
-                options: q.options || {}
+                options: q.options || {},
+                evaluation_scores: q.evaluation_scores || {} // Include evaluation_scores
             }));
 
             const { error: insertQuestionsError } = await supabase

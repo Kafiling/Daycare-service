@@ -269,21 +269,37 @@ export async function DELETE(
 ) {
     try {
         const { formId } = await context.params;
-        const supabase = await createClient();
+        
+        console.log(`[Delete Form] Attempting to delete form ${formId}`);
+        
+        // Use admin client to bypass RLS
+        const supabase = await createAdminClient();
+        
+        // Verify user is authenticated
+        const authClient = await createClient();
+        const { data: { user }, error: userError } = await authClient.auth.getUser();
+        if (userError || !user) {
+            return NextResponse.json(
+                { error: 'Unauthorized. You must be logged in to delete forms.' },
+                { status: 401 }
+            );
+        }
 
-        // First, delete form questions
+        // First, delete form questions (should cascade, but let's be explicit)
         const { error: questionsDeleteError } = await supabase
             .from('questions')
             .delete()
             .eq('form_id', formId);
 
         if (questionsDeleteError) {
-            console.error('Error deleting questions:', questionsDeleteError);
+            console.error('[Delete Form] Error deleting questions:', questionsDeleteError);
             return NextResponse.json(
                 { error: 'Failed to delete form questions', details: questionsDeleteError.message },
                 { status: 500 }
             );
         }
+        
+        console.log(`[Delete Form] Successfully deleted questions for form ${formId}`);
 
         // Finally, delete the form itself
         const { error: formDeleteError } = await supabase
@@ -292,16 +308,18 @@ export async function DELETE(
             .eq('form_id', formId);
 
         if (formDeleteError) {
-            console.error('Error deleting form:', formDeleteError);
+            console.error('[Delete Form] Error deleting form:', formDeleteError);
             return NextResponse.json(
                 { error: 'Failed to delete form', details: formDeleteError.message },
                 { status: 500 }
             );
         }
+        
+        console.log(`[Delete Form] Successfully deleted form ${formId}`);
 
         return NextResponse.json({ success: true, message: 'Form deleted successfully' });
     } catch (error) {
-        console.error('Unexpected error:', error);
+        console.error('[Delete Form] Unexpected error:', error);
         return NextResponse.json(
             { error: 'An unexpected error occurred' },
             { status: 500 }

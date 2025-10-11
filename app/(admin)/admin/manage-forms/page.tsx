@@ -105,7 +105,8 @@ const getPriorityConfig = (priority?: string) => {
 // Client-side API call function to get forms
 async function fetchForms(): Promise<Form[]> {
     try {
-        const response = await fetch('/api/forms/active', {
+        // Fetch ALL forms (both active and inactive) for admin panel
+        const response = await fetch('/api/forms/all', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -217,7 +218,8 @@ export default function ManageFormsPage() {
             const duplicateData = {
                 ...form,
                 title: `${form.title} (สำเนา)`,
-                form_id: undefined, // Let the server generate new ID
+                // Keep the original form_id so the server can fetch the questions
+                // The server will generate a new ID for the duplicated form
             };
             
             const response = await fetch('/api/forms/duplicate', {
@@ -259,12 +261,19 @@ export default function ManageFormsPage() {
             }
             
             const updatedForm = await response.json();
+            
+            // Update local state immediately for responsive UI
             const updatedForms = forms.map(f => 
                 f.form_id === formId ? updatedForm : f
             );
-            
             setForms(updatedForms);
+            
             toast.success(`${updatedForm.is_active ? 'เปิดใช้งาน' : 'ปิดใช้งาน'}ฟอร์มเรียบร้อยแล้ว`);
+            
+            // Optionally refetch to ensure data is in sync with database
+            // Uncomment if you want to always fetch fresh data after toggle
+            // const freshForms = await fetchForms();
+            // setForms(freshForms);
         } catch (error) {
             toast.error('ไม่สามารถเปลี่ยนสถานะฟอร์มได้');
             console.error(error);
