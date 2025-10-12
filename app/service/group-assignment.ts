@@ -491,57 +491,112 @@ export async function getGroupEvents(groupId?: string): Promise<GroupEvent[]> {
 
 export async function getUpcomingGroupEvents(groupIds?: string[], limit: number = 20): Promise<GroupEvent[]> {
     const supabase = createClient();
+    const now = new Date().toISOString();
     
-    let query = supabase
+    // First query: get upcoming non-recurring events and upcoming recurring events
+    let upcomingQuery = supabase
         .from('group_events')
         .select('*, group:patient_groups(*)')
-        .gt('event_datetime', new Date().toISOString())
-        .eq('is_active', true)
-        .order('event_datetime', { ascending: true })
-        .limit(limit);
+        .gt('event_datetime', now)
+        .eq('is_active', true);
     
     if (groupIds && groupIds.length > 0) {
-        query = query.in('group_id', groupIds);
+        upcomingQuery = upcomingQuery.in('group_id', groupIds);
     }
     
-    const { data, error } = await query;
+    // Second query: get past recurring events that haven't ended yet
+    // These are recurring events whose original date is in the past but still generate future instances
+    let pastRecurringQuery = supabase
+        .from('group_events')
+        .select('*, group:patient_groups(*)')
+        .lt('event_datetime', now)
+        .eq('is_active', true)
+        .eq('is_recurring', true)
+        .or(`recurrence_end_date.is.null,recurrence_end_date.gt.${now}`); // Include if no end date or end date is in future
     
-    if (error) {
-        console.error('Error fetching upcoming group events:', error);
+    if (groupIds && groupIds.length > 0) {
+        pastRecurringQuery = pastRecurringQuery.in('group_id', groupIds);
+    }
+    
+    const [upcomingResult, pastRecurringResult] = await Promise.all([
+        upcomingQuery,
+        pastRecurringQuery
+    ]);
+    
+    if (upcomingResult.error) {
+        console.error('Error fetching upcoming group events:', upcomingResult.error);
         return [];
     }
     
-    // Process data to include expanded recurring events
-    const allEvents = [...(data || [])];
+    if (pastRecurringResult.error) {
+        console.error('Error fetching past recurring group events:', pastRecurringResult.error);
+        // Continue with just upcoming events if this fails
+    }
+    
+    // Combine both results, removing duplicates
+    const allFetchedEvents = [...(upcomingResult.data || [])];
+    const pastRecurringEvents = pastRecurringResult.data || [];
+    
+    // Add past recurring events if they're not already in the upcoming list
+    for (const pastEvent of pastRecurringEvents) {
+        if (!allFetchedEvents.find(e => e.id === pastEvent.id)) {
+            allFetchedEvents.push(pastEvent);
+        }
+    }
+    
     const expandedEvents: GroupEvent[] = [];
+    const now_date = new Date();
     
     // Get the date 60 days from now for recurring event expansion limit
     const maxExpandDate = new Date();
     maxExpandDate.setDate(maxExpandDate.getDate() + 60);
     
-    // Process recurring events
-    for (const event of allEvents) {
+    // Process all events
+    for (const event of allFetchedEvents) {
         if (event.is_recurring && event.recurrence_pattern) {
-            // Add the original event
-            expandedEvents.push(event);
+            const eventDate = new Date(event.event_datetime);
             
-            // Generate recurring instances
-            const expandedInstances = generateRecurringEventInstances(
-                event,
-                new Date(event.event_datetime),
-                maxExpandDate,
-                event.recurrence_end_date ? new Date(event.recurrence_end_date) : undefined
-            );
-            
-            expandedEvents.push(...expandedInstances);
+            // For past recurring events, generate instances starting from now
+            // For future recurring events, include the original event and generate subsequent instances
+            if (eventDate > now_date) {
+                // Future recurring event - add the original event
+                expandedEvents.push(event);
+                
+                // Generate future instances starting from the day after the original event
+                const expandedInstances = generateRecurringEventInstances(
+                    event,
+                    eventDate,
+                    maxExpandDate,
+                    event.recurrence_end_date ? new Date(event.recurrence_end_date) : undefined,
+                    false,
+                    false // Not the first instance
+                );
+                expandedEvents.push(...expandedInstances);
+            } else {
+                // Past recurring event - generate instances starting from now
+                // The first generated instance should NOT be marked as isRecurringInstance
+                // so it shows up in the UI as the "main" occurrence
+                const expandedInstances = generateRecurringEventInstances(
+                    event,
+                    now_date, // Start from today instead of original date
+                    maxExpandDate,
+                    event.recurrence_end_date ? new Date(event.recurrence_end_date) : undefined,
+                    true, // Flag to indicate we're generating from "now" not from original date
+                    true // Mark first instance as primary (not recurring instance)
+                );
+                expandedEvents.push(...expandedInstances);
+            }
         } else {
-            // For non-recurring events, just add them directly
-            expandedEvents.push(event);
+            // For non-recurring events, just add them if they're in the future
+            if (new Date(event.event_datetime) > now_date) {
+                expandedEvents.push(event);
+            }
         }
     }
     
-    // Sort by date and limit
+    // Sort by date, filter to only future events, and limit
     return expandedEvents
+        .filter(event => new Date(event.event_datetime) > now_date)
         .sort((a, b) => new Date(a.event_datetime).getTime() - new Date(b.event_datetime).getTime())
         .slice(0, limit);
 }
@@ -553,13 +608,29 @@ function generateRecurringEventInstances(
     baseEvent: GroupEvent,
     startDate: Date,
     maxDate: Date,
-    endDate?: Date
+    endDate?: Date,
+    startFromNow: boolean = false,
+    markFirstAsPrimary: boolean = false
 ): GroupEvent[] {
     const instances: GroupEvent[] = [];
     const actualEndDate = endDate && endDate < maxDate ? endDate : maxDate;
     
+    // Get the original event date for calculating recurrence patterns
+    const originalEventDate = new Date(baseEvent.event_datetime);
+    
     let currentDate = new Date(startDate);
-    currentDate.setDate(currentDate.getDate() + 1); // Start from next day to avoid duplicating the base event
+    let isFirstInstance = true; // Track if this is the first generated instance
+    
+    // If startFromNow is true, we're generating from today for a past recurring event
+    // We need to find the next occurrence based on the original event's pattern
+    if (startFromNow) {
+        // Start from today, but we need to align with the recurrence pattern from the original date
+        currentDate = new Date();
+        currentDate.setHours(originalEventDate.getHours(), originalEventDate.getMinutes(), originalEventDate.getSeconds(), 0);
+    } else {
+        // For future events, start from the next day after the original event
+        currentDate.setDate(currentDate.getDate() + 1);
+    }
     
     while (currentDate <= actualEndDate) {
         let shouldAddInstance = false;
@@ -570,35 +641,39 @@ function generateRecurringEventInstances(
                 break;
                 
             case 'weekly':
-                shouldAddInstance = currentDate.getDay() === startDate.getDay();
+                shouldAddInstance = currentDate.getDay() === originalEventDate.getDay();
                 break;
                 
             case 'biweekly':
-                // Calculate the number of weeks between the start date and current date
-                const diffTime = Math.abs(currentDate.getTime() - startDate.getTime());
+                // Calculate the number of weeks between the original event date and current date
+                const diffTime = Math.abs(currentDate.getTime() - originalEventDate.getTime());
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                 const diffWeeks = Math.floor(diffDays / 7);
                 
                 // Check if it's the same day of the week and falls on an even week count
                 shouldAddInstance = 
-                    currentDate.getDay() === startDate.getDay() && 
+                    currentDate.getDay() === originalEventDate.getDay() && 
                     diffWeeks % 2 === 0;
                 break;
                 
             case 'monthly':
-                shouldAddInstance = currentDate.getDate() === startDate.getDate();
+                // For monthly, keep the same day of month
+                // Handle edge cases like Feb 30 -> last day of Feb
+                const targetDay = originalEventDate.getDate();
+                const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
+                shouldAddInstance = currentDate.getDate() === Math.min(targetDay, lastDayOfMonth);
                 break;
                 
             case 'yearly':
                 shouldAddInstance = 
-                    currentDate.getDate() === startDate.getDate() && 
-                    currentDate.getMonth() === startDate.getMonth();
+                    currentDate.getDate() === originalEventDate.getDate() && 
+                    currentDate.getMonth() === originalEventDate.getMonth();
                 break;
         }
         
-        if (shouldAddInstance) {
+        if (shouldAddInstance && currentDate > new Date()) {
             // Create a new instance with the same properties but different date
-            const eventTimeString = startDate.toTimeString().split(' ')[0];
+            const eventTimeString = originalEventDate.toTimeString().split(' ')[0];
             const newDatetime = new Date(
                 currentDate.getFullYear(),
                 currentDate.getMonth(),
@@ -608,12 +683,18 @@ function generateRecurringEventInstances(
                 parseInt(eventTimeString.split(':')[2])
             ).toISOString();
             
+            // If markFirstAsPrimary is true, the first instance should NOT have isRecurringInstance flag
+            // This allows it to show up in the UI as the main event
+            const shouldMarkAsInstance = !markFirstAsPrimary || !isFirstInstance;
+            
             instances.push({
                 ...baseEvent,
                 id: `${baseEvent.id}_recurring_${currentDate.toISOString()}`,
                 event_datetime: newDatetime,
-                isRecurringInstance: true // Add a flag to identify this as a generated instance
+                ...(shouldMarkAsInstance && { isRecurringInstance: true }) // Only add flag if not the first primary instance
             } as GroupEvent);
+            
+            isFirstInstance = false; // After first instance, all others are regular instances
         }
         
         // Move to next day
