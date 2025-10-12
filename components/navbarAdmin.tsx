@@ -27,10 +27,10 @@ export async function NavbarAdmin() {
             แดชบอร์ดแอดมิน
           </Link>
           <Link
-            href="/admin/create-form"
+            href="/admin/manage-forms"
             className="text-sm font-medium transition-colors hover:text-primary"
           >
-            สร้างแบบฟอร์ม
+            จัดการแบบฟอร์ม
           </Link>
           <Link
             href="/admin/manage-staff"
@@ -42,8 +42,10 @@ export async function NavbarAdmin() {
             href="/admin/manage-group"
             className="text-sm font-medium transition-colors hover:text-primary"
           >
-            แบ่งกลุ่มอัตโนมัติ
+            แบ่งกลุ่มและกิจกรรม
           </Link>
+
+
         </div>
 
         <div className="flex items-center gap-6 ml-auto">
