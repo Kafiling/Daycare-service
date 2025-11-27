@@ -10,9 +10,27 @@ interface Patient {
     phone_num?: string;
     weight?: number;
     height?: number;
-    address?: object;
+    address?: string;
+    road?: string;
+    sub_district?: string;
+    district?: string;
+    province?: string;
+    postal_num?: string;
     title?: string;
     email?: string;
+    profile_image_url?: string;
+    // New fields
+    caregiver_name?: string;
+    media_consent?: boolean;
+    transportation?: string;
+    parking_requirement?: boolean;
+    distance_from_home?: number;
+    gender?: string;
+    marital_status?: string;
+    education_level?: string;
+    fall_history?: boolean;
+    underlying_diseases?: string[];
+    hospitalization_history?: boolean;
 }
 
 export async function POST(req: NextRequest) {

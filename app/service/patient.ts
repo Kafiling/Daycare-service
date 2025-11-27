@@ -24,6 +24,16 @@ export interface Patient {
     created_at: string;
     updated_at: string;
     profile_image_url?: string;
+    caregiver_name?: string;
+    media_consent?: boolean;
+    transportation?: string;
+    parking_requirement?: boolean;
+    distance_from_home?: number;
+    marital_status?: string;
+    education_level?: string;
+    fall_history?: boolean;
+    underlying_diseases?: string[];
+    hospitalization_history?: boolean;
 }
 
 export interface Form {
