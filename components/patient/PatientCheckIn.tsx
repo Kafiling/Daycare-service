@@ -50,7 +50,7 @@ export function PatientCheckIn({ patientId, todayCheckIn, history }: PatientChec
   };
 
   return (
-    <div className="flex gap-2 mt-4">
+    <div className="flex gap-2">
       {todayCheckIn ? (
         <Button variant="outline" className="gap-2 cursor-default hover:bg-background text-green-600 border-green-200 bg-green-50">
           <CheckCircle2 className="h-4 w-4" />
