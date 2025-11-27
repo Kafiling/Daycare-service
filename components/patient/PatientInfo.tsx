@@ -10,12 +10,16 @@ import {
     User,
 } from 'lucide-react';
 import type { Patient } from '@/app/service/patient';
+import { PatientCheckIn } from './PatientCheckIn';
+import type { CheckIn } from '@/app/service/checkin';
 
 interface PatientInfoProps {
     patient: Patient;
+    todayCheckIn?: CheckIn | null;
+    history?: CheckIn[];
 }
 
-export default function PatientInfo({ patient }: PatientInfoProps) {
+export default function PatientInfo({ patient, todayCheckIn, history }: PatientInfoProps) {
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString('th-TH', {
             year: 'numeric',
@@ -26,14 +30,21 @@ export default function PatientInfo({ patient }: PatientInfoProps) {
 
     return (
         <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="flex items-center gap-2">
                     <User className="h-5 w-5" />
                     ข้อมูลผู้ใช้บริการ
                 </CardTitle>
+                {todayCheckIn !== undefined && history !== undefined && (
+                    <PatientCheckIn 
+                        patientId={patient.id} 
+                        todayCheckIn={todayCheckIn} 
+                        history={history} 
+                    />
+                )}
             </CardHeader>
             <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
                     <div className="space-y-4">
                         <div className="flex items-center gap-2">
                             <Calendar className="h-4 w-4 text-muted-foreground" />

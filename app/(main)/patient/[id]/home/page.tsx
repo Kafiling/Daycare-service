@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FileText, Users, History, Calendar } from 'lucide-react';
 import { getPatientById, getActiveForms, getCompletedSubmissions } from '@/app/service/patient';
 import { getPatientGroupsForPatient, getUpcomingGroupEvents } from '@/app/service/group-assignment';
+import { getTodayCheckIn, getCheckInHistory } from '@/app/service/checkin';
 import PatientHeader from '@/components/patient/PatientHeader';
 import PatientInfo from '@/components/patient/PatientInfo';
 import AvailableSurveys from '@/components/patient/AvailableSurveys';
@@ -21,6 +22,8 @@ export default async function PatientHomePage({ params }: PatientHomePageProps) 
         const patient = await getPatientById(resolvedParams.id);
         const availableForms = await getActiveForms();
         const completedSubmissions = await getCompletedSubmissions(resolvedParams.id);
+        const todayCheckIn = await getTodayCheckIn(resolvedParams.id);
+        const checkInHistory = await getCheckInHistory(resolvedParams.id);
 
         // Get patient groups and upcoming events
         const patientGroups = await getPatientGroupsForPatient(resolvedParams.id);
@@ -57,7 +60,7 @@ export default async function PatientHomePage({ params }: PatientHomePageProps) 
                 <PatientHeader patient={patient} patientId={resolvedParams.id} patientGroups={patientGroups} />
 
                 {/* Patient Information */}
-                <PatientInfo patient={patient} />
+                <PatientInfo patient={patient} todayCheckIn={todayCheckIn} history={checkInHistory} />
 
                 {/* Upcoming Events */}
                 <Card>
