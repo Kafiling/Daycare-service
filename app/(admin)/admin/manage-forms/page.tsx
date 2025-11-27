@@ -329,10 +329,10 @@ export default function ManageFormsPage() {
                             <Card>
                                 <CardContent className="p-6">
                                     <div className="flex items-center gap-2">
-                                        <FileText className="h-8 w-8 text-blue-600" />
+                                        <FileText className="h-8 w-8 text-green-600" />
                                         <div>
-                                            <p className="text-2xl font-bold">{forms.length}</p>
-                                            <p className="text-sm text-muted-foreground">ฟอร์มทั้งหมด</p>
+                                            <p className="text-2xl font-bold">{forms.filter(f => f.is_active).length}</p>
+                                            <p className="text-sm text-muted-foreground">ฟอร์มที่ใช้งานอยู่</p>
                                         </div>
                                     </div>
                                 </CardContent>
@@ -340,10 +340,10 @@ export default function ManageFormsPage() {
                             <Card>
                                 <CardContent className="p-6">
                                     <div className="flex items-center gap-2">
-                                        <FileText className="h-8 w-8 text-green-600" />
+                                        <FileText className="h-8 w-8 text-blue-600" />
                                         <div>
-                                            <p className="text-2xl font-bold">{forms.filter(f => f.is_active).length}</p>
-                                            <p className="text-sm text-muted-foreground">ฟอร์มที่ใช้งานอยู่</p>
+                                            <p className="text-2xl font-bold">{forms.length}</p>
+                                            <p className="text-sm text-muted-foreground">ฟอร์มทั้งหมด</p>
                                         </div>
                                     </div>
                                 </CardContent>
