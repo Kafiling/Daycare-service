@@ -153,55 +153,90 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageSelected, imageUrl }) 
   );
 };
 
-// Main PatientCreateForm Component
-function PatientCreateForm({ patientId }: { patientId?: string }) {
+interface PatientEditFormProps {
+  initialData: any;
+}
+
+// Main PatientEditForm Component
+function PatientEditForm({ initialData }: PatientEditFormProps) {
   const router = useRouter();
   const [date, setDate] = React.useState<dayjs.Dayjs | null>(null);
   const [cropImgSrc, setCropImgSrc] = useState("");
   const [isCropModalOpen, setIsCropModalOpen] = useState(false);
   const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
-  const [formData, setFormData] = useState<FormData>({
-    patientId: patientId?.replace(/-/g, "") || "", // Clean ID upfront
-    title: "",
-    first_name: "",
-    last_name: "",
-    phone_num: "",
-    email: null,
-    weight: null,
-    height: null,
-    address: "",
-    road: "",
-    sub_district: "",
-    district: "",
-    province: "",
-    postal_num: "",
-    date_of_birth: "",
-    imageUrl: null,
-    caregiver_name: "",
-    media_consent: null,
-    transportation: "",
-    transportation_other: "",
-    parking_requirement: null,
-    distance_from_home: null,
-    gender: "",
-    marital_status: "",
-    education_level: "",
-    fall_history: null,
-    underlying_diseases: [],
-    underlying_diseases_other: "",
-    hospitalization_history: null,
-    age: null,
+  
+  // Initialize form data from initialData
+  const [formData, setFormData] = useState<FormData>(() => {
+    // Process transportation
+    let transportation = initialData.transportation || "";
+    let transportation_other = "";
+    const standardTransportations = ["self_drive", "relative", "bts"];
+    if (transportation && !standardTransportations.includes(transportation)) {
+        transportation_other = transportation;
+        transportation = "other";
+    }
+
+    // Process underlying diseases
+    let underlying_diseases = initialData.underlying_diseases || [];
+    let underlying_diseases_other = "";
+    const standardDiseases = [
+        "none", "hypertension", "diabetes", "cancer_non_skin", "chronic_lung",
+        "acute_coronary", "heart_failure", "asthma", "angina", "arthritis",
+        "stroke", "kidney_disease"
+    ];
+    
+    // Check if there are any non-standard diseases
+    const otherDiseases = underlying_diseases.filter((d: string) => !standardDiseases.includes(d));
+    if (otherDiseases.length > 0) {
+        underlying_diseases_other = otherDiseases[0]; // Assuming only one 'other' disease for simplicity or join them
+        underlying_diseases = underlying_diseases.filter((d: string) => standardDiseases.includes(d));
+        underlying_diseases.push("other");
+    }
+
+    return {
+        patientId: initialData.id || "",
+        title: initialData.title || "",
+        first_name: initialData.first_name || "",
+        last_name: initialData.last_name || "",
+        phone_num: initialData.phone_num || "",
+        email: initialData.email || null,
+        weight: initialData.weight || null,
+        height: initialData.height || null,
+        address: initialData.address || "",
+        road: initialData.road || "",
+        sub_district: initialData.sub_district || "",
+        district: initialData.district || "",
+        province: initialData.province || "",
+        postal_num: initialData.postal_num || "",
+        date_of_birth: initialData.date_of_birth || "",
+        imageUrl: initialData.profile_image_url || null,
+        caregiver_name: initialData.caregiver_name || "",
+        media_consent: initialData.media_consent,
+        transportation: transportation,
+        transportation_other: transportation_other,
+        parking_requirement: initialData.parking_requirement,
+        distance_from_home: initialData.distance_from_home || null,
+        gender: initialData.gender || "",
+        marital_status: initialData.marital_status || "",
+        education_level: initialData.education_level || "",
+        fall_history: initialData.fall_history,
+        underlying_diseases: underlying_diseases,
+        underlying_diseases_other: underlying_diseases_other,
+        hospitalization_history: initialData.hospitalization_history,
+        age: null,
+    };
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Update formData when patientId prop changes (e.g., if navigated from another page with an ID)
   useEffect(() => {
-    setFormData((prevData) => ({
-      ...prevData,
-      patientId: patientId?.replace(/-/g, "") || "",
-    }));
-  }, [patientId]);
+    if (formData.date_of_birth) {
+        setDate(dayjs(formData.date_of_birth));
+    }
+    if (formData.imageUrl) {
+        setPreviewImageUrl(formData.imageUrl);
+    }
+  }, []);
 
   // Calculate age when DOB changes
   useEffect(() => {
@@ -407,8 +442,8 @@ function PatientCreateForm({ patientId }: { patientId?: string }) {
           hospitalization_history: formData.hospitalization_history,
         };
 
-        const response = await fetch("/api/v1/patients/createPatient", {
-          method: "POST",
+        const response = await fetch("/api/v1/patients/updatePatient", {
+          method: "PATCH",
           headers: {
             "Content-Type": "application/json",
           },
@@ -417,15 +452,15 @@ function PatientCreateForm({ patientId }: { patientId?: string }) {
 
         if (response.ok) {
           const data = await response.json();
-          console.log("Patient created successfully:", data);
-          toast.success("บันทึกข้อมูลสำเร็จ");
+          console.log("Patient updated successfully:", data);
+          toast.success("บันทึกการแก้ไขสำเร็จ");
           router.push(`/patient/${formData.patientId}/home`);
         } else {
           const errorData = await response.json();
-          throw new Error(errorData.message || "Failed to create patient");
+          throw new Error(errorData.message || "Failed to update patient");
         }
       } catch (error) {
-        console.error("Error creating patient:", error);
+        console.error("Error updating patient:", error);
         if (error instanceof Error) {
           toast.error("เกิดข้อผิดพลาดในการบันทึกข้อมูล: " + error.message);
         } else {
@@ -462,7 +497,8 @@ function PatientCreateForm({ patientId }: { patientId?: string }) {
               mask="_"
               value={formData.patientId}
               onChange={handleChange}
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              disabled={true} // Disable ID editing
+              className="flex h-10 w-full rounded-md border border-input bg-gray-100 px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             />
           </div>
 
@@ -939,7 +975,7 @@ function PatientCreateForm({ patientId }: { patientId?: string }) {
         </div>
 
         <Button type="submit" className="mt-4 w-full md:w-auto" disabled={isSubmitting}>
-          {isSubmitting ? "กำลังบันทึก..." : "บันทึกข้อมูล"}
+          {isSubmitting ? "กำลังบันทึก..." : "บันทึกการแก้ไข"}
         </Button>
       </form>
       <ImageCropModal
@@ -952,4 +988,4 @@ function PatientCreateForm({ patientId }: { patientId?: string }) {
   );
 }
 
-export default PatientCreateForm;
+export default PatientEditForm;

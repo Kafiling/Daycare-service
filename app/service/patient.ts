@@ -24,6 +24,16 @@ export interface Patient {
     created_at: string;
     updated_at: string;
     profile_image_url?: string;
+    caregiver_name?: string;
+    media_consent?: boolean;
+    transportation?: string;
+    parking_requirement?: boolean;
+    distance_from_home?: number;
+    marital_status?: string;
+    education_level?: string;
+    fall_history?: boolean;
+    underlying_diseases?: string[];
+    hospitalization_history?: boolean;
 }
 
 export interface Form {
@@ -141,7 +151,17 @@ export async function getPatientById(patientId: string): Promise<Patient | null>
         postal_num: data.postal_num,
         created_at: data.created_at,
         updated_at: data.updated_at,
-        profile_image_url: data.profile_image_url
+        profile_image_url: data.profile_image_url,
+        caregiver_name: data.caregiver_name,
+        media_consent: data.media_consent,
+        transportation: data.transportation,
+        parking_requirement: data.parking_requirement,
+        distance_from_home: data.distance_from_home,
+        marital_status: data.marital_status,
+        education_level: data.education_level,
+        fall_history: data.fall_history,
+        underlying_diseases: data.underlying_diseases,
+        hospitalization_history: data.hospitalization_history
     };
 }
 
