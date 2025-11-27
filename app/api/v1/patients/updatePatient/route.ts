@@ -2,10 +2,10 @@ import { createClient } from '@/utils/supabase/server'
 import { NextRequest, NextResponse } from 'next/server';
 
 // Define TypeScript interface for input validation
-interface Patient {
+interface PatientUpdate {
     id: string;
-    first_name: string;
-    last_name: string;
+    first_name?: string;
+    last_name?: string;
     date_of_birth?: string;
     phone_num?: string;
     weight?: number;
@@ -19,7 +19,6 @@ interface Patient {
     title?: string;
     email?: string;
     profile_image_url?: string;
-    // New fields
     caregiver_name?: string;
     media_consent?: boolean;
     transportation?: string;
@@ -33,27 +32,29 @@ interface Patient {
     hospitalization_history?: boolean;
 }
 
-export async function POST(req: NextRequest) {
+export async function PATCH(req: NextRequest) {
     const supabase = await createClient()
 
-    const body: Patient = await req.json();
+    const body: PatientUpdate = await req.json();
 
-    console.log("Received body:", body);
-    // Basic input validation
-    const requiredFields = ['id', 'first_name', 'last_name'];
-    for (const field of requiredFields) {
-        if (!body[field as keyof Patient]) {
-            return NextResponse.json(
-                { error: `Missing required field: ${field}` },
-                { status: 400 }
-            );
-        }
+    console.log("Received update body:", body);
+
+    if (!body.id) {
+        return NextResponse.json(
+            { error: "Missing required field: id" },
+            { status: 400 }
+        );
     }
 
-    const { error } = await supabase.from('patients').insert([body]);
+    const { id, ...updates } = body;
+
+    const { error } = await supabase
+        .from('patients')
+        .update(updates)
+        .eq('id', id);
 
     if (error) {
-        console.error("Error inserting patient:", error);
+        console.error("Error updating patient:", error);
         return NextResponse.json(
             { error: error.message },
             { status: 500 }
@@ -61,7 +62,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json(
-        { message: 'Patient created successfully' },
-        { status: 201 }
+        { message: 'Patient updated successfully' },
+        { status: 200 }
     );
 }
