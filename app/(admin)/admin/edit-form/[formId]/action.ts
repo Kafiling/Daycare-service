@@ -21,6 +21,7 @@ export async function updateForm(formId: string, formData: any) {
       priority_level,
       is_active,
       evaluation_thresholds,
+      recurrence_schedule,
       questions,
     } = formData;
 
@@ -46,6 +47,7 @@ export async function updateForm(formId: string, formData: any) {
         priority_level,
         is_active,
         evaluation_thresholds: formattedThresholds,
+        recurrence_schedule,
         updated_at: new Date().toISOString(),
       })
       .eq("form_id", formId)

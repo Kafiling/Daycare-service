@@ -116,21 +116,14 @@ export default function AvailableSurveys({ patientId, forms, submissions }: Avai
             return { status: 'completed', message: 'ทำแบบประเมินแล้ว', lastSubmission };
         }
 
-        const firstSubmission = formSubmissions[0];
-        const submissionCount = formSubmissions.length;
-        
-        // Check if there are more recurrences scheduled
-        if (submissionCount > form.recurrence_schedule.length) {
-             return { status: 'completed', message: 'ครบกำหนดการแล้ว', lastSubmission };
-        }
-
-        const nextInterval = form.recurrence_schedule[submissionCount - 1];
-        const firstSubmissionDate = dayjs(firstSubmission.submitted_at);
-        const nextDueDate = firstSubmissionDate.add(nextInterval, 'month');
+        // Use the first value in recurrence_schedule as the interval (in months)
+        const interval = form.recurrence_schedule[0];
+        const lastSubmissionDate = dayjs(lastSubmission!.submitted_at);
+        const nextDueDate = lastSubmissionDate.add(interval, 'month');
         const now = dayjs();
 
         if (now.isAfter(nextDueDate) || now.isSame(nextDueDate, 'day')) {
-             return { status: 'due', message: `ถึงกำหนดทำซ้ำ (เดือนที่ ${nextInterval})`, lastSubmission };
+             return { status: 'due', message: `ถึงกำหนดทำซ้ำ (ทุก ${interval} เดือน)`, lastSubmission };
         } else {
              return { 
                  status: 'upcoming', 

@@ -336,7 +336,7 @@ export default function CreateFormPage() {
     const [priorityLevel, setPriorityLevel] = useState('medium');
     const [questions, setQuestions] = useState<Question[]>([]);
     const [evaluationThresholds, setEvaluationThresholds] = useState<EvaluationThreshold[]>([]);
-    const [recurrenceSchedule, setRecurrenceSchedule] = useState<number[]>([]);
+    const [recurrenceInterval, setRecurrenceInterval] = useState<string>('');
     const [isSaving, setIsSaving] = useState(false);
 
     const addQuestion = () => {
@@ -376,22 +376,6 @@ export default function CreateFormPage() {
         const newThresholds = [...evaluationThresholds];
         newThresholds.splice(index, 1);
         setEvaluationThresholds(newThresholds);
-    };
-
-    const addRecurrence = () => {
-        setRecurrenceSchedule([...recurrenceSchedule, 0]);
-    };
-
-    const updateRecurrence = (index: number, value: string) => {
-        const newSchedule = [...recurrenceSchedule];
-        newSchedule[index] = parseFloat(value);
-        setRecurrenceSchedule(newSchedule);
-    };
-
-    const removeRecurrence = (index: number) => {
-        const newSchedule = [...recurrenceSchedule];
-        newSchedule.splice(index, 1);
-        setRecurrenceSchedule(newSchedule);
     };
 
     const isFormValid = () => {
@@ -498,7 +482,7 @@ export default function CreateFormPage() {
             priorityLevel: priorityLevel,
             questions: questions,
             evaluationThresholds: evaluationThresholds,
-            recurrenceSchedule: recurrenceSchedule,
+            recurrenceSchedule: recurrenceInterval ? [parseFloat(recurrenceInterval)] : [],
         };
 
         try {
@@ -598,6 +582,28 @@ export default function CreateFormPage() {
                                     </Select>
                                 </div>
                             </div>
+                            <div>
+                                <Label htmlFor="recurrence-interval" className="pb-2 text-lg">
+                                    ระยะเวลาทำซ้ำ (เดือน)
+                                </Label>
+                                <Select value={recurrenceInterval} onValueChange={setRecurrenceInterval}>
+                                    <SelectTrigger id="recurrence-interval" className="text-base">
+                                        <SelectValue placeholder="เลือกความถี่ในการทำซ้ำ" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="0.5">ทุก 2 สัปดาห์ (0.5 เดือน)</SelectItem>
+                                        <SelectItem value="1">ทุก 1 เดือน</SelectItem>
+                                        <SelectItem value="2">ทุก 2 เดือน</SelectItem>
+                                        <SelectItem value="3">ทุก 3 เดือน</SelectItem>
+                                        <SelectItem value="4">ทุก 4 เดือน</SelectItem>
+                                        <SelectItem value="6">ทุก 6 เดือน</SelectItem>
+                                        <SelectItem value="12">ทุก 1 ปี (12 เดือน)</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <p className="text-sm text-muted-foreground mt-1">
+                                    กำหนดระยะเวลาที่ต้องทำแบบประเมินซ้ำ หากไม่ระบุจะถือว่าทำครั้งเดียว
+                                </p>
+                            </div>
                         </CardContent>
                     </Card>
 
@@ -685,52 +691,6 @@ export default function CreateFormPage() {
                             <Button variant="outline" size="sm" onClick={addThreshold}>
                                 <PlusCircle className="h-4 w-4 mr-2" />
                                 เพิ่มเกณฑ์การประเมิน
-                            </Button>
-                        </CardContent>
-                    </Card>
-
-                    {/* Recurrence Schedule */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-xl font-bold">กำหนดการทำซ้ำ (Recurrence Schedule)</CardTitle>
-                            <p className="text-sm text-muted-foreground">
-                                กำหนดระยะเวลาที่ต้องทำแบบประเมินซ้ำ (เดือน)
-                            </p>
-                        </CardHeader>
-                        <CardContent className="p-6 space-y-4">
-                            {recurrenceSchedule.length === 0 && (
-                                <div className="text-center py-8 text-muted-foreground">
-                                    <p>ยังไม่มีกำหนดการทำซ้ำ</p>
-                                    <p className="text-sm">คลิก "เพิ่มกำหนดการ" เพื่อเริ่มต้น</p>
-                                </div>
-                            )}
-                            {recurrenceSchedule.map((months, index) => (
-                                <div key={index} className="flex items-center gap-4 p-4 border rounded-lg">
-                                    <div className="flex-1">
-                                        <Label className="text-sm">เดือนที่</Label>
-                                        <Input
-                                            type="number"
-                                            step="0.1"
-                                            placeholder="จำนวนเดือน"
-                                            value={months}
-                                            onChange={(e) => updateRecurrence(index, e.target.value)}
-                                            className="mt-2"
-                                            onWheel={(e) => e.currentTarget.blur()}
-                                        />
-                                    </div>
-                                    <Button 
-                                        variant="ghost" 
-                                        size="icon" 
-                                        onClick={() => removeRecurrence(index)}
-                                        className="mt-6"
-                                    >
-                                        <Trash2 className="h-4 w-4 text-destructive" />
-                                    </Button>
-                                </div>
-                            ))}
-                            <Button variant="outline" size="sm" onClick={addRecurrence}>
-                                <PlusCircle className="h-4 w-4 mr-2" />
-                                เพิ่มกำหนดการ
                             </Button>
                         </CardContent>
                     </Card>
