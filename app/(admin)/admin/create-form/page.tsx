@@ -25,6 +25,13 @@ interface Question {
     options: any;
 }
 
+interface EvaluationThreshold {
+    minScore: string | number;
+    maxScore: string | number;
+    result: string;
+    description: string;
+}
+
 const questionTypeOptions = getQuestionTypeOptions();
 
 const initialQuestionState = {

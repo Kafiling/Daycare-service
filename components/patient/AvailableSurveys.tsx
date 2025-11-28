@@ -21,7 +21,7 @@ import {
     getFirstQuestionByFormId,
     type Form
 } from '@/app/service/patient-client';
-import type { Submission } from '@/app/service/patient';
+import type { FormSubmissionWithForm } from '@/app/service/patient';
 import { getCurrentUserProfile } from '@/app/service/nurse-client';
 import dayjs from 'dayjs';
 import 'dayjs/locale/th';
@@ -76,7 +76,7 @@ const getPriorityLabel = (priority: string) => {
 interface AvailableSurveysProps {
     patientId: string;
     forms: Form[];
-    submissions: Submission[];
+    submissions: FormSubmissionWithForm[];
 }
 
 export default function AvailableSurveys({ patientId, forms, submissions }: AvailableSurveysProps) {
