@@ -26,8 +26,10 @@ import { getCurrentUserProfile } from '@/app/service/nurse-client';
 import dayjs from 'dayjs';
 import 'dayjs/locale/th';
 import buddhistEra from 'dayjs/plugin/buddhistEra';
+import relativeTime from 'dayjs/plugin/relativeTime';
 
 dayjs.extend(buddhistEra);
+dayjs.extend(relativeTime);
 dayjs.locale('th');
 
 // Icon mapping for form categories
@@ -104,13 +106,14 @@ export default function AvailableSurveys({ patientId, forms, submissions }: Avai
 
     const getFormStatus = (form: Form) => {
         const formSubmissions = submissions.filter(s => s.form_id === form.form_id).sort((a, b) => new Date(a.submitted_at!).getTime() - new Date(b.submitted_at!).getTime());
+        const lastSubmission = formSubmissions.length > 0 ? formSubmissions[formSubmissions.length - 1] : undefined;
         
         if (formSubmissions.length === 0) {
             return { status: 'available', message: 'พร้อมใช้งาน' };
         }
 
         if (!form.recurrence_schedule || form.recurrence_schedule.length === 0) {
-            return { status: 'completed', message: 'ทำแบบประเมินแล้ว' };
+            return { status: 'completed', message: 'ทำแบบประเมินแล้ว', lastSubmission };
         }
 
         const firstSubmission = formSubmissions[0];
@@ -118,7 +121,7 @@ export default function AvailableSurveys({ patientId, forms, submissions }: Avai
         
         // Check if there are more recurrences scheduled
         if (submissionCount > form.recurrence_schedule.length) {
-             return { status: 'completed', message: 'ครบกำหนดการแล้ว' };
+             return { status: 'completed', message: 'ครบกำหนดการแล้ว', lastSubmission };
         }
 
         const nextInterval = form.recurrence_schedule[submissionCount - 1];
@@ -127,12 +130,13 @@ export default function AvailableSurveys({ patientId, forms, submissions }: Avai
         const now = dayjs();
 
         if (now.isAfter(nextDueDate) || now.isSame(nextDueDate, 'day')) {
-             return { status: 'due', message: `ถึงกำหนดทำซ้ำ (เดือนที่ ${nextInterval})` };
+             return { status: 'due', message: `ถึงกำหนดทำซ้ำ (เดือนที่ ${nextInterval})`, lastSubmission };
         } else {
              return { 
                  status: 'upcoming', 
                  message: `ครั้งถัดไป: ${nextDueDate.format('D MMM BB')}`,
-                 dueDate: nextDueDate
+                 dueDate: nextDueDate,
+                 lastSubmission
              };
         }
     };
@@ -188,7 +192,8 @@ export default function AvailableSurveys({ patientId, forms, submissions }: Avai
                 const timeToComplete = form.time_to_complete || 15;
                 
                 const status = getFormStatus(form);
-                const isActionable = status.status === 'available' || status.status === 'due';
+                // Always allow action if nurse is present, but style differently based on status
+                const isActionable = true;
 
                 return (
                     <Card key={form.form_id} className={`hover:shadow-md transition-shadow ${status.status === 'due' ? 'border-orange-300 bg-orange-50' : ''}`}>
@@ -230,11 +235,13 @@ export default function AvailableSurveys({ patientId, forms, submissions }: Avai
                                         <Button
                                             size="sm"
                                             onClick={() => handleStartSurvey(form.form_id)}
-                                            disabled={!nurseId || !isActionable}
+                                            disabled={!nurseId}
                                             title={!nurseId ? 'กำลังโหลดข้อมูลพยาบาล...' : ''}
-                                            variant={status.status === 'due' ? 'default' : isActionable ? 'default' : 'secondary'}
+                                            variant={status.status === 'due' || status.status === 'available' ? 'default' : 'outline'}
+                                            className={status.status === 'due' ? 'bg-orange-600 hover:bg-orange-700 text-white' : ''}
                                         >
-                                            {status.status === 'due' ? 'ทำซ้ำ' : 'เริ่มประเมิน'}
+                                            {status.status === 'available' ? 'เริ่มประเมิน' : 
+                                             status.status === 'due' ? 'ทำซ้ำ' : 'เริ่มประเมินอีกครั้ง'}
                                         </Button>
                                     </div>
                                 </div>
@@ -244,10 +251,19 @@ export default function AvailableSurveys({ patientId, forms, submissions }: Avai
                                         status.status === 'upcoming' ? 'bg-blue-50 text-blue-700' :
                                         'bg-green-50 text-green-700'
                                     }`}>
-                                        {status.status === 'due' && <AlertCircle className="h-4 w-4" />}
-                                        {status.status === 'upcoming' && <Clock className="h-4 w-4" />}
-                                        {status.status === 'completed' && <CheckCircle2 className="h-4 w-4" />}
-                                        {status.message}
+                                        {status.status === 'due' && <AlertCircle className="h-4 w-4 flex-shrink-0" />}
+                                        {status.status === 'upcoming' && <Clock className="h-4 w-4 flex-shrink-0" />}
+                                        {status.status === 'completed' && <CheckCircle2 className="h-4 w-4 flex-shrink-0" />}
+                                        
+                                        <div className="flex flex-col">
+                                            <span className="font-medium">{status.message}</span>
+                                            {status.lastSubmission && (
+                                                <span className="text-xs opacity-90">
+                                                    ล่าสุด: {dayjs(status.lastSubmission.submitted_at).format('D MMM BB')} 
+                                                    {' '}({dayjs(status.lastSubmission.submitted_at).fromNow()})
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
                                 )}
                             </div>
