@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, FileText, Heart, Activity, AlertCircle, User, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
+import { CheckCircle, FileText, Heart, Activity, AlertCircle, User, ChevronLeft, ChevronRight, Calendar, Eye } from 'lucide-react';
 import { FormSubmissionWithForm } from '@/app/service/patient';
 
 interface SubmissionHistoryProps {
@@ -108,7 +109,7 @@ export default function SubmissionHistory({ submissions }: SubmissionHistoryProp
                                     </div>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-1">
+                            <div className="flex items-center gap-3">
                                 <div className="text-sm text-muted-foreground text-right">
                                     <p>
                                         {submittedDate.toLocaleDateString('th-TH', {
@@ -126,6 +127,11 @@ export default function SubmissionHistory({ submissions }: SubmissionHistoryProp
                                         })} น.
                                     </p>
                                 </div>
+                                <Link href={`/patient/${submission.patient_id}/history/${submission.id}`}>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8" title="ดูรายละเอียด">
+                                        <Eye className="h-4 w-4" />
+                                    </Button>
+                                </Link>
                             </div>
                         </div>
                     );
