@@ -25,6 +25,13 @@ interface Question {
     options: any;
 }
 
+interface EvaluationThreshold {
+    minScore: string | number;
+    maxScore: string | number;
+    result: string;
+    description: string;
+}
+
 const questionTypeOptions = getQuestionTypeOptions();
 
 const initialQuestionState = {
@@ -335,13 +342,9 @@ export default function CreateFormPage() {
     const [timeToComplete, setTimeToComplete] = useState('');
     const [priorityLevel, setPriorityLevel] = useState('medium');
     const [questions, setQuestions] = useState<Question[]>([]);
-    const [evaluationThresholds, setEvaluationThresholds] = useState<any[]>([]);
+    const [evaluationThresholds, setEvaluationThresholds] = useState<EvaluationThreshold[]>([]);
+    const [recurrenceInterval, setRecurrenceInterval] = useState<string>('');
     const [isSaving, setIsSaving] = useState(false);
-
-    // Check if form is valid for saving
-    const isFormValid = () => {
-        return validateForm().length === 0;
-    };
 
     const addQuestion = () => {
         setQuestions([
@@ -377,7 +380,13 @@ export default function CreateFormPage() {
     };
 
     const removeThreshold = (index: number) => {
-        setEvaluationThresholds(evaluationThresholds.filter((_, i) => i !== index));
+        const newThresholds = [...evaluationThresholds];
+        newThresholds.splice(index, 1);
+        setEvaluationThresholds(newThresholds);
+    };
+
+    const isFormValid = () => {
+        return validateForm().length === 0;
     };
 
     const validateForm = () => {
@@ -480,6 +489,7 @@ export default function CreateFormPage() {
             priorityLevel: priorityLevel,
             questions: questions,
             evaluationThresholds: evaluationThresholds,
+            recurrenceSchedule: recurrenceInterval ? [parseFloat(recurrenceInterval)] : [],
         };
 
         try {
@@ -578,6 +588,28 @@ export default function CreateFormPage() {
                                         </SelectContent>
                                     </Select>
                                 </div>
+                            </div>
+                            <div>
+                                <Label htmlFor="recurrence-interval" className="pb-2 text-lg">
+                                    ระยะเวลาทำซ้ำ (เดือน)
+                                </Label>
+                                <Select value={recurrenceInterval} onValueChange={setRecurrenceInterval}>
+                                    <SelectTrigger id="recurrence-interval" className="text-base">
+                                        <SelectValue placeholder="เลือกความถี่ในการทำซ้ำ" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="0.5">ทุก 2 สัปดาห์ (0.5 เดือน)</SelectItem>
+                                        <SelectItem value="1">ทุก 1 เดือน</SelectItem>
+                                        <SelectItem value="2">ทุก 2 เดือน</SelectItem>
+                                        <SelectItem value="3">ทุก 3 เดือน</SelectItem>
+                                        <SelectItem value="4">ทุก 4 เดือน</SelectItem>
+                                        <SelectItem value="6">ทุก 6 เดือน</SelectItem>
+                                        <SelectItem value="12">ทุก 1 ปี (12 เดือน)</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <p className="text-sm text-muted-foreground mt-1">
+                                    กำหนดระยะเวลาที่ต้องทำแบบประเมินซ้ำ หากไม่ระบุจะถือว่าทำครั้งเดียว
+                                </p>
                             </div>
                         </CardContent>
                     </Card>
