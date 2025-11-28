@@ -48,7 +48,7 @@ export interface Form {
     is_active: boolean;
     created_at: string;
     updated_at: string;
-    evaluation_thresholds?: any;
+    recurrence_schedule?: number[];
 }
 
 export interface Question {

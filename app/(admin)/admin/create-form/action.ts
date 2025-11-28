@@ -14,7 +14,7 @@ export async function createForm(payload: any) {
         return { error: "You must be logged in to create a form." };
     }
 
-    const { title, description, label, timeToComplete, priorityLevel, questions, evaluationThresholds } = payload;
+    const { title, description, label, timeToComplete, priorityLevel, questions, evaluationThresholds, recurrenceSchedule } = payload;
     const formId = randomUUID();
 
     // Insert into forms table
@@ -28,6 +28,7 @@ export async function createForm(payload: any) {
             time_to_complete: timeToComplete,
             priority_level: priorityLevel,
             evaluation_thresholds: evaluationThresholds,
+            recurrence_schedule: recurrenceSchedule,
             created_by: user.id,
         })
         .select()

@@ -422,6 +422,7 @@ export default function EditFormPage() {
     const [priorityLevel, setPriorityLevel] = useState('medium');
     const [questions, setQuestions] = useState<Question[]>([]);
     const [evaluationThresholds, setEvaluationThresholds] = useState<any[]>([]);
+    const [recurrenceInterval, setRecurrenceInterval] = useState<string>('');
     const [isActive, setIsActive] = useState(true);
 
     // Load form data when component mounts
@@ -451,6 +452,11 @@ export default function EditFormPage() {
                 // Set evaluation thresholds
                 setEvaluationThresholds(formData.evaluation_thresholds || []);
                 
+                // Set recurrence interval
+                if (formData.recurrence_schedule && Array.isArray(formData.recurrence_schedule) && formData.recurrence_schedule.length > 0) {
+                    setRecurrenceInterval(formData.recurrence_schedule[0].toString());
+                }
+
                 // Format questions
                 if (formData.questions && formData.questions.length > 0) {
                     const formattedQuestions = formData.questions.map((q: any) => ({
@@ -630,6 +636,7 @@ export default function EditFormPage() {
             priority_level: priorityLevel,
             is_active: isActive,
             evaluation_thresholds: evaluationThresholds,
+            recurrence_schedule: recurrenceInterval ? [parseFloat(recurrenceInterval)] : [],
             questions: questionsData
         };
 
@@ -746,6 +753,28 @@ export default function EditFormPage() {
                                         </SelectContent>
                                     </Select>
                                 </div>
+                            </div>
+                            <div>
+                                <Label htmlFor="recurrence-interval" className="pb-2 text-lg">
+                                    ระยะเวลาทำซ้ำ (เดือน)
+                                </Label>
+                                <Select value={recurrenceInterval} onValueChange={setRecurrenceInterval}>
+                                    <SelectTrigger id="recurrence-interval" className="text-base">
+                                        <SelectValue placeholder="เลือกความถี่ในการทำซ้ำ" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="0.5">ทุก 2 สัปดาห์ (0.5 เดือน)</SelectItem>
+                                        <SelectItem value="1">ทุก 1 เดือน</SelectItem>
+                                        <SelectItem value="2">ทุก 2 เดือน</SelectItem>
+                                        <SelectItem value="3">ทุก 3 เดือน</SelectItem>
+                                        <SelectItem value="4">ทุก 4 เดือน</SelectItem>
+                                        <SelectItem value="6">ทุก 6 เดือน</SelectItem>
+                                        <SelectItem value="12">ทุก 1 ปี (12 เดือน)</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <p className="text-sm text-muted-foreground mt-1">
+                                    กำหนดระยะเวลาที่ต้องทำแบบประเมินซ้ำ หากไม่ระบุจะถือว่าทำครั้งเดียว
+                                </p>
                             </div>
                             <div>
                                 <div className="flex items-center gap-2">

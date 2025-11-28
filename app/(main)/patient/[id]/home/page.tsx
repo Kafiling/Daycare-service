@@ -171,7 +171,11 @@ export default async function PatientHomePage({ params }: PatientHomePageProps) 
                             </TabsList>
 
                             <TabsContent value="available" className="mt-6">
-                                <AvailableSurveys patientId={resolvedParams.id} forms={availableForms} />
+                                <AvailableSurveys 
+                                    patientId={resolvedParams.id} 
+                                    forms={availableForms} 
+                                    submissions={completedSubmissions}
+                                />
                             </TabsContent>
 
                             <TabsContent value="completed" className="mt-6">
