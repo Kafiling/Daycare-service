@@ -1,14 +1,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { Users, FileText, Target } from 'lucide-react';
+import ExportDataButton from "@/components/admin/ExportDataButton";
 
 export default function AdminPage() {
   return (
     <div className="min-h-screen bg-background">
       <main className="container mx-auto p-8 space-y-8">
         <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
-          <CardContent className="">
-            <div className="flex items-center space-x-4">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between space-x-4">
               <div className="flex-1">
                 <h1 className="text-2xl font-bold text-gray-900">
                   แผงควบคุมสำหรับผู้ดูแลระบบ
@@ -17,6 +18,7 @@ export default function AdminPage() {
                   จัดการพนักงานและแบบฟอร์มได้จากที่นี่
                 </p>
               </div>
+              <ExportDataButton />
             </div>
           </CardContent>
         </Card>
