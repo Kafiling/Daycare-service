@@ -438,7 +438,7 @@ export function GroupAssignmentManagementClient() {
           <TabsTrigger value="groups">จัดการกลุ่ม</TabsTrigger>
           <TabsTrigger value="rules">เงื่อนไขการแบ่งกลุ่ม</TabsTrigger>
           <TabsTrigger value="events">กิจกรรมกลุ่ม</TabsTrigger>
-          <TabsTrigger value="patients">ผู้รับบริการในกลุ่ม</TabsTrigger>
+          <TabsTrigger value="patients">ผู้ใช้บริการในกลุ่ม</TabsTrigger>
           <TabsTrigger value="history">ประวัติการแบ่งกลุ่ม</TabsTrigger>
           <TabsTrigger value="tools">เครื่องมือ</TabsTrigger>
         </TabsList>
@@ -447,8 +447,8 @@ export function GroupAssignmentManagementClient() {
         <TabsContent value="groups" className="space-y-4">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-xl font-semibold">จัดการกลุ่มผู้รับบริการ</h2>
-              <p className="text-gray-600">สร้าง แก้ไข และจัดการกลุ่มผู้รับบริการ</p>
+              <h2 className="text-xl font-semibold">จัดการกลุ่มผู้ใช้บริการ</h2>
+              <p className="text-gray-600">สร้าง แก้ไข และจัดการกลุ่มผู้ใช้บริการ</p>
             </div>
 
             <Dialog open={isGroupDialogOpen} onOpenChange={setIsGroupDialogOpen}>
@@ -460,9 +460,9 @@ export function GroupAssignmentManagementClient() {
               </DialogTrigger>
               <DialogContent className="max-w-md">
                 <DialogHeader>
-                  <DialogTitle>เพิ่มกลุ่มผู้รับบริการใหม่</DialogTitle>
+                  <DialogTitle>เพิ่มกลุ่มผู้ใช้บริการใหม่</DialogTitle>
                   <DialogDescription>
-                    สร้างกลุ่มใหม่สำหรับจัดประเภทผู้รับบริการ
+                    สร้างกลุ่มใหม่สำหรับจัดประเภทผู้ใช้บริการ
                   </DialogDescription>
                 </DialogHeader>
 
@@ -530,7 +530,7 @@ export function GroupAssignmentManagementClient() {
                 <CardContent className="flex items-center justify-center py-12">
                   <div className="text-center">
                     <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-600">ยังไม่มีกลุ่มผู้รับบริการ</h3>
+                    <h3 className="text-lg font-semibold text-gray-600">ยังไม่มีกลุ่มผู้ใช้บริการ</h3>
                     <p className="text-gray-500">เริ่มต้นด้วยการสร้างกลุ่มแรก</p>
                   </div>
                 </CardContent>
@@ -580,7 +580,7 @@ export function GroupAssignmentManagementClient() {
                               <AlertDialogTitle>ยืนยันการลบกลุ่ม</AlertDialogTitle>
                               <AlertDialogDescription>
                                 คุณแน่ใจหรือว่าต้องการลบกลุ่ม "{group.name}"
-                                การดำเนินการนี้จะย้ายผู้รับบริการในกลุ่มนี้ออกและไม่สามารถยกเลิกได้
+                                การดำเนินการนี้จะย้ายผู้ใช้บริการในกลุ่มนี้ออกและไม่สามารถยกเลิกได้
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
@@ -608,7 +608,7 @@ export function GroupAssignmentManagementClient() {
           <div className="flex justify-between items-center">
             <div>
               <h2 className="text-xl font-semibold">เงื่อนไขการแบ่งกลุ่ม</h2>
-              <p className="text-gray-600">กำหนดเงื่อนไขสำหรับเพิ่มผู้รับบริการเข้ากลุ่มอัตโนมัติ (สามารถอยู่ในหลายกลุ่มได้)</p>
+              <p className="text-gray-600">กำหนดเงื่อนไขสำหรับเพิ่มผู้ใช้บริการเข้ากลุ่มอัตโนมัติ (สามารถอยู่ในหลายกลุ่มได้)</p>
             </div>
 
             <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
@@ -622,7 +622,7 @@ export function GroupAssignmentManagementClient() {
                 <DialogHeader>
                   <DialogTitle>เพิ่มเงื่อนไขการแบ่งกลุ่มใหม่</DialogTitle>
                   <DialogDescription>
-                    กำหนดเงื่อนไขสำหรับเพิ่มผู้รับบริการเข้ากลุ่มอัตโนมัติ
+                    กำหนดเงื่อนไขสำหรับเพิ่มผู้ใช้บริการเข้ากลุ่มอัตโนมัติ
                   </DialogDescription>
                 </DialogHeader>
 
@@ -634,7 +634,7 @@ export function GroupAssignmentManagementClient() {
                         id="create-name"
                         value={createForm.name}
                         onChange={(e) => setCreateForm({ ...createForm, name: e.target.value })}
-                        placeholder="เช่น ผู้รับบริการเสี่ยงสูง"
+                        placeholder="เช่น ผู้ใช้บริการเสี่ยงสูง"
                       />
                     </div>
                   </div>
@@ -889,7 +889,7 @@ export function GroupAssignmentManagementClient() {
           <div className="flex justify-between items-center">
             <div>
               <h2 className="text-xl font-semibold">กิจกรรมกลุ่ม</h2>
-              <p className="text-gray-600">จัดการกิจกรรมสำหรับแต่ละกลุ่มผู้รับบริการ</p>
+              <p className="text-gray-600">จัดการกิจกรรมสำหรับแต่ละกลุ่มผู้ใช้บริการ</p>
             </div>
             
             <div className="flex items-center gap-2">
@@ -925,8 +925,8 @@ export function GroupAssignmentManagementClient() {
         <TabsContent value="patients" className="space-y-4">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-xl font-semibold">ผู้รับบริการในกลุ่ม</h2>
-              <p className="text-gray-600">ดูการสมาชิกภาพในกลุ่มของผู้รับบริการ (สามารถอยู่ในหลายกลุ่มได้)</p>
+              <h2 className="text-xl font-semibold">ผู้ใช้บริการในกลุ่ม</h2>
+              <p className="text-gray-600">ดูการสมาชิกภาพในกลุ่มของผู้ใช้บริการ (สามารถอยู่ในหลายกลุ่มได้)</p>
             </div>
           </div>
 
@@ -984,7 +984,7 @@ export function GroupAssignmentManagementClient() {
         <TabsContent value="history" className="space-y-4">
           <div>
             <h2 className="text-xl font-semibold">ประวัติการแบ่งกลุ่ม</h2>
-            <p className="text-gray-600">ประวัติการเปลี่ยนแปลงกลุ่มผู้รับบริการ</p>
+            <p className="text-gray-600">ประวัติการเปลี่ยนแปลงกลุ่มผู้ใช้บริการ</p>
           </div>
 
           <div className="grid gap-4">
@@ -994,7 +994,7 @@ export function GroupAssignmentManagementClient() {
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="font-semibold mb-1">
-                        ผู้รับบริการ ID: {assignment.patient_id}
+                        ผู้ใช้บริการ ID: {assignment.patient_id}
                       </div>
                       <div className="text-sm text-gray-600 mb-2">
                         {assignment.assignment_reason}
@@ -1051,7 +1051,7 @@ export function GroupAssignmentManagementClient() {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 mb-4">
-                  ประเมินและเพิ่มผู้รับบริการเข้ากลุ่มที่เหมาะสมทั้งหมดตามเงื่อนไขปัจจุบัน (สามารถอยู่ในหลายกลุ่มได้)
+                  ประเมินและเพิ่มผู้ใช้บริการเข้ากลุ่มที่เหมาะสมทั้งหมดตามเงื่อนไขปัจจุบัน (สามารถอยู่ในหลายกลุ่มได้)
                 </p>
                 <Button
                   onClick={handleRecalculateAll}
@@ -1073,7 +1073,7 @@ export function GroupAssignmentManagementClient() {
           <DialogHeader>
             <DialogTitle>แก้ไขเงื่อนไขการแบ่งกลุ่ม</DialogTitle>
             <DialogDescription>
-              อัปเดตเงื่อนไขสำหรับเพิ่มผู้รับบริการเข้ากลุ่มอัตโนมัติ
+              อัปเดตเงื่อนไขสำหรับเพิ่มผู้ใช้บริการเข้ากลุ่มอัตโนมัติ
             </DialogDescription>
           </DialogHeader>
 
@@ -1085,7 +1085,7 @@ export function GroupAssignmentManagementClient() {
                   id="edit-name"
                   value={editForm.name}
                   onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                  placeholder="เช่น ผู้รับบริการเสี่ยงสูง"
+                  placeholder="เช่น ผู้ใช้บริการเสี่ยงสูง"
                 />
               </div>
             </div>
@@ -1258,9 +1258,9 @@ export function GroupAssignmentManagementClient() {
       <Dialog open={isEditGroupDialogOpen} onOpenChange={setIsEditGroupDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>แก้ไขกลุ่มผู้รับบริการ</DialogTitle>
+            <DialogTitle>แก้ไขกลุ่มผู้ใช้บริการ</DialogTitle>
             <DialogDescription>
-              อัปเดตข้อมูลกลุ่มผู้รับบริการ
+              อัปเดตข้อมูลกลุ่มผู้ใช้บริการ
             </DialogDescription>
           </DialogHeader>
 

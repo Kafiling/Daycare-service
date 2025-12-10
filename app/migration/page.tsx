@@ -13,8 +13,8 @@ export default function MigrationPage() {
             // First, create the default rules
             const rules = [
                 {
-                    name: 'ผู้รับบริการเสี่ยงสูง',
-                    description: 'ผู้รับบริการที่มีคะแนนประเมินสูง ต้องการการดูแลเป็นพิเศษ',
+                    name: 'ผู้ใช้บริการเสี่ยงสูง',
+                    description: 'ผู้ใช้บริการที่มีคะแนนประเมินสูง ต้องการการดูแลเป็นพิเศษ',
                     group_name: 'ฉุกเฉิน',
                     rule_config: {
                         operator: 'gte',
@@ -24,8 +24,8 @@ export default function MigrationPage() {
                     priority: 100
                 },
                 {
-                    name: 'ผู้รับบริการเสี่ยงปานกลาง',
-                    description: 'ผู้รับบริการที่มีคะแนนประเมินปานกลาง ต้องติดตามเป็นพิเศษ',
+                    name: 'ผู้ใช้บริการเสี่ยงปานกลาง',
+                    description: 'ผู้ใช้บริการที่มีคะแนนประเมินปานกลาง ต้องติดตามเป็นพิเศษ',
                     group_name: 'ติดตามพิเศษ',
                     rule_config: {
                         operator: 'between',
@@ -36,8 +36,8 @@ export default function MigrationPage() {
                     priority: 80
                 },
                 {
-                    name: 'ผู้รับบริการเสี่ยงต่ำ',
-                    description: 'ผู้รับบริการที่มีคะแนนประเมินต่ำ อยู่ในกลุ่มทั่วไป',
+                    name: 'ผู้ใช้บริการเสี่ยงต่ำ',
+                    description: 'ผู้ใช้บริการที่มีคะแนนประเมินต่ำ อยู่ในกลุ่มทั่วไป',
                     group_name: 'ทั่วไป',
                     rule_config: {
                         operator: 'lte',

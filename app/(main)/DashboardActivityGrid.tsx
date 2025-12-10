@@ -109,7 +109,7 @@ export function DashboardActivityGrid() {
 		return (
 			<div className="text-center py-8">
 				<div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-pink-600"></div>
-				<p className="mt-2 text-gray-600">กำลังโหลดข้อมูลกลุ่มผู้รับบริการ...</p>
+				<p className="mt-2 text-gray-600">กำลังโหลดข้อมูลกลุ่มผู้ใช้บริการ...</p>
 			</div>
 		);
 	}
@@ -127,8 +127,8 @@ export function DashboardActivityGrid() {
 		return (
 			<div className="text-center py-8">
 				<Users className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-				<h3 className="text-lg font-semibold text-gray-600 mb-2">ยังไม่มีกลุ่มผู้รับบริการ</h3>
-				<p className="text-gray-500">ระบบยังไม่พบกลุ่มผู้รับบริการที่มีสมาชิก</p>
+				<h3 className="text-lg font-semibold text-gray-600 mb-2">ยังไม่มีกลุ่มผู้ใช้บริการ</h3>
+				<p className="text-gray-500">ระบบยังไม่พบกลุ่มผู้ใช้บริการที่มีสมาชิก</p>
 			</div>
 		);
 	}
@@ -158,13 +158,13 @@ export function DashboardActivityGrid() {
 				<GroupEventsList 
 					events={filteredUpcomingEvents} 
 					title="กิจกรรมที่กำลังจะมาถึง" 
-					description="กิจกรรมที่กำลังจะมาถึงสำหรับกลุ่มผู้รับบริการ" 
+					description="กิจกรรมที่กำลังจะมาถึงสำหรับกลุ่มผู้ใช้บริการ" 
 					maxEvents={3}
 				/>
 			</div>
 
 			<div className="flex items-center justify-between mb-6">
-				<h2 className="text-2xl font-bold text-center">กลุ่มผู้รับบริการ</h2>
+				<h2 className="text-2xl font-bold text-center">กลุ่มผู้ใช้บริการ</h2>
 				<div className="text-sm text-gray-500">
 					ทั้งหมด {groups.length} กลุ่ม
 				</div>
