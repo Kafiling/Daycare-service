@@ -147,7 +147,7 @@ export default function ManageFormsPage() {
                 setForms(formsData);
                 setFilteredForms(formsData);
             } catch (error) {
-                toast.error('ไม่สามารถโหลดข้อมูลฟอร์มได้');
+                toast.error('ไม่สามารถโหลดข้อมูลแบบสอบถามได้');
                 console.error('Error loading forms:', error);
             } finally {
                 setIsLoading(false);
@@ -202,11 +202,11 @@ export default function ManageFormsPage() {
             }
             
             setForms(forms.filter(form => form.form_id !== formId));
-            toast.success('ลบฟอร์มเรียบร้อยแล้ว');
+            toast.success('ลบแบบสอบถามเรียบร้อยแล้ว');
             setShowDeleteDialog(false);
             setSelectedForm(null);
         } catch (error) {
-            toast.error('ไม่สามารถลบฟอร์มได้');
+            toast.error('ไม่สามารถลบแบบสอบถามได้');
             console.error(error);
         } finally {
             setIsDeleting(false);
@@ -236,9 +236,9 @@ export default function ManageFormsPage() {
             
             const duplicatedForm = await response.json();
             setForms([duplicatedForm, ...forms]);
-            toast.success('คัดลอกฟอร์มเรียบร้อยแล้ว');
+            toast.success('คัดลอกแบบสอบถามเรียบร้อยแล้ว');
         } catch (error) {
-            toast.error('ไม่สามารถคัดลอกฟอร์มได้');
+            toast.error('ไม่สามารถคัดลอกแบบสอบถามได้');
             console.error(error);
         }
     };
@@ -268,14 +268,14 @@ export default function ManageFormsPage() {
             );
             setForms(updatedForms);
             
-            toast.success(`${updatedForm.is_active ? 'เปิดใช้งาน' : 'ปิดใช้งาน'}ฟอร์มเรียบร้อยแล้ว`);
+            toast.success(`${updatedForm.is_active ? 'เปิดใช้งาน' : 'ปิดใช้งาน'}แบบสอบถามเรียบร้อยแล้ว`);
             
             // Optionally refetch to ensure data is in sync with database
             // Uncomment if you want to always fetch fresh data after toggle
             // const freshForms = await fetchForms();
             // setForms(freshForms);
         } catch (error) {
-            toast.error('ไม่สามารถเปลี่ยนสถานะฟอร์มได้');
+            toast.error('ไม่สามารถเปลี่ยนสถานะแบบสอบถามได้');
             console.error(error);
         }
     };
@@ -310,8 +310,8 @@ export default function ManageFormsPage() {
                             กลับไปยังแผงควบคุม
                         </Button>
                         <div>
-                            <h1 className="text-3xl font-bold">จัดการฟอร์ม</h1>
-                            <p className="text-muted-foreground">จัดการและดูแลฟอร์มประเมินทั้งหมด</p>
+                            <h1 className="text-3xl font-bold">จัดการแบบสอบถาม</h1>
+                            <p className="text-muted-foreground">จัดการและดูแลแบบสอบถามประเมินทั้งหมด</p>
                         </div>
                     </div>
                 </div>
@@ -319,8 +319,8 @@ export default function ManageFormsPage() {
                 {/* Tabs */}
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                     <TabsList className="grid w-full grid-cols-2">
-                        <TabsTrigger value="manage">จัดการฟอร์ม</TabsTrigger>
-                        <TabsTrigger value="create">สร้างฟอร์มใหม่</TabsTrigger>
+                        <TabsTrigger value="manage">จัดการแบบสอบถาม</TabsTrigger>
+                        <TabsTrigger value="create">สร้างแบบสอบถามใหม่</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="manage" className="space-y-6">
@@ -332,7 +332,7 @@ export default function ManageFormsPage() {
                                         <FileText className="h-8 w-8 text-green-600" />
                                         <div>
                                             <p className="text-2xl font-bold">{forms.filter(f => f.is_active).length}</p>
-                                            <p className="text-sm text-muted-foreground">ฟอร์มที่ใช้งานอยู่</p>
+                                            <p className="text-sm text-muted-foreground">แบบสอบถามที่ใช้งานอยู่</p>
                                         </div>
                                     </div>
                                 </CardContent>
@@ -343,7 +343,7 @@ export default function ManageFormsPage() {
                                         <FileText className="h-8 w-8 text-blue-600" />
                                         <div>
                                             <p className="text-2xl font-bold">{forms.length}</p>
-                                            <p className="text-sm text-muted-foreground">ฟอร์มทั้งหมด</p>
+                                            <p className="text-sm text-muted-foreground">แบบสอบถามทั้งหมด</p>
                                         </div>
                                     </div>
                                 </CardContent>
@@ -358,7 +358,7 @@ export default function ManageFormsPage() {
                                         <div className="relative">
                                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                                             <Input
-                                                placeholder="ค้นหาฟอร์ม..."
+                                                placeholder="ค้นหาแบบสอบถาม..."
                                                 value={searchTerm}
                                                 onChange={(e) => setSearchTerm(e.target.value)}
                                                 className="pl-10"
@@ -410,11 +410,11 @@ export default function ManageFormsPage() {
                                 <Card>
                                     <CardContent className="p-12 text-center">
                                         <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                                        <h3 className="text-lg font-semibold mb-2">ไม่พบฟอร์ม</h3>
-                                        <p className="text-muted-foreground mb-4">ไม่มีฟอร์มที่ตรงกับเงื่อนไขการค้นหา</p>
+                                        <h3 className="text-lg font-semibold mb-2">ไม่พบแบบสอบถาม</h3>
+                                        <p className="text-muted-foreground mb-4">ไม่มีแบบสอบถามที่ตรงกับเงื่อนไขการค้นหา</p>
                                         <Button onClick={() => setActiveTab('create')} className="gap-2">
                                             <Plus className="h-4 w-4" />
-                                            สร้างฟอร์มใหม่
+                                            สร้างแบบสอบถามใหม่
                                         </Button>
                                     </CardContent>
                                 </Card>
@@ -518,11 +518,11 @@ export default function ManageFormsPage() {
                         <Card>
                             <CardContent className="p-12 text-center">
                                 <Plus className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                                <h3 className="text-lg font-semibold mb-2">สร้างฟอร์มใหม่</h3>
-                                <p className="text-muted-foreground mb-4">คลิกปุ่มด้านล่างเพื่อไปยังหน้าสร้างฟอร์มใหม่</p>
+                                <h3 className="text-lg font-semibold mb-2">สร้างแบบสอบถามใหม่</h3>
+                                <p className="text-muted-foreground mb-4">คลิกปุ่มด้านล่างเพื่อไปยังหน้าสร้างแบบสอบถามใหม่</p>
                                 <Button onClick={() => router.push('/admin/create-form')} className="gap-2">
                                     <Plus className="h-4 w-4" />
-                                    เริ่มสร้างฟอร์ม
+                                    เริ่มสร้างแบบสอบถาม
                                 </Button>
                             </CardContent>
                         </Card>
@@ -534,9 +534,9 @@ export default function ManageFormsPage() {
             <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>ยืนยันการลบฟอร์ม</AlertDialogTitle>
+                        <AlertDialogTitle>ยืนยันการลบแบบสอบถาม</AlertDialogTitle>
                         <AlertDialogDescription>
-                            คุณแน่ใจหรือไม่ว่าต้องการลบฟอร์ม "{selectedForm?.title}" 
+                            คุณแน่ใจหรือไม่ว่าต้องการลบแบบสอบถาม "{selectedForm?.title}" 
                             การดำเนินการนี้ไม่สามารถย้อนกลับได้
                         </AlertDialogDescription>
                     </AlertDialogHeader>
@@ -547,7 +547,7 @@ export default function ManageFormsPage() {
                             disabled={isDeleting}
                             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                         >
-                            {isDeleting ? 'กำลังลบ...' : 'ลบฟอร์ม'}
+                            {isDeleting ? 'กำลังลบ...' : 'ลบแบบสอบถาม'}
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
@@ -557,16 +557,16 @@ export default function ManageFormsPage() {
             <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
                 <DialogContent className="max-w-2xl">
                     <DialogHeader>
-                        <DialogTitle>รายละเอียดฟอร์ม</DialogTitle>
+                        <DialogTitle>รายละเอียดแบบสอบถาม</DialogTitle>
                         <DialogDescription>
-                            ข้อมูลโดยละเอียดของฟอร์ม "{selectedForm?.title}"
+                            ข้อมูลโดยละเอียดของแบบสอบถาม "{selectedForm?.title}"
                         </DialogDescription>
                     </DialogHeader>
                     {selectedForm && (
                         <div className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <Label className="text-sm font-medium">ชื่อฟอร์ม</Label>
+                                    <Label className="text-sm font-medium">ชื่อแบบสอบถาม</Label>
                                     <p className="text-sm text-muted-foreground">{selectedForm.title}</p>
                                 </div>
                                 <div>
@@ -614,7 +614,7 @@ export default function ManageFormsPage() {
                                 router.push(`/admin/edit-form/${selectedForm.form_id}`);
                             }
                         }}>
-                            แก้ไขฟอร์ม
+                            แก้ไขแบบสอบถาม
                         </Button>
                     </DialogFooter>
                 </DialogContent>

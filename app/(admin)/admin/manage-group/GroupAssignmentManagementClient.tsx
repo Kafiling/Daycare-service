@@ -676,7 +676,7 @@ export function GroupAssignmentManagementClient() {
 
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <Label>แบบฟอร์มและน้ำหนัก *</Label>
+                      <Label>แบบแบบสอบถามและน้ำหนัก *</Label>
                       <Button
                         type="button"
                         variant="outline"
@@ -684,7 +684,7 @@ export function GroupAssignmentManagementClient() {
                         onClick={() => addFormConfig(false)}
                       >
                         <Plus className="h-4 w-4 mr-1" />
-                        เพิ่มแบบฟอร์ม
+                        เพิ่มแบบแบบสอบถาม
                       </Button>
                     </div>
 
@@ -696,7 +696,7 @@ export function GroupAssignmentManagementClient() {
                             onValueChange={(value) => updateFormConfig(index, 'form_id', value, false)}
                           >
                             <SelectTrigger>
-                              <SelectValue placeholder="เลือกแบบฟอร์ม" />
+                              <SelectValue placeholder="เลือกแบบแบบสอบถาม" />
                             </SelectTrigger>
                             <SelectContent>
                               {availableForms.map((availableForm) => (
@@ -831,7 +831,7 @@ export function GroupAssignmentManagementClient() {
                             <span>กลุ่ม: {rule.group?.name}</span>
                           </div>
                           <div>
-                            แบบฟอร์ม: {rule.rule_config.forms?.length || 0} แบบฟอร์ม
+                            แบบแบบสอบถาม: {rule.rule_config.forms?.length || 0} แบบแบบสอบถาม
                           </div>
                           <div>
                             เงื่อนไข: {rule.rule_config.operator === 'gte' ? '≥' : rule.rule_config.operator === 'lte' ? '≤' : 'ระหว่าง'} {rule.rule_config.min_score}
@@ -1127,7 +1127,7 @@ export function GroupAssignmentManagementClient() {
 
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <Label>แบบฟอร์มและน้ำหนัก *</Label>
+                <Label>แบบแบบสอบถามและน้ำหนัก *</Label>
                 <Button
                   type="button"
                   variant="outline"
@@ -1135,7 +1135,7 @@ export function GroupAssignmentManagementClient() {
                   onClick={() => addFormConfig(true)}
                 >
                   <Plus className="h-4 w-4 mr-1" />
-                  เพิ่มแบบฟอร์ม
+                  เพิ่มแบบแบบสอบถาม
                 </Button>
               </div>
 
@@ -1147,7 +1147,7 @@ export function GroupAssignmentManagementClient() {
                       onValueChange={(value) => updateFormConfig(index, 'form_id', value, true)}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="เลือกแบบฟอร์ม" />
+                        <SelectValue placeholder="เลือกแบบแบบสอบถาม" />
                       </SelectTrigger>
                       <SelectContent>
                         {availableForms.map((availableForm) => (

@@ -471,7 +471,7 @@ export default function EditFormPage() {
                 }
             } catch (error: any) {
                 console.error('Error in loadForm:', error);
-                toast.error(error.message || 'ไม่สามารถโหลดข้อมูลฟอร์มได้');
+                toast.error(error.message || 'ไม่สามารถโหลดข้อมูลแบบสอบถามได้');
                 setTimeout(() => {
                     router.push('/admin/manage-forms');
                 }, 2000);
@@ -530,22 +530,22 @@ export default function EditFormPage() {
 
         // Check form title
         if (!formTitle.trim()) {
-            errors.push("ชื่อฟอร์มเป็นข้อมูลที่จำเป็น");
+            errors.push("ชื่อแบบสอบถามเป็นข้อมูลที่จำเป็น");
         }
 
         // Check form description
         if (!formDescription.trim()) {
-            errors.push("คำอธิบายฟอร์มเป็นข้อมูลที่จำเป็น");
+            errors.push("คำอธิบายแบบสอบถามเป็นข้อมูลที่จำเป็น");
         }
 
         // Check form label
         if (!formLabel.trim()) {
-            errors.push("ป้ายกำกับฟอร์มเป็นข้อมูลที่จำเป็น");
+            errors.push("ป้ายกำกับแบบสอบถามเป็นข้อมูลที่จำเป็น");
         }
 
         // Check time to complete
         if (!timeToComplete || Number(timeToComplete) <= 0) {
-            errors.push("เวลาในการทำฟอร์มต้องมากกว่า 0 นาที");
+            errors.push("เวลาในการทำแบบสอบถามต้องมากกว่า 0 นาที");
         }
 
         // Check if there are questions
@@ -643,13 +643,13 @@ export default function EditFormPage() {
         try {
             const result = await updateFormAction(formId, formPayload);
             if (result.success) {
-                toast.success("ฟอร์มถูกบันทึกเรียบร้อยแล้ว");
+                toast.success("แบบสอบถามถูกบันทึกเรียบร้อยแล้ว");
                 router.push('/admin/manage-forms');
             } else {
-                toast.error(`เกิดข้อผิดพลาดในการบันทึกฟอร์ม: ${result.error}`);
+                toast.error(`เกิดข้อผิดพลาดในการบันทึกแบบสอบถาม: ${result.error}`);
             }
         } catch (error) {
-            toast.error("เกิดข้อผิดพลาดในการบันทึกฟอร์ม");
+            toast.error("เกิดข้อผิดพลาดในการบันทึกแบบสอบถาม");
             console.error(error);
         } finally {
             setIsSaving(false);
@@ -661,7 +661,7 @@ export default function EditFormPage() {
             <div className="min-h-screen bg-background flex items-center justify-center">
                 <div className="text-center">
                     <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-primary" />
-                    <p className="text-lg text-muted-foreground">กำลังโหลดข้อมูลฟอร์ม...</p>
+                    <p className="text-lg text-muted-foreground">กำลังโหลดข้อมูลแบบสอบถาม...</p>
                 </div>
             </div>
         );
@@ -676,18 +676,18 @@ export default function EditFormPage() {
                     onClick={() => router.push('/admin/manage-forms')}
                 >
                     <ArrowLeft className="h-4 w-4" />
-                    กลับไปยังหน้าจัดการฟอร์ม
+                    กลับไปยังหน้าจัดการแบบสอบถาม
                 </Button>
                 
                 <div className="space-y-8">
                     <Card>
                         <CardHeader>
-                            <CardTitle className="text-xl font-bold">แก้ไขฟอร์ม</CardTitle>
+                            <CardTitle className="text-xl font-bold">แก้ไขแบบสอบถาม</CardTitle>
                         </CardHeader>
                         <CardContent className="p-6 space-y-4">
                             <div>
                                 <Label htmlFor="form-title" className="pb-2 text-lg">
-                                    ชื่อฟอร์ม <span className="text-red-500">*</span>
+                                    ชื่อแบบสอบถาม <span className="text-red-500">*</span>
                                 </Label>
                                 <Input 
                                     id="form-title" 
@@ -699,13 +699,13 @@ export default function EditFormPage() {
                             </div>
                             <div>
                                 <Label htmlFor="form-description" className="pb-2 text-lg">
-                                    คำอธิบายฟอร์ม <span className="text-red-500">*</span>
+                                    คำอธิบายแบบสอบถาม <span className="text-red-500">*</span>
                                 </Label>
                                 <Textarea 
                                     id="form-description" 
                                     value={formDescription} 
                                     onChange={e => setFormDescription(e.target.value)} 
-                                    placeholder="คำอธิบายสั้นๆ เกี่ยวกับวัตถุประสงค์ของฟอร์ม" 
+                                    placeholder="คำอธิบายสั้นๆ เกี่ยวกับวัตถุประสงค์ของแบบสอบถาม" 
                                     className={`text-base ${!formDescription.trim() ? 'border-red-300 focus-visible:border-red-500' : ''}`}
                                 />
                             </div>
@@ -724,7 +724,7 @@ export default function EditFormPage() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <Label htmlFor="time-to-complete" className="pb-2 text-lg">
-                                        เวลาในการทำฟอร์ม (นาที) <span className="text-red-500">*</span>
+                                        เวลาในการทำแบบสอบถาม (นาที) <span className="text-red-500">*</span>
                                     </Label>
                                     <Input 
                                         id="time-to-complete" 
@@ -783,7 +783,7 @@ export default function EditFormPage() {
                                         checked={isActive} 
                                         onCheckedChange={(checked) => setIsActive(!!checked)} 
                                     />
-                                    <Label htmlFor="is-active" className="text-lg">ฟอร์มนี้เปิดใช้งาน</Label>
+                                    <Label htmlFor="is-active" className="text-lg">แบบสอบถามนี้เปิดใช้งาน</Label>
                                 </div>
                             </div>
                         </CardContent>

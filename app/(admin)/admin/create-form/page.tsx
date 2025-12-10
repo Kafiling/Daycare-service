@@ -394,22 +394,22 @@ export default function CreateFormPage() {
 
         // Check form title
         if (!formTitle.trim()) {
-            errors.push("ชื่อฟอร์มเป็นข้อมูลที่จำเป็น");
+            errors.push("ชื่อแบบสอบถามเป็นข้อมูลที่จำเป็น");
         }
 
         // Check form description
         if (!formDescription.trim()) {
-            errors.push("คำอธิบายฟอร์มเป็นข้อมูลที่จำเป็น");
+            errors.push("คำอธิบายแบบสอบถามเป็นข้อมูลที่จำเป็น");
         }
 
         // Check form label
         if (!formLabel.trim()) {
-            errors.push("ป้ายกำกับฟอร์มเป็นข้อมูลที่จำเป็น");
+            errors.push("ป้ายกำกับแบบสอบถามเป็นข้อมูลที่จำเป็น");
         }
 
         // Check time to complete
         if (!timeToComplete || Number(timeToComplete) <= 0) {
-            errors.push("เวลาในการทำฟอร์มต้องมากกว่า 0 นาที");
+            errors.push("เวลาในการทำแบบสอบถามต้องมากกว่า 0 นาที");
         }
 
         // Check if there are questions
@@ -517,12 +517,12 @@ export default function CreateFormPage() {
                 <div className="space-y-8">
                     <Card>
                         <CardHeader>
-                            <CardTitle className="text-xl font-bold">สร้างฟอร์มใหม่</CardTitle>
+                            <CardTitle className="text-xl font-bold">สร้างแบบสอบถามใหม่</CardTitle>
                         </CardHeader>
                         <CardContent className="p-6 space-y-4">
                             <div>
                                 <Label htmlFor="form-title" className="pb-2 text-lg">
-                                    ชื่อฟอร์ม <span className="text-red-500">*</span>
+                                    ชื่อแบบสอบถาม <span className="text-red-500">*</span>
                                 </Label>
                                 <Input 
                                     id="form-title" 
@@ -534,13 +534,13 @@ export default function CreateFormPage() {
                             </div>
                             <div>
                                 <Label htmlFor="form-description" className="pb-2 text-lg">
-                                    คำอธิบายฟอร์ม <span className="text-red-500">*</span>
+                                    คำอธิบายแบบสอบถาม <span className="text-red-500">*</span>
                                 </Label>
                                 <Textarea 
                                     id="form-description" 
                                     value={formDescription} 
                                     onChange={e => setFormDescription(e.target.value)} 
-                                    placeholder="คำอธิบายสั้นๆ เกี่ยวกับวัตถุประสงค์ของฟอร์ม" 
+                                    placeholder="คำอธิบายสั้นๆ เกี่ยวกับวัตถุประสงค์ของแบบสอบถาม" 
                                     className={`text-base ${!formDescription.trim() ? 'border-red-300 focus-visible:border-red-500' : ''}`}
                                 />
                             </div>
@@ -559,7 +559,7 @@ export default function CreateFormPage() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <Label htmlFor="time-to-complete" className="pb-2 text-lg">
-                                        เวลาในการทำฟอร์ม (นาที) <span className="text-red-500">*</span>
+                                        เวลาในการทำแบบสอบถาม (นาที) <span className="text-red-500">*</span>
                                     </Label>
                                     <Input 
                                         id="time-to-complete" 
@@ -714,7 +714,7 @@ export default function CreateFormPage() {
                             className="text-lg" 
                             disabled={isSaving || !isFormValid()}
                         >
-                            {isSaving ? "กำลังบันทึก..." : "บันทึกฟอร์ม"}
+                            {isSaving ? "กำลังบันทึก..." : "บันทึกแบบสอบถาม"}
                         </Button>
                     </div>
                 </div>
