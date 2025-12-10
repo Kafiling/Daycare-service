@@ -35,7 +35,7 @@ export function LoginForm({
                     <ModalOneAction
                       openText="ลืมรหัสผ่าน?"
                       title="ลืมรหัสผ่าน?"
-                      description="กรุณาติดต่อผู้ดูแลระบบ"
+                      description="กรุณาติดต่อผู้ดูแลระบบ (Admin)"
                     />
                   </div>
                 </div>
