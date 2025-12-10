@@ -783,7 +783,7 @@ export default function EditFormPage() {
                                         checked={isActive} 
                                         onCheckedChange={(checked) => setIsActive(!!checked)} 
                                     />
-                                    <Label htmlFor="is-active" className="text-lg">แบบสอบถามนี้เปิดใช้งาน</Label>
+                                    <Label htmlFor="is-active" className="text-lg">เปิดใช้งานแบบสอบถาม</Label>
                                 </div>
                             </div>
                         </CardContent>
