@@ -326,17 +326,7 @@ export default function ManageFormsPage() {
                     <TabsContent value="manage" className="space-y-6">
                         {/* Stats Cards */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <Card>
-                                <CardContent className="p-6">
-                                    <div className="flex items-center gap-2">
-                                        <FileText className="h-8 w-8 text-green-600" />
-                                        <div>
-                                            <p className="text-2xl font-bold">{forms.filter(f => f.is_active).length}</p>
-                                            <p className="text-sm text-muted-foreground">แบบสอบถามที่ใช้งานอยู่</p>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
+                            
                             <Card>
                                 <CardContent className="p-6">
                                     <div className="flex items-center gap-2">
@@ -344,6 +334,17 @@ export default function ManageFormsPage() {
                                         <div>
                                             <p className="text-2xl font-bold">{forms.length}</p>
                                             <p className="text-sm text-muted-foreground">แบบสอบถามทั้งหมด</p>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                            <Card>
+                                <CardContent className="p-6">
+                                    <div className="flex items-center gap-2">
+                                        <FileText className="h-8 w-8 text-green-600" />
+                                        <div>
+                                            <p className="text-2xl font-bold">{forms.filter(f => f.is_active).length}</p>
+                                            <p className="text-sm text-muted-foreground">แบบสอบถามที่ใช้งานอยู่</p>
                                         </div>
                                     </div>
                                 </CardContent>
