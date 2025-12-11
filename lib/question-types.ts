@@ -13,7 +13,7 @@ export type QuestionType = typeof QUESTION_TYPES[keyof typeof QUESTION_TYPES];
 export const QUESTION_TYPE_LABELS: Record<QuestionType, string> = {
   [QUESTION_TYPES.MULTIPLE_CHOICE]: 'หลายตัวเลือก',
   [QUESTION_TYPES.TEXT]: 'ป้อนข้อความ',
-  [QUESTION_TYPES.RATING]: 'มาตรวัดระดับ',
+  [QUESTION_TYPES.RATING]: 'แถบเลื่อน',
   [QUESTION_TYPES.TRUE_FALSE]: 'จริง/เท็จ',
   [QUESTION_TYPES.NUMBER]: 'ป้อนตัวเลข',
 };

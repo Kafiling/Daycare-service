@@ -188,8 +188,8 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
                             />
                         </div>
                         <div className="flex gap-2">
-                            <Input placeholder="ป้ายกำกับค่าต่ำสุด (ไม่บังคับ)" value={question.options.labels?.min || ''} onChange={e => handleOptionChange('labels', { ...(question.options.labels || {}), min: e.target.value })} />
-                            <Input placeholder="ป้ายกำกับค่าสูงสุด (ไม่บังคับ)" value={question.options.labels?.max || ''} onChange={e => handleOptionChange('labels', { ...(question.options.labels || {}), max: e.target.value })} />
+                            <Input placeholder="คำอธิบายค่าต่ำสุด (ไม่บังคับ)" value={question.options.labels?.min || ''} onChange={e => handleOptionChange('labels', { ...(question.options.labels || {}), min: e.target.value })} />
+                            <Input placeholder="คำอธิบายค่าสูงสุด (ไม่บังคับ)" value={question.options.labels?.max || ''} onChange={e => handleOptionChange('labels', { ...(question.options.labels || {}), max: e.target.value })} />
                         </div>
                     </div>
                 );
@@ -198,7 +198,7 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
                     <div className="flex flex-col gap-4">
                         <div className="flex items-end gap-2">
                             <div className="flex-1">
-                                <Label className="text-sm">ป้ายกำกับสำหรับ 'จริง'</Label>
+                                <Label className="text-sm">คำอธิบายสำหรับ 'จริง'</Label>
                                 <Input placeholder="เช่น ใช่, ถูกต้อง" value={question.options.trueLabel || ''} onChange={e => handleOptionChange('trueLabel', e.target.value)} />
                             </div>
                             <div className="w-24">
@@ -214,7 +214,7 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
                         </div>
                         <div className="flex items-end gap-2">
                             <div className="flex-1">
-                                <Label className="text-sm">ป้ายกำกับสำหรับ 'เท็จ'</Label>
+                                <Label className="text-sm">คำอธิบายสำหรับ 'เท็จ'</Label>
                                 <Input placeholder="เช่น ไม่ใช่, ไม่ถูกต้อง" value={question.options.falseLabel || ''} onChange={e => handleOptionChange('falseLabel', e.target.value)} />
                             </div>
                             <div className="w-24">
@@ -404,7 +404,7 @@ export default function CreateFormPage() {
 
         // Check form label
         if (!formLabel.trim()) {
-            errors.push("ป้ายกำกับแบบสอบถามเป็นข้อมูลที่จำเป็น");
+            errors.push("คำอธิบายแบบสอบถามเป็นข้อมูลที่จำเป็น");
         }
 
         // Check time to complete
@@ -546,7 +546,7 @@ export default function CreateFormPage() {
                             </div>
                             <div>
                                 <Label htmlFor="form-label" className="pb-2 text-lg">
-                                    ป้ายกำกับ <span className="text-red-500">*</span>
+                                    คำอธิบาย <span className="text-red-500">*</span>
                                 </Label>
                                 <Input 
                                     id="form-label" 
