@@ -74,13 +74,10 @@ const TITLE_OPTIONS = [
     { value: 'นางสาว', label: 'นางสาว' },
     { value: 'นายแพทย์', label: 'นายแพทย์' },
     { value: 'แพทย์หญิง', label: 'แพทย์หญิง' },
-    { value: 'พยาบาล', label: 'พยาบาล' },
 ];
 
 const POSITION_OPTIONS = [
-    { value: 'พยาบาลวิชาชีพ', label: 'พยาบาลวิชาชีพ' },
-    { value: 'พยาบาลผู้ช่วย', label: 'พยาบาลผู้ช่วย' },
-    { value: 'แพทย์', label: 'แพทย์' },
+    { value: 'นิสิต', label: 'นิสิต' },
     { value: 'เจ้าหน้าที่', label: 'เจ้าหน้าที่' },
     { value: 'ผู้ดูแลระบบ', label: 'ผู้ดูแลระบบ' },
 ];
