@@ -13,8 +13,7 @@ export default async function ManageStaffPage() {
     redirect('/login');
   }
 
-  // For now, we'll assume any authenticated user can access admin features
-  // In a real app, you'd check for admin role/permissions here
+  
 
   let staffProfiles: Profile[] = [];
   try {
