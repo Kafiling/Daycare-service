@@ -245,6 +245,11 @@ export function DashboardActivityGrid() {
 														<p className="text-sm text-gray-500">
 															{format(new Date(event.event_datetime), 'EEEE d MMMM yyyy, HH:mm น.', { locale: th })}
 														</p>
+														{event.location && (
+															<p className="text-xs text-gray-500">
+																📍 {event.location}
+															</p>
+														)}
 														{event.is_recurring && (
 															<p className="text-xs text-gray-500">
 																<span className="inline-flex items-center">
