@@ -72,8 +72,6 @@ const TITLE_OPTIONS = [
     { value: 'นาย', label: 'นาย' },
     { value: 'นาง', label: 'นาง' },
     { value: 'นางสาว', label: 'นางสาว' },
-    { value: 'นายแพทย์', label: 'นายแพทย์' },
-    { value: 'แพทย์หญิง', label: 'แพทย์หญิง' },
 ];
 
 const POSITION_OPTIONS = [
