@@ -13,7 +13,7 @@ export default async function page({
   return (
     <div className="min-h-screen bg-background">
       {/* TODO -> replace this into Header component */}
-      <h1 className="text-2xl font-bold text-white bg-pink-400 p-8">
+      <h1 className="text-2xl font-bold p-8">
         เพิ่มผู้ใช้บริการใหม่
       </h1>
       <main className="container mx-auto p-8 space-y-8">
