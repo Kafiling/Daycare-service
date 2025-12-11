@@ -453,7 +453,7 @@ export function GroupAssignmentManagementClient() {
 
             <Dialog open={isGroupDialogOpen} onOpenChange={setIsGroupDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="bg-green-600 hover:bg-green-700">
+                <Button >
                   <Plus className="h-4 w-4 mr-2" />
                   เพิ่มกลุ่มใหม่
                 </Button>
@@ -613,7 +613,7 @@ export function GroupAssignmentManagementClient() {
 
             <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="bg-blue-600 hover:bg-blue-700">
+                <Button>
                   <Plus className="h-4 w-4 mr-2" />
                   เพิ่มเงื่อนไขใหม่
                 </Button>

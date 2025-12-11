@@ -325,7 +325,7 @@ export function StaffManagementClient({ initialStaff }: StaffManagementClientPro
 
                 <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
                     <DialogTrigger asChild>
-                        <Button className="bg-blue-600 hover:bg-blue-700">
+                        <Button >
                             <Plus className="h-4 w-4 mr-2" />
                             เพิ่มพนักงานใหม่
                         </Button>
