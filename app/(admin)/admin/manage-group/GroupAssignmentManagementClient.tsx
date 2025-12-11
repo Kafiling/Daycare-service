@@ -751,7 +751,7 @@ export function GroupAssignmentManagementClient() {
                       </Select>
                     </div>
                     <div>
-                      <Label htmlFor="create-min-score">คะแนนต่ำสุด</Label>
+                      <Label htmlFor="create-min-score">คะแนน</Label>
                       <Input
                         id="create-min-score"
                         type="number"
@@ -763,7 +763,7 @@ export function GroupAssignmentManagementClient() {
                     </div>
                     {createForm.operator === 'between' && (
                       <div>
-                        <Label htmlFor="create-max-score">คะแนนสูงสุด</Label>
+                        <Label htmlFor="create-max-score">คะแนน</Label>
                         <Input
                           id="create-max-score"
                           type="number"
