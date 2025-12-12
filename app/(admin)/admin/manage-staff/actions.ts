@@ -3,6 +3,7 @@
 import { createClient, createAdminClient } from '@/utils/supabase/server';
 import { createUserProfile, updateUserProfile } from '@/app/service/nurse';
 import { Profile } from '@/app/service/nurse';
+import { requireAdmin } from '../lib/auth';
 
 interface CreateStaffData {
   email: string;
@@ -33,14 +34,11 @@ interface ActionResult {
  */
 export async function createStaff(data: CreateStaffData): Promise<ActionResult> {
   try {
+    // Verify admin privileges
+    await requireAdmin();
+    
     const supabase = await createClient();
     const adminSupabase = createAdminClient();
-
-    // Check if current user is authorized (you might want to add admin role check here)
-    const { data: currentUser, error: authError } = await supabase.auth.getUser();
-    if (authError || !currentUser?.user) {
-      return { success: false, error: 'ไม่มีสิทธิ์ในการดำเนินการ' };
-    }
 
     // Create auth user with admin client
     const { data: newUser, error: createError } = await adminSupabase.auth.admin.createUser({
@@ -99,13 +97,10 @@ export async function createStaff(data: CreateStaffData): Promise<ActionResult> 
  */
 export async function updateStaff(staffId: string, data: UpdateStaffData): Promise<ActionResult> {
   try {
+    // Verify admin privileges
+    await requireAdmin();
+    
     const supabase = await createClient();
-
-    // Check if current user is authorized
-    const { data: currentUser, error: authError } = await supabase.auth.getUser();
-    if (authError || !currentUser?.user) {
-      return { success: false, error: 'ไม่มีสิทธิ์ในการดำเนินการ' };
-    }
 
     // Update profile information
     const updatedProfile = await updateUserProfile(staffId, {
@@ -133,14 +128,11 @@ export async function updateStaff(staffId: string, data: UpdateStaffData): Promi
  */
 export async function resetStaffPassword(staffId: string, newPassword: string): Promise<ActionResult> {
   try {
+    // Verify admin privileges
+    await requireAdmin();
+    
     const supabase = await createClient();
     const adminSupabase = createAdminClient();
-
-    // Check if current user is authorized
-    const { data: currentUser, error: authError } = await supabase.auth.getUser();
-    if (authError || !currentUser?.user) {
-      return { success: false, error: 'ไม่มีสิทธิ์ในการดำเนินการ' };
-    }
 
     // Update user password using admin client
     const { error: updateError } = await adminSupabase.auth.admin.updateUserById(staffId, {
@@ -168,17 +160,14 @@ export async function resetStaffPassword(staffId: string, newPassword: string): 
  */
 export async function deleteStaff(staffId: string): Promise<ActionResult> {
   try {
+    // Verify admin privileges
+    const { user } = await requireAdmin();
+    
     const supabase = await createClient();
     const adminSupabase = createAdminClient();
 
-    // Check if current user is authorized
-    const { data: currentUser, error: authError } = await supabase.auth.getUser();
-    if (authError || !currentUser?.user) {
-      return { success: false, error: 'ไม่มีสิทธิ์ในการดำเนินการ' };
-    }
-
     // Prevent deleting self
-    if (currentUser.user.id === staffId) {
+    if (user.id === staffId) {
       return { success: false, error: 'ไม่สามารถลบบัญชีของตนเองได้' };
     }
 

@@ -3,9 +3,13 @@
 import { createClient, createAdminClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { requireAdmin } from "../../lib/auth";
 
 export async function updateForm(formId: string, formData: any) {
   try {
+    // Verify admin privileges
+    await requireAdmin();
+    
     console.log('=== UPDATE FORM START ===');
     console.log('Form ID:', formId);
     console.log('Received evaluation_thresholds:', JSON.stringify(formData.evaluation_thresholds));

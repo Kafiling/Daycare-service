@@ -35,7 +35,7 @@ export default async function UserNav() {
     : user.email || 'Admin';
 
   const displayEmail = profile?.email || user.email;
-  const displayPosition = profile?.position || 'พนังงาน';
+  const displayPosition = profile?.position || 'พนักงาน';
 
   const initials = displayName
     .split(" ")

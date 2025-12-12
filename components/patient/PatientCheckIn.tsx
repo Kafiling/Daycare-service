@@ -52,12 +52,12 @@ export function PatientCheckIn({ patientId, todayCheckIn, history }: PatientChec
   return (
     <div className="flex gap-2">
       {todayCheckIn ? (
-        <Button variant="outline" className="gap-2 cursor-default hover:bg-background text-green-600 border-green-200 bg-green-50">
+        <Button variant="outline" className="gap-2 cursor-default hover:bg-background text-pink-600 border-pink-200 bg-pink-50">
           <CheckCircle2 className="h-4 w-4" />
           เช็คอินแล้ว ({new Date(todayCheckIn.check_in_time).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })})
         </Button>
       ) : (
-        <Button onClick={handleCheckIn} disabled={isLoading} className="gap-2 bg-green-600 hover:bg-green-700">
+        <Button onClick={handleCheckIn} disabled={isLoading} className="gap-2">
           <Clock className="h-4 w-4" />
           {isLoading ? "กำลังเช็คอิน..." : "เช็คอิน"}
         </Button>
@@ -82,7 +82,7 @@ export function PatientCheckIn({ patientId, todayCheckIn, history }: PatientChec
                 {history.map((checkIn) => (
                   <div key={checkIn.id} className="flex justify-between items-center p-3 bg-muted/50 rounded-lg">
                     <div className="flex items-center gap-3">
-                      <CheckCircle2 className="h-4 w-4 text-green-600" />
+                      <CheckCircle2 className="h-4 w-4 text-pink-600" />
                       <span className="font-medium">เช็คอิน</span>
                     </div>
                     <span className="text-sm text-muted-foreground">

@@ -30,7 +30,7 @@ export async function NavbarAdmin() {
             href="/admin/manage-forms"
             className="text-sm font-medium transition-colors hover:text-primary"
           >
-            จัดการแบบฟอร์ม
+            จัดการแบบแบบสอบถาม
           </Link>
           <Link
             href="/admin/manage-staff"

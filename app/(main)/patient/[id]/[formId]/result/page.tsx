@@ -125,7 +125,7 @@ export default async function ResultPage({ params, searchParams }: ResultPagePro
                         </div>
                         <CardTitle className="text-2xl mt-4">ไม่พบข้อมูลการประเมิน</CardTitle>
                         <CardDescription className="text-base">
-                            ไม่สามารถแสดงผลการประเมินได้ เนื่องจากไม่พบข้อมูลการส่งฟอร์ม
+                            ไม่สามารถแสดงผลการประเมินได้ เนื่องจากไม่พบข้อมูลการส่งแบบสอบถาม
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="text-center pt-6">

@@ -72,15 +72,10 @@ const TITLE_OPTIONS = [
     { value: 'นาย', label: 'นาย' },
     { value: 'นาง', label: 'นาง' },
     { value: 'นางสาว', label: 'นางสาว' },
-    { value: 'นายแพทย์', label: 'นายแพทย์' },
-    { value: 'แพทย์หญิง', label: 'แพทย์หญิง' },
-    { value: 'พยาบาล', label: 'พยาบาล' },
 ];
 
 const POSITION_OPTIONS = [
-    { value: 'พยาบาลวิชาชีพ', label: 'พยาบาลวิชาชีพ' },
-    { value: 'พยาบาลผู้ช่วย', label: 'พยาบาลผู้ช่วย' },
-    { value: 'แพทย์', label: 'แพทย์' },
+    { value: 'นิสิต', label: 'นิสิต' },
     { value: 'เจ้าหน้าที่', label: 'เจ้าหน้าที่' },
     { value: 'ผู้ดูแลระบบ', label: 'ผู้ดูแลระบบ' },
 ];
@@ -225,6 +220,100 @@ export function StaffManagementClient({ initialStaff }: StaffManagementClientPro
         setIsResetPasswordDialogOpen(true);
     };
 
+    // Group staff by position with priority order
+    const groupedStaff = {
+        'ผู้ดูแลระบบ': staff.filter(s => s.position === 'ผู้ดูแลระบบ'),
+        'เจ้าหน้าที่': staff.filter(s => s.position === 'เจ้าหน้าที่'),
+        'นิสิต': staff.filter(s => s.position === 'นิสิต'),
+        'อื่นๆ': staff.filter(s => !s.position || !['ผู้ดูแลระบบ', 'เจ้าหน้าที่', 'นิสิต'].includes(s.position))
+    };
+
+    const renderStaffCard = (staffMember: Profile) => (
+        <Card key={staffMember.id} className="hover:shadow-md transition-shadow">
+            <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                        <div className="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center">
+                            <User className="h-6 w-6 text-blue-600" />
+                        </div>
+                        <div>
+                            <h3 className="text-lg font-semibold">
+                                {staffMember.title && `${staffMember.title} `}
+                                {staffMember.first_name} {staffMember.last_name}
+                            </h3>
+                            <div className="flex items-center gap-4 text-sm text-gray-600">
+                                <div className="flex items-center gap-1">
+                                    <Mail className="h-4 w-4" />
+                                    {staffMember.email}
+                                </div>
+                                {staffMember.username && (
+                                    <div className="flex items-center gap-1">
+                                        <User className="h-4 w-4" />
+                                        {staffMember.username}
+                                    </div>
+                                )}
+                            </div>
+                            {staffMember.position && (
+                                <div className="mt-2">
+                                    <Badge variant="secondary" className="flex items-center gap-1">
+                                        <Briefcase className="h-3 w-3" />
+                                        {staffMember.position}
+                                    </Badge>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => openEditDialog(staffMember)}
+                            disabled={isLoading}
+                        >
+                            <Edit className="h-4 w-4" />
+                        </Button>
+
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => openResetPasswordDialog(staffMember)}
+                            disabled={isLoading}
+                        >
+                            <Key className="h-4 w-4" />
+                        </Button>
+
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button variant="outline" size="sm" disabled={isLoading}>
+                                    <Trash2 className="h-4 w-4 text-red-600" />
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>ยืนยันการลบพนักงาน</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        คุณแน่ใจหรือว่าต้องการลบ {staffMember.title} {staffMember.first_name} {staffMember.last_name}
+                                        ออกจากระบบ? การดำเนินการนี้ไม่สามารถยกเลิกได้
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
+                                    <AlertDialogAction
+                                        onClick={() => handleDeleteStaff(staffMember.id)}
+                                        className="bg-red-600 hover:bg-red-700"
+                                    >
+                                        ลบ
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
+                    </div>
+                </div>
+            </CardContent>
+        </Card>
+    );
+
     return (
         <div className="space-y-6">
             {/* Header with Add Button */}
@@ -236,7 +325,7 @@ export function StaffManagementClient({ initialStaff }: StaffManagementClientPro
 
                 <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
                     <DialogTrigger asChild>
-                        <Button className="bg-blue-600 hover:bg-blue-700">
+                        <Button >
                             <Plus className="h-4 w-4 mr-2" />
                             เพิ่มพนักงานใหม่
                         </Button>
@@ -360,7 +449,7 @@ export function StaffManagementClient({ initialStaff }: StaffManagementClientPro
             </div>
 
             {/* Staff List */}
-            <div className="grid gap-4">
+            <div className="space-y-6">
                 {staff.length === 0 ? (
                     <Card>
                         <CardContent className="flex items-center justify-center py-12">
@@ -372,91 +461,22 @@ export function StaffManagementClient({ initialStaff }: StaffManagementClientPro
                         </CardContent>
                     </Card>
                 ) : (
-                    staff.map((staffMember) => (
-                        <Card key={staffMember.id} className="hover:shadow-md transition-shadow">
-                            <CardContent className="p-6">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center space-x-4">
-                                        <div className="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center">
-                                            <User className="h-6 w-6 text-blue-600" />
-                                        </div>
-                                        <div>
-                                            <h3 className="text-lg font-semibold">
-                                                {staffMember.title && `${staffMember.title} `}
-                                                {staffMember.first_name} {staffMember.last_name}
-                                            </h3>
-                                            <div className="flex items-center gap-4 text-sm text-gray-600">
-                                                <div className="flex items-center gap-1">
-                                                    <Mail className="h-4 w-4" />
-                                                    {staffMember.email}
-                                                </div>
-                                                {staffMember.username && (
-                                                    <div className="flex items-center gap-1">
-                                                        <User className="h-4 w-4" />
-                                                        {staffMember.username}
-                                                    </div>
-                                                )}
-                                            </div>
-                                            {staffMember.position && (
-                                                <div className="mt-2">
-                                                    <Badge variant="secondary" className="flex items-center gap-1">
-                                                        <Briefcase className="h-3 w-3" />
-                                                        {staffMember.position}
-                                                    </Badge>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-
+                    <>
+                        {Object.entries(groupedStaff).map(([position, members]) => {
+                            if (members.length === 0) return null;
+                            return (
+                                <div key={position} className="space-y-3">
                                     <div className="flex items-center gap-2">
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => openEditDialog(staffMember)}
-                                            disabled={isLoading}
-                                        >
-                                            <Edit className="h-4 w-4" />
-                                        </Button>
-
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => openResetPasswordDialog(staffMember)}
-                                            disabled={isLoading}
-                                        >
-                                            <Key className="h-4 w-4" />
-                                        </Button>
-
-                                        <AlertDialog>
-                                            <AlertDialogTrigger asChild>
-                                                <Button variant="outline" size="sm" disabled={isLoading}>
-                                                    <Trash2 className="h-4 w-4 text-red-600" />
-                                                </Button>
-                                            </AlertDialogTrigger>
-                                            <AlertDialogContent>
-                                                <AlertDialogHeader>
-                                                    <AlertDialogTitle>ยืนยันการลบพนักงาน</AlertDialogTitle>
-                                                    <AlertDialogDescription>
-                                                        คุณแน่ใจหรือว่าต้องการลบ {staffMember.title} {staffMember.first_name} {staffMember.last_name}
-                                                        ออกจากระบบ? การดำเนินการนี้ไม่สามารถยกเลิกได้
-                                                    </AlertDialogDescription>
-                                                </AlertDialogHeader>
-                                                <AlertDialogFooter>
-                                                    <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
-                                                    <AlertDialogAction
-                                                        onClick={() => handleDeleteStaff(staffMember.id)}
-                                                        className="bg-red-600 hover:bg-red-700"
-                                                    >
-                                                        ลบ
-                                                    </AlertDialogAction>
-                                                </AlertDialogFooter>
-                                            </AlertDialogContent>
-                                        </AlertDialog>
+                                        <h3 className="text-lg font-semibold text-gray-800">{position}</h3>
+                                        <Badge variant="outline">{members.length} คน</Badge>
+                                    </div>
+                                    <div className="grid gap-3">
+                                        {members.map(renderStaffCard)}
                                     </div>
                                 </div>
-                            </CardContent>
-                        </Card>
-                    ))
+                            );
+                        })}
+                    </>
                 )}
             </div>
 

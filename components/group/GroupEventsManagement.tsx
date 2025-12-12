@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, Clock, Edit, Trash2, Plus, Repeat } from 'lucide-react';
+import { Calendar, Clock, Edit, Trash2, Plus, Repeat, MapPin } from 'lucide-react';
 import { format, addMonths } from 'date-fns';
 import { th } from 'date-fns/locale';
 import { toast } from 'sonner';
@@ -31,6 +31,7 @@ export function GroupEventsManagement({ groups, selectedGroupId }: GroupEventsMa
   const [formData, setFormData] = useState({
     title: '',
     description: '',
+    location: '',
     event_date: '',
     event_time: '',
     group_id: selectedGroupId || '',
@@ -84,6 +85,7 @@ export function GroupEventsManagement({ groups, selectedGroupId }: GroupEventsMa
     setFormData({
       title: '',
       description: '',
+      location: '',
       event_date: '',
       event_time: '',
       group_id: selectedGroupId || '',
@@ -110,6 +112,7 @@ export function GroupEventsManagement({ groups, selectedGroupId }: GroupEventsMa
     setFormData({
       title: event.title,
       description: event.description || '',
+      location: event.location || '',
       event_date: eventDate,
       event_time: eventTime,
       group_id: event.group_id,
@@ -147,6 +150,7 @@ export function GroupEventsManagement({ groups, selectedGroupId }: GroupEventsMa
         group_id: formData.group_id,
         title: formData.title,
         description: formData.description,
+        location: formData.location,
         event_datetime: eventDatetime,
         is_active: formData.is_active,
         is_recurring: formData.is_recurring,
@@ -190,6 +194,7 @@ export function GroupEventsManagement({ groups, selectedGroupId }: GroupEventsMa
         group_id: formData.group_id,
         title: formData.title,
         description: formData.description,
+        location: formData.location,
         event_datetime: eventDatetime,
         is_active: formData.is_active,
         is_recurring: formData.is_recurring,
@@ -400,6 +405,17 @@ export function GroupEventsManagement({ groups, selectedGroupId }: GroupEventsMa
               />
             </div>
             
+            <div className="space-y-2">
+              <Label htmlFor="location">สถานที่</Label>
+              <Input
+                id="location"
+                name="location"
+                value={formData.location}
+                onChange={handleInputChange}
+                placeholder="สถานที่จัดกิจกรรม"
+              />
+            </div>
+            
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="event_date">วันที่</Label>
@@ -538,6 +554,17 @@ export function GroupEventsManagement({ groups, selectedGroupId }: GroupEventsMa
                 onChange={handleInputChange}
                 placeholder="รายละเอียดกิจกรรม"
                 rows={3}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="edit_location">สถานที่</Label>
+              <Input
+                id="edit_location"
+                name="location"
+                value={formData.location}
+                onChange={handleInputChange}
+                placeholder="สถานที่จัดกิจกรรม"
               />
             </div>
             
@@ -702,6 +729,12 @@ function EventCard({ event, onEdit, onDelete, getRecurrenceText }: EventCardProp
           <Clock className="h-4 w-4 mr-2" />
           <span>{format(new Date(event.event_datetime), 'HH:mm น.')}</span>
         </div>
+        {event.location && (
+          <div className="flex items-center">
+            <MapPin className="h-4 w-4 mr-2" />
+            <span>{event.location}</span>
+          </div>
+        )}
         {recurrenceText && (
           <div className="flex items-center mt-1">
             <Repeat className="h-4 w-4 mr-2" />

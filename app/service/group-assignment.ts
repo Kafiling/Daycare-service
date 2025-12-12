@@ -14,6 +14,7 @@ export interface GroupEvent {
     group_id: string;
     title: string;
     description?: string;
+    location?: string;
     event_datetime: string;
     is_active: boolean;
     is_recurring: boolean;
@@ -451,6 +452,7 @@ export async function createGroupEvent(groupEvent: Omit<GroupEvent, 'id' | 'crea
             group_id: groupEvent.group_id,
             title: groupEvent.title,
             description: groupEvent.description || '',
+            location: groupEvent.location || null,
             event_datetime: groupEvent.event_datetime,
             is_active: groupEvent.is_active,
             is_recurring: groupEvent.is_recurring || false,
@@ -730,6 +732,7 @@ export async function updateGroupEvent(eventId: string, updates: Partial<Omit<Gr
             group_id: updates.group_id,
             title: updates.title,
             description: updates.description,
+            location: updates.location,
             event_datetime: updates.event_datetime,
             is_active: updates.is_active,
             is_recurring: updates.is_recurring,

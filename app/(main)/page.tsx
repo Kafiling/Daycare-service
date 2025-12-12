@@ -54,7 +54,7 @@ export default async function Page() {
                   ตำแหน่ง: {displayPosition}
                 </p>
                 <p className="text-sm text-gray-500 mt-2">
-                  ยินดีต้อนรับสู่ระบบดูแลผู้รับบริการ
+                  ยินดีต้อนรับสู่ระบบดูแลผู้ใช้บริการ
                 </p>
               </div>
               <div className="hidden md:block">
@@ -82,7 +82,7 @@ export default async function Page() {
         {/* Search Patient */}
         <Card>
           <CardHeader>
-            <CardTitle>ค้นหาผู้รับบริการ</CardTitle>
+            <CardTitle>ค้นหาผู้ใช้บริการ</CardTitle>
           </CardHeader>
           <CardContent>
             <PatientIdInput />

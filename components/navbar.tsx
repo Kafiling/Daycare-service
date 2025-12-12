@@ -24,7 +24,7 @@ export async function Navbar() {
             href="/"
             className="text-sm font-medium transition-colors hover:text-primary"
           >
-            แดชบอร์ดพนังงาน
+            แดชบอร์ดพนักงาน
           </Link>
           <NavbarCurrentPatient />
         </div>
