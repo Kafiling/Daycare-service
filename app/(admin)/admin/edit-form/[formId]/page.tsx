@@ -88,7 +88,15 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
             case QUESTION_TYPES.MULTIPLE_CHOICE:
                 return (
                     <div className="space-y-2">
-
+                        <div className="flex items-center gap-2 mb-1">
+                            <div className="flex-1">
+                                <Label className="text-sm text-muted-foreground">ตัวเลือก</Label>
+                            </div>
+                            <div className="w-24">
+                                <Label className="text-sm text-muted-foreground">คะแนน</Label>
+                            </div>
+                            <div className="w-10"></div>
+                        </div>
                         {(question.options.choices || []).map((choice: any, index: number) => (
                             <div key={index} className="flex items-center gap-2">
                                 <div className="flex-1">
@@ -127,11 +135,11 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
             case QUESTION_TYPES.TEXT:
                 return (
                     <div className="space-y-2">
-                        <Input placeholder="ข้อความตัวอย่าง" value={question.options.placeholder || ''} onChange={e => handleOptionChange('placeholder', e.target.value)} />
+                        <Input placeholder="ข้อความตัวอย่าง" value={question.options.placeholder ?? ''} onChange={e => handleOptionChange('placeholder', e.target.value)} />
                         <Input 
                             type="number" 
                             placeholder="ความยาวสูงสุด" 
-                            value={question.options.maxLength !== undefined ? question.options.maxLength : ''} 
+                            value={question.options.maxLength !== undefined && question.options.maxLength !== null ? question.options.maxLength : ''} 
                             onChange={e => handleOptionChange('maxLength', e.target.value)} 
                             onWheel={(e) => e.currentTarget.blur()}
                         />
@@ -151,24 +159,24 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
                             <Input 
                                 type="number" 
                                 placeholder="ค่าต่ำสุด (เช่น 1) *" 
-                                value={question.options.min !== undefined ? question.options.min : ''} 
+                                value={question.options.min !== undefined && question.options.min !== null ? question.options.min : ''} 
                                 onChange={e => handleOptionChange('min', e.target.value)} 
                                 onWheel={(e) => e.currentTarget.blur()}
-                                className={`${(question.options.min === '' || question.options.min === undefined) && question.options.min !== 0 ? 'border-red-300 focus-visible:border-red-500' : ''}`}
+                                className={`${(question.options.min === '' || question.options.min === undefined || question.options.min === null) && question.options.min !== 0 ? 'border-red-300 focus-visible:border-red-500' : ''}`}
                             />
                             <Input 
                                 type="number" 
                                 placeholder="ค่าสูงสุด (เช่น 5) *" 
-                                value={question.options.max !== undefined ? question.options.max : ''} 
+                                value={question.options.max !== undefined && question.options.max !== null ? question.options.max : ''} 
                                 onChange={e => handleOptionChange('max', e.target.value)} 
                                 onWheel={(e) => e.currentTarget.blur()}
-                                className={`${(question.options.max === '' || question.options.max === undefined) && question.options.max !== 0 ? 'border-red-300 focus-visible:border-red-500' : ''}`}
+                                className={`${(question.options.max === '' || question.options.max === undefined || question.options.max === null) && question.options.max !== 0 ? 'border-red-300 focus-visible:border-red-500' : ''}`}
                             />
                         </div>
                         <Input 
                             type="number" 
                             placeholder="ขั้น (ไม่บังคับ)" 
-                            value={question.options.step !== undefined ? question.options.step : ''} 
+                            value={question.options.step !== undefined && question.options.step !== null ? question.options.step : ''} 
                             onChange={e => handleOptionChange('step', e.target.value)} 
                             onWheel={(e) => e.currentTarget.blur()}
                         />
@@ -177,14 +185,14 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
                             <Input 
                                 type="number" 
                                 placeholder="1" 
-                                value={question.options.scoreMultiplier !== undefined ? question.options.scoreMultiplier : ''} 
+                                value={question.options.scoreMultiplier !== undefined && question.options.scoreMultiplier !== null ? question.options.scoreMultiplier : ''} 
                                 onChange={e => handleOptionChange('scoreMultiplier', e.target.value)} 
                                 onWheel={(e) => e.currentTarget.blur()}
                             />
                         </div>
                         <div className="flex gap-2">
-                            <Input placeholder="ป้ายกำกับค่าต่ำสุด (ไม่บังคับ)" value={question.options.labels?.min || ''} onChange={e => handleOptionChange('labels', { ...(question.options.labels || {}), min: e.target.value })} />
-                            <Input placeholder="ป้ายกำกับค่าสูงสุด (ไม่บังคับ)" value={question.options.labels?.max || ''} onChange={e => handleOptionChange('labels', { ...(question.options.labels || {}), max: e.target.value })} />
+                            <Input placeholder="คำอธิบายค่าต่ำสุด (ไม่บังคับ)" value={question.options.labels?.min ?? ''} onChange={e => handleOptionChange('labels', { ...(question.options.labels || {}), min: e.target.value })} />
+                            <Input placeholder="คำอธิบายค่าสูงสุด (ไม่บังคับ)" value={question.options.labels?.max ?? ''} onChange={e => handleOptionChange('labels', { ...(question.options.labels || {}), max: e.target.value })} />
                         </div>
                     </div>
                 );
@@ -193,15 +201,15 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
                     <div className="flex flex-col gap-4">
                         <div className="flex items-end gap-2">
                             <div className="flex-1">
-                                <Label className="text-sm">ป้ายกำกับสำหรับ 'จริง'</Label>
-                                <Input placeholder="เช่น ใช่, ถูกต้อง" value={question.options.trueLabel || ''} onChange={e => handleOptionChange('trueLabel', e.target.value)} />
+                                <Label className="text-sm">คำอธิบายสำหรับ 'จริง'</Label>
+                                <Input placeholder="เช่น ใช่, ถูกต้อง" value={question.options.trueLabel ?? ''} onChange={e => handleOptionChange('trueLabel', e.target.value)} />
                             </div>
                             <div className="w-24">
                                 <Label className="text-sm">คะแนนเมื่อเลือก 'จริง'</Label>
                                 <Input 
                                     type="number" 
                                     placeholder="0" 
-                                    value={question.options.trueScore !== undefined ? question.options.trueScore : ''} 
+                                    value={question.options.trueScore !== undefined && question.options.trueScore !== null ? question.options.trueScore : ''} 
                                     onChange={e => handleOptionChange('trueScore', e.target.value)} 
                                     onWheel={(e) => e.currentTarget.blur()}
                                 />
@@ -209,15 +217,15 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
                         </div>
                         <div className="flex items-end gap-2">
                             <div className="flex-1">
-                                <Label className="text-sm">ป้ายกำกับสำหรับ 'เท็จ'</Label>
-                                <Input placeholder="เช่น ไม่ใช่, ไม่ถูกต้อง" value={question.options.falseLabel || ''} onChange={e => handleOptionChange('falseLabel', e.target.value)} />
+                                <Label className="text-sm">คำอธิบายสำหรับ 'เท็จ'</Label>
+                                <Input placeholder="เช่น ไม่ใช่, ไม่ถูกต้อง" value={question.options.falseLabel ?? ''} onChange={e => handleOptionChange('falseLabel', e.target.value)} />
                             </div>
                             <div className="w-24">
                                 <Label className="text-sm">คะแนนเมื่อเลือก 'เท็จ'</Label>
                                 <Input 
                                     type="number" 
                                     placeholder="0" 
-                                    value={question.options.falseScore !== undefined ? question.options.falseScore : ''} 
+                                    value={question.options.falseScore !== undefined && question.options.falseScore !== null ? question.options.falseScore : ''} 
                                     onChange={e => handleOptionChange('falseScore', e.target.value)} 
                                     onWheel={(e) => e.currentTarget.blur()}
                                 />
@@ -232,14 +240,14 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
                             <Input 
                                 type="number" 
                                 placeholder="ค่าต่ำสุด" 
-                                value={question.options.min !== undefined ? question.options.min : ''} 
+                                value={question.options.min !== undefined && question.options.min !== null ? question.options.min : ''} 
                                 onChange={e => handleOptionChange('min', e.target.value)} 
                                 onWheel={(e) => e.currentTarget.blur()}
                             />
                             <Input 
                                 type="number" 
                                 placeholder="ค่าสูงสุด" 
-                                value={question.options.max !== undefined ? question.options.max : ''} 
+                                value={question.options.max !== undefined && question.options.max !== null ? question.options.max : ''} 
                                 onChange={e => handleOptionChange('max', e.target.value)} 
                                 onWheel={(e) => e.currentTarget.blur()}
                             />
@@ -248,23 +256,23 @@ function QuestionEditor({ question, updateQuestion, removeQuestion }: { question
                             <Input 
                                 type="number" 
                                 placeholder="ขั้น (ไม่บังคับ)" 
-                                value={question.options.step !== undefined ? question.options.step : ''} 
+                                value={question.options.step !== undefined && question.options.step !== null ? question.options.step : ''} 
                                 onChange={e => handleOptionChange('step', e.target.value)} 
                                 onWheel={(e) => e.currentTarget.blur()}
                             />
-                            <Input placeholder="หน่วย (เช่น กก., ซม.)" value={question.options.unit || ''} onChange={e => handleOptionChange('unit', e.target.value)} />
+                            <Input placeholder="หน่วย (เช่น กก., ซม.)" value={question.options.unit ?? ''} onChange={e => handleOptionChange('unit', e.target.value)} />
                         </div>
                         <div>
                             <Label className="text-sm">ตัวคูณคะแนน (คะแนน = ตัวเลขที่ป้อน × ตัวคูณ)</Label>
                             <Input 
                                 type="number" 
                                 placeholder="1" 
-                                value={question.options.scoreMultiplier !== undefined ? question.options.scoreMultiplier : ''} 
+                                value={question.options.scoreMultiplier !== undefined && question.options.scoreMultiplier !== null ? question.options.scoreMultiplier : ''} 
                                 onChange={e => handleOptionChange('scoreMultiplier', e.target.value)} 
                                 onWheel={(e) => e.currentTarget.blur()}
                             />
                         </div>
-                        <Input placeholder="ข้อความตัวอย่าง" value={question.options.placeholder || ''} onChange={e => handleOptionChange('placeholder', e.target.value)} />
+                        <Input placeholder="ข้อความตัวอย่าง" value={question.options.placeholder ?? ''} onChange={e => handleOptionChange('placeholder', e.target.value)} />
                     </div>
                 );
             default:
@@ -471,7 +479,7 @@ export default function EditFormPage() {
                 }
             } catch (error: any) {
                 console.error('Error in loadForm:', error);
-                toast.error(error.message || 'ไม่สามารถโหลดข้อมูลฟอร์มได้');
+                toast.error(error.message || 'ไม่สามารถโหลดข้อมูลแบบสอบถามได้');
                 setTimeout(() => {
                     router.push('/admin/manage-forms');
                 }, 2000);
@@ -530,22 +538,22 @@ export default function EditFormPage() {
 
         // Check form title
         if (!formTitle.trim()) {
-            errors.push("ชื่อฟอร์มเป็นข้อมูลที่จำเป็น");
+            errors.push("ชื่อแบบสอบถามเป็นข้อมูลที่จำเป็น");
         }
 
         // Check form description
         if (!formDescription.trim()) {
-            errors.push("คำอธิบายฟอร์มเป็นข้อมูลที่จำเป็น");
+            errors.push("คำอธิบายแบบสอบถามเป็นข้อมูลที่จำเป็น");
         }
 
         // Check form label
         if (!formLabel.trim()) {
-            errors.push("ป้ายกำกับฟอร์มเป็นข้อมูลที่จำเป็น");
+            errors.push("คำอธิบายแบบสอบถามเป็นข้อมูลที่จำเป็น");
         }
 
         // Check time to complete
         if (!timeToComplete || Number(timeToComplete) <= 0) {
-            errors.push("เวลาในการทำฟอร์มต้องมากกว่า 0 นาที");
+            errors.push("เวลาในการทำแบบสอบถามต้องมากกว่า 0 นาที");
         }
 
         // Check if there are questions
@@ -643,13 +651,13 @@ export default function EditFormPage() {
         try {
             const result = await updateFormAction(formId, formPayload);
             if (result.success) {
-                toast.success("ฟอร์มถูกบันทึกเรียบร้อยแล้ว");
+                toast.success("แบบสอบถามถูกบันทึกเรียบร้อยแล้ว");
                 router.push('/admin/manage-forms');
             } else {
-                toast.error(`เกิดข้อผิดพลาดในการบันทึกฟอร์ม: ${result.error}`);
+                toast.error(`เกิดข้อผิดพลาดในการบันทึกแบบสอบถาม: ${result.error}`);
             }
         } catch (error) {
-            toast.error("เกิดข้อผิดพลาดในการบันทึกฟอร์ม");
+            toast.error("เกิดข้อผิดพลาดในการบันทึกแบบสอบถาม");
             console.error(error);
         } finally {
             setIsSaving(false);
@@ -661,7 +669,7 @@ export default function EditFormPage() {
             <div className="min-h-screen bg-background flex items-center justify-center">
                 <div className="text-center">
                     <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-primary" />
-                    <p className="text-lg text-muted-foreground">กำลังโหลดข้อมูลฟอร์ม...</p>
+                    <p className="text-lg text-muted-foreground">กำลังโหลดข้อมูลแบบสอบถาม...</p>
                 </div>
             </div>
         );
@@ -676,18 +684,18 @@ export default function EditFormPage() {
                     onClick={() => router.push('/admin/manage-forms')}
                 >
                     <ArrowLeft className="h-4 w-4" />
-                    กลับไปยังหน้าจัดการฟอร์ม
+                    กลับไปยังหน้าจัดการแบบสอบถาม
                 </Button>
                 
                 <div className="space-y-8">
                     <Card>
                         <CardHeader>
-                            <CardTitle className="text-xl font-bold">แก้ไขฟอร์ม</CardTitle>
+                            <CardTitle className="text-xl font-bold">แก้ไขแบบสอบถาม</CardTitle>
                         </CardHeader>
                         <CardContent className="p-6 space-y-4">
                             <div>
                                 <Label htmlFor="form-title" className="pb-2 text-lg">
-                                    ชื่อฟอร์ม <span className="text-red-500">*</span>
+                                    ชื่อแบบสอบถาม <span className="text-red-500">*</span>
                                 </Label>
                                 <Input 
                                     id="form-title" 
@@ -699,19 +707,19 @@ export default function EditFormPage() {
                             </div>
                             <div>
                                 <Label htmlFor="form-description" className="pb-2 text-lg">
-                                    คำอธิบายฟอร์ม <span className="text-red-500">*</span>
+                                    คำอธิบายแบบสอบถาม <span className="text-red-500">*</span>
                                 </Label>
                                 <Textarea 
                                     id="form-description" 
                                     value={formDescription} 
                                     onChange={e => setFormDescription(e.target.value)} 
-                                    placeholder="คำอธิบายสั้นๆ เกี่ยวกับวัตถุประสงค์ของฟอร์ม" 
+                                    placeholder="คำอธิบายสั้นๆ เกี่ยวกับวัตถุประสงค์ของแบบสอบถาม" 
                                     className={`text-base ${!formDescription.trim() ? 'border-red-300 focus-visible:border-red-500' : ''}`}
                                 />
                             </div>
                             <div>
                                 <Label htmlFor="form-label" className="pb-2 text-lg">
-                                    ป้ายกำกับ <span className="text-red-500">*</span>
+                                    คำอธิบาย <span className="text-red-500">*</span>
                                 </Label>
                                 <Input 
                                     id="form-label" 
@@ -724,7 +732,7 @@ export default function EditFormPage() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <Label htmlFor="time-to-complete" className="pb-2 text-lg">
-                                        เวลาในการทำฟอร์ม (นาที) <span className="text-red-500">*</span>
+                                        เวลาในการทำแบบสอบถาม (นาที) <span className="text-red-500">*</span>
                                     </Label>
                                     <Input 
                                         id="time-to-complete" 
@@ -783,7 +791,7 @@ export default function EditFormPage() {
                                         checked={isActive} 
                                         onCheckedChange={(checked) => setIsActive(!!checked)} 
                                     />
-                                    <Label htmlFor="is-active" className="text-lg">ฟอร์มนี้เปิดใช้งาน</Label>
+                                    <Label htmlFor="is-active" className="text-lg">เปิดใช้งานแบบสอบถาม</Label>
                                 </div>
                             </div>
                         </CardContent>

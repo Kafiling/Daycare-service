@@ -17,7 +17,7 @@ export default async function ManageGroupAssignmentsPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">จัดการการแบ่งกลุ่มอัตโนมัติ</h1>
         <p className="text-gray-600 mt-2">
-          ตั้งค่าเงื่อนไขการแบ่งกลุ่มผู้ใช้บริการอัตโนมัติตามคะแนนจากแบบฟอร์ม
+          ตั้งค่าเงื่อนไขการแบ่งกลุ่มผู้ใช้บริการอัตโนมัติตามคะแนนจากแบบแบบสอบถาม
         </p>
       </div>
 

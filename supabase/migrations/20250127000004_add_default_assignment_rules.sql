@@ -21,7 +21,7 @@ BEGIN
     -- Only proceed if all groups exist
     IF emergency_group_id IS NOT NULL AND special_group_id IS NOT NULL AND general_group_id IS NOT NULL THEN
         -- Check if any rules already exist
-        IF NOT EXISTS (SELECT 1 FROM public.group_assignment_rules WHERE name IN ('ผู้รับบริการเสี่ยงสูง', 'ผู้รับบริการเสี่ยงปานกลาง', 'ผู้รับบริการเสี่ยงต่ำ')) THEN
+        IF NOT EXISTS (SELECT 1 FROM public.group_assignment_rules WHERE name IN ('ผู้ใช้บริการเสี่ยงสูง', 'ผู้ใช้บริการเสี่ยงปานกลาง', 'ผู้ใช้บริการเสี่ยงต่ำ')) THEN
             INSERT INTO public.group_assignment_rules (
                 name,
                 description,
@@ -33,8 +33,8 @@ BEGIN
             ) VALUES 
             -- Rule 1: High risk patients (score >= 80) go to Emergency group
             (
-                'ผู้รับบริการเสี่ยงสูง',
-                'ผู้รับบริการที่มีคะแนนประเมินสูง ต้องการการดูแลเป็นพิเศษ',
+                'ผู้ใช้บริการเสี่ยงสูง',
+                'ผู้ใช้บริการที่มีคะแนนประเมินสูง ต้องการการดูแลเป็นพิเศษ',
                 emergency_group_id,
                 'score_based',
                 jsonb_build_object(
@@ -47,8 +47,8 @@ BEGIN
             ),
             -- Rule 2: Medium risk patients (score 50-79) go to Special Follow-up group  
             (
-                'ผู้รับบริการเสี่ยงปานกลาง',
-                'ผู้รับบริการที่มีคะแนนประเมินปานกลาง ต้องติดตามเป็นพิเศษ',
+                'ผู้ใช้บริการเสี่ยงปานกลาง',
+                'ผู้ใช้บริการที่มีคะแนนประเมินปานกลาง ต้องติดตามเป็นพิเศษ',
                 special_group_id,
                 'score_based',
                 jsonb_build_object(
@@ -62,8 +62,8 @@ BEGIN
             ),
             -- Rule 3: Low risk patients (score < 50) go to General group
             (
-                'ผู้รับบริการเสี่ยงต่ำ',
-                'ผู้รับบริการที่มีคะแนนประเมินต่ำ อยู่ในกลุ่มทั่วไป',
+                'ผู้ใช้บริการเสี่ยงต่ำ',
+                'ผู้ใช้บริการที่มีคะแนนประเมินต่ำ อยู่ในกลุ่มทั่วไป',
                 general_group_id,
                 'score_based',
                 jsonb_build_object(

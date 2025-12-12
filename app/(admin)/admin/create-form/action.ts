@@ -3,16 +3,13 @@
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import { randomUUID } from "crypto";
+import { requireAdmin } from "../lib/auth";
 
 export async function createForm(payload: any) {
+    // Verify admin privileges
+    const { user } = await requireAdmin();
+    
     const supabase = await createClient();
-    const {
-        data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-        return { error: "You must be logged in to create a form." };
-    }
 
     const { title, description, label, timeToComplete, priorityLevel, questions, evaluationThresholds, recurrenceSchedule } = payload;
     const formId = randomUUID();

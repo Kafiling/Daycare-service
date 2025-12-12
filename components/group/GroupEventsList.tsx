@@ -1,6 +1,6 @@
 import React from 'react';
 import { GroupEvent } from '@/app/service/group-assignment';
-import { Calendar, Clock, Repeat } from 'lucide-react';
+import { Calendar, Clock, Repeat, MapPin } from 'lucide-react';
 import { format } from 'date-fns';
 import { th } from 'date-fns/locale';
 import { Badge } from '@/components/ui/badge';
@@ -92,6 +92,12 @@ export function GroupEventsList({
                     <Clock className="h-4 w-4 mr-2" />
                     <span>{format(new Date(event.event_datetime), 'HH:mm น.')}</span>
                   </div>
+                  {event.location && (
+                    <div className="flex items-center">
+                      <MapPin className="h-4 w-4 mr-2" />
+                      <span>{event.location}</span>
+                    </div>
+                  )}
                   {event.is_recurring && !event.isRecurringInstance && (
                     <div className="flex items-center mt-1">
                       <Repeat className="h-4 w-4 mr-2" />

@@ -41,7 +41,7 @@ export default function QuestionPage() {
                 setIsLoading(true);
                 const formResponse = await getFormById(formId);
                 if (!formResponse) {
-                    throw new Error("ไม่พบฟอร์ม");
+                    throw new Error("ไม่พบแบบสอบถาม");
                 }
                 setForm(formResponse);
 

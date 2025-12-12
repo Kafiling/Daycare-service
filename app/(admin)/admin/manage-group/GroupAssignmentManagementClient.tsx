@@ -9,7 +9,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,31 +19,14 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Plus,
-  Edit,
-  Trash2,
-  Settings,
-  Users,
-  Activity,
   RefreshCw,
   Target,
-  Zap,
-  Calendar
+  Users,
+  Trash2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -61,12 +43,19 @@ import {
   deletePatientGroup,
   manuallyAssignPatientGroup,
   recalculateAllPatientGroups,
-  removePatientFromGroup,
   GroupAssignmentRule,
   PatientGroup,
   PatientGroupAssignment
 } from '@/app/service/group-assignment';
 import { GroupEventsManagement } from '@/components/group/GroupEventsManagement';
+import {
+  GroupCard,
+  RuleCard,
+  PatientCard,
+  CreateGroupDialog,
+  CreateRuleDialog,
+  EmptyState
+} from './components';
 
 export interface FormConfig {
   form_id: string;
@@ -438,7 +427,7 @@ export function GroupAssignmentManagementClient() {
           <TabsTrigger value="groups">จัดการกลุ่ม</TabsTrigger>
           <TabsTrigger value="rules">เงื่อนไขการแบ่งกลุ่ม</TabsTrigger>
           <TabsTrigger value="events">กิจกรรมกลุ่ม</TabsTrigger>
-          <TabsTrigger value="patients">ผู้รับบริการในกลุ่ม</TabsTrigger>
+          <TabsTrigger value="patients">ผู้ใช้บริการในกลุ่ม</TabsTrigger>
           <TabsTrigger value="history">ประวัติการแบ่งกลุ่ม</TabsTrigger>
           <TabsTrigger value="tools">เครื่องมือ</TabsTrigger>
         </TabsList>
@@ -447,157 +436,37 @@ export function GroupAssignmentManagementClient() {
         <TabsContent value="groups" className="space-y-4">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-xl font-semibold">จัดการกลุ่มผู้รับบริการ</h2>
-              <p className="text-gray-600">สร้าง แก้ไข และจัดการกลุ่มผู้รับบริการ</p>
+              <h2 className="text-xl font-semibold">จัดการกลุ่มผู้ใช้บริการ</h2>
+              <p className="text-gray-600">สร้าง แก้ไข และจัดการกลุ่มผู้ใช้บริการ</p>
             </div>
 
-            <Dialog open={isGroupDialogOpen} onOpenChange={setIsGroupDialogOpen}>
-              <DialogTrigger asChild>
-                <Button className="bg-green-600 hover:bg-green-700">
-                  <Plus className="h-4 w-4 mr-2" />
-                  เพิ่มกลุ่มใหม่
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-md">
-                <DialogHeader>
-                  <DialogTitle>เพิ่มกลุ่มผู้รับบริการใหม่</DialogTitle>
-                  <DialogDescription>
-                    สร้างกลุ่มใหม่สำหรับจัดประเภทผู้รับบริการ
-                  </DialogDescription>
-                </DialogHeader>
-
-                <div className="grid gap-4 py-4">
-                  <div>
-                    <Label htmlFor="group-name">ชื่อกลุ่ม *</Label>
-                    <Input
-                      id="group-name"
-                      value={groupForm.name}
-                      onChange={(e) => setGroupForm({ ...groupForm, name: e.target.value })}
-                      placeholder="เช่น กลุ่มพิเศษ"
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="group-description">รายละเอียด</Label>
-                    <Textarea
-                      id="group-description"
-                      value={groupForm.description}
-                      onChange={(e) => setGroupForm({ ...groupForm, description: e.target.value })}
-                      placeholder="อธิบายลักษณะของกลุ่ม"
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="group-color">สีกลุ่ม</Label>
-                    <div className="flex items-center gap-3">
-                      <Input
-                        id="group-color"
-                        type="color"
-                        value={groupForm.color}
-                        onChange={(e) => setGroupForm({ ...groupForm, color: e.target.value })}
-                        className="w-16 h-10"
-                      />
-                      <Input
-                        value={groupForm.color}
-                        onChange={(e) => setGroupForm({ ...groupForm, color: e.target.value })}
-                        placeholder="#3B82F6"
-                        className="flex-1"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex justify-end gap-3">
-                  <Button
-                    variant="outline"
-                    onClick={() => setIsGroupDialogOpen(false)}
-                    disabled={isLoading}
-                  >
-                    ยกเลิก
-                  </Button>
-                  <Button onClick={handleCreateGroup} disabled={isLoading}>
-                    {isLoading ? 'กำลังสร้าง...' : 'สร้างกลุ่ม'}
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
+            <CreateGroupDialog
+              isOpen={isGroupDialogOpen}
+              onOpenChange={setIsGroupDialogOpen}
+              form={groupForm}
+              onFormChange={setGroupForm}
+              onSubmit={handleCreateGroup}
+              isLoading={isLoading}
+            />
           </div>
 
           {/* Groups List */}
           <div className="grid gap-4">
             {groups.length === 0 ? (
-              <Card>
-                <CardContent className="flex items-center justify-center py-12">
-                  <div className="text-center">
-                    <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-600">ยังไม่มีกลุ่มผู้รับบริการ</h3>
-                    <p className="text-gray-500">เริ่มต้นด้วยการสร้างกลุ่มแรก</p>
-                  </div>
-                </CardContent>
-              </Card>
+              <EmptyState
+                icon={Users}
+                title="ยังไม่มีกลุ่มผู้ใช้บริการ"
+                description="เริ่มต้นด้วยการสร้างกลุ่มแรก"
+              />
             ) : (
               groups.map((group) => (
-                <Card key={group.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div
-                          className="w-12 h-12 rounded-full flex items-center justify-center"
-                          style={{ backgroundColor: group.color }}
-                        >
-                          <Users className="h-6 w-6 text-white" />
-                        </div>
-                        <div>
-                          <h3 className="text-lg font-semibold">{group.name}</h3>
-                          {group.description && (
-                            <p className="text-gray-600 text-sm">{group.description}</p>
-                          )}
-                          <div className="flex items-center gap-4 text-sm text-gray-500 mt-1">
-                            <span>สี: {group.color}</span>
-                            <span>สร้างเมื่อ: {new Date(group.created_at).toLocaleDateString('th-TH')}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => openEditGroupDialog(group)}
-                          disabled={isLoading}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="outline" size="sm" disabled={isLoading}>
-                              <Trash2 className="h-4 w-4 text-red-600" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>ยืนยันการลบกลุ่ม</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                คุณแน่ใจหรือว่าต้องการลบกลุ่ม "{group.name}"
-                                การดำเนินการนี้จะย้ายผู้รับบริการในกลุ่มนี้ออกและไม่สามารถยกเลิกได้
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => handleDeleteGroup(group.id)}
-                                className="bg-red-600 hover:bg-red-700"
-                              >
-                                ลบ
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                <GroupCard
+                  key={group.id}
+                  group={group}
+                  onEdit={openEditGroupDialog}
+                  onDelete={handleDeleteGroup}
+                  isLoading={isLoading}
+                />
               ))
             )}
           </div>
@@ -608,277 +477,41 @@ export function GroupAssignmentManagementClient() {
           <div className="flex justify-between items-center">
             <div>
               <h2 className="text-xl font-semibold">เงื่อนไขการแบ่งกลุ่ม</h2>
-              <p className="text-gray-600">กำหนดเงื่อนไขสำหรับเพิ่มผู้รับบริการเข้ากลุ่มอัตโนมัติ (สามารถอยู่ในหลายกลุ่มได้)</p>
+              <p className="text-gray-600">กำหนดเงื่อนไขสำหรับเพิ่มผู้ใช้บริการเข้ากลุ่มอัตโนมัติ (สามารถอยู่ในหลายกลุ่มได้)</p>
             </div>
 
-            <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-              <DialogTrigger asChild>
-                <Button className="bg-blue-600 hover:bg-blue-700">
-                  <Plus className="h-4 w-4 mr-2" />
-                  เพิ่มเงื่อนไขใหม่
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>เพิ่มเงื่อนไขการแบ่งกลุ่มใหม่</DialogTitle>
-                  <DialogDescription>
-                    กำหนดเงื่อนไขสำหรับเพิ่มผู้รับบริการเข้ากลุ่มอัตโนมัติ
-                  </DialogDescription>
-                </DialogHeader>
-
-                <div className="grid gap-4 py-4">
-                  <div>
-                    <div>
-                      <Label htmlFor="create-name">ชื่อเงื่อนไข *</Label>
-                      <Input
-                        id="create-name"
-                        value={createForm.name}
-                        onChange={(e) => setCreateForm({ ...createForm, name: e.target.value })}
-                        placeholder="เช่น ผู้รับบริการเสี่ยงสูง"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="create-description">รายละเอียด</Label>
-                    <Textarea
-                      id="create-description"
-                      value={createForm.description}
-                      onChange={(e) => setCreateForm({ ...createForm, description: e.target.value })}
-                      placeholder="อธิบายเงื่อนไขการแบ่งกลุ่ม"
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="create-group">กลุ่มเป้าหมาย *</Label>
-                    <Select
-                      value={createForm.group_id}
-                      onValueChange={(value) => setCreateForm({ ...createForm, group_id: value })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="เลือกกลุ่ม" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {[...groups].sort((a, b) => a.name.localeCompare(b.name)).map((group) => (
-                          <SelectItem key={group.id} value={group.id}>
-                            <div className="flex items-center gap-2">
-                              <div
-                                className="w-3 h-3 rounded-full"
-                                style={{ backgroundColor: group.color }}
-                              />
-                              {group.name}
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <Label>แบบฟอร์มและน้ำหนัก *</Label>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => addFormConfig(false)}
-                      >
-                        <Plus className="h-4 w-4 mr-1" />
-                        เพิ่มแบบฟอร์ม
-                      </Button>
-                    </div>
-
-                    {createForm.forms.map((form, index) => (
-                      <div key={index} className="grid grid-cols-12 gap-2 items-end">
-                        <div className="col-span-6">
-                          <Select
-                            value={form.form_id}
-                            onValueChange={(value) => updateFormConfig(index, 'form_id', value, false)}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="เลือกแบบฟอร์ม" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {availableForms.map((availableForm) => (
-                                <SelectItem key={availableForm.form_id} value={availableForm.form_id}>
-                                  {availableForm.title}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="col-span-3">
-                          <Input
-                            type="number"
-                            step="0.1"
-                            min="0"
-                            value={form.weight}
-                            onChange={(e) => updateFormConfig(index, 'weight', parseFloat(e.target.value) || 1, false)}
-                            placeholder="น้ำหนัก"
-                          />
-                        </div>
-                        <div className="col-span-2">
-                          {createForm.forms.length > 1 && (
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => removeFormConfig(index, false)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-3">
-                    <div>
-                      <Label htmlFor="create-operator">เงื่อนไข</Label>
-                      <Select
-                        value={createForm.operator}
-                        onValueChange={(value: any) => setCreateForm({ ...createForm, operator: value })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="gte">มากกว่าเท่ากับ (≥)</SelectItem>
-                          <SelectItem value="lte">น้อยกว่าเท่ากับ (≤)</SelectItem>
-                          <SelectItem value="between">ระหว่าง</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label htmlFor="create-min-score">คะแนนต่ำสุด</Label>
-                      <Input
-                        id="create-min-score"
-                        type="number"
-                        step="0.1"
-                        value={createForm.min_score || ''}
-                        onChange={(e) => setCreateForm({ ...createForm, min_score: parseFloat(e.target.value) || undefined })}
-                        placeholder="0"
-                      />
-                    </div>
-                    {createForm.operator === 'between' && (
-                      <div>
-                        <Label htmlFor="create-max-score">คะแนนสูงสุด</Label>
-                        <Input
-                          id="create-max-score"
-                          type="number"
-                          step="0.1"
-                          value={createForm.max_score || ''}
-                          onChange={(e) => setCreateForm({ ...createForm, max_score: parseFloat(e.target.value) || undefined })}
-                          placeholder="100"
-                        />
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex justify-end gap-3">
-                  <Button
-                    variant="outline"
-                    onClick={() => setIsCreateDialogOpen(false)}
-                    disabled={isLoading}
-                  >
-                    ยกเลิก
-                  </Button>
-                  <Button onClick={handleCreateRule} disabled={isLoading}>
-                    {isLoading ? 'กำลังสร้าง...' : 'สร้างเงื่อนไข'}
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
+            <CreateRuleDialog
+              isOpen={isCreateDialogOpen}
+              onOpenChange={setIsCreateDialogOpen}
+              form={createForm}
+              groups={groups}
+              availableForms={availableForms}
+              onFormChange={setCreateForm}
+              onAddForm={() => addFormConfig(false)}
+              onRemoveForm={(index) => removeFormConfig(index, false)}
+              onUpdateFormConfig={(index, field, value) => updateFormConfig(index, field, value, false)}
+              onSubmit={handleCreateRule}
+              isLoading={isLoading}
+            />
           </div>
 
           {/* Rules List */}
           <div className="grid gap-4">
             {rules.length === 0 ? (
-              <Card>
-                <CardContent className="flex items-center justify-center py-12">
-                  <div className="text-center">
-                    <Target className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-600">ยังไม่มีเงื่อนไขการแบ่งกลุ่ม</h3>
-                    <p className="text-gray-500">เริ่มต้นด้วยการสร้างเงื่อนไขแรก</p>
-                  </div>
-                </CardContent>
-              </Card>
+              <EmptyState
+                icon={Target}
+                title="ยังไม่มีเงื่อนไขการแบ่งกลุ่ม"
+                description="เริ่มต้นด้วยการสร้างเงื่อนไขแรก"
+              />
             ) : (
               rules.map((rule) => (
-                <Card key={rule.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-lg font-semibold">{rule.name}</h3>
-                          <Badge variant={rule.is_active ? "default" : "secondary"}>
-                            {rule.is_active ? 'ใช้งาน' : 'ปิดใช้งาน'}
-                          </Badge>
-                        </div>
-
-                        {rule.description && (
-                          <p className="text-gray-600 mb-3">{rule.description}</p>
-                        )}
-
-                        <div className="flex items-center gap-4 text-sm">
-                          <div className="flex items-center gap-2">
-                            <div
-                              className="w-3 h-3 rounded-full"
-                              style={{ backgroundColor: rule.group?.color }}
-                            />
-                            <span>กลุ่ม: {rule.group?.name}</span>
-                          </div>
-                          <div>
-                            แบบฟอร์ม: {rule.rule_config.forms?.length || 0} แบบฟอร์ม
-                          </div>
-                          <div>
-                            เงื่อนไข: {rule.rule_config.operator === 'gte' ? '≥' : rule.rule_config.operator === 'lte' ? '≤' : 'ระหว่าง'} {rule.rule_config.min_score}
-                            {rule.rule_config.operator === 'between' && ` - ${rule.rule_config.max_score}`}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => openEditDialog(rule)}
-                          disabled={isLoading}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="outline" size="sm" disabled={isLoading}>
-                              <Trash2 className="h-4 w-4 text-red-600" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>ยืนยันการลบเงื่อนไข</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                คุณแน่ใจหรือว่าต้องการลบเงื่อนไข "{rule.name}"
-                                การดำเนินการนี้ไม่สามารถยกเลิกได้
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => handleDeleteRule(rule.id)}
-                                className="bg-red-600 hover:bg-red-700"
-                              >
-                                ลบ
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                <RuleCard
+                  key={rule.id}
+                  rule={rule}
+                  onEdit={openEditDialog}
+                  onDelete={handleDeleteRule}
+                  isLoading={isLoading}
+                />
               ))
             )}
           </div>
@@ -889,7 +522,7 @@ export function GroupAssignmentManagementClient() {
           <div className="flex justify-between items-center">
             <div>
               <h2 className="text-xl font-semibold">กิจกรรมกลุ่ม</h2>
-              <p className="text-gray-600">จัดการกิจกรรมสำหรับแต่ละกลุ่มผู้รับบริการ</p>
+              <p className="text-gray-600">จัดการกิจกรรมสำหรับแต่ละกลุ่มผู้ใช้บริการ</p>
             </div>
             
             <div className="flex items-center gap-2">
@@ -925,57 +558,19 @@ export function GroupAssignmentManagementClient() {
         <TabsContent value="patients" className="space-y-4">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-xl font-semibold">ผู้รับบริการในกลุ่ม</h2>
-              <p className="text-gray-600">ดูการสมาชิกภาพในกลุ่มของผู้รับบริการ (สามารถอยู่ในหลายกลุ่มได้)</p>
+              <h2 className="text-xl font-semibold">ผู้ใช้บริการในกลุ่ม</h2>
+              <p className="text-gray-600">ดูการสมาชิกภาพในกลุ่มของผู้ใช้บริการ (สามารถอยู่ในหลายกลุ่มได้)</p>
             </div>
           </div>
 
           <div className="grid gap-4">
             {patients.map((patient) => (
-              <Card key={patient.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center">
-                        <Users className="h-5 w-5 text-gray-600" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold">
-                          {patient.first_name} {patient.last_name}
-                        </h3>
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          {patient.groups && patient.groups.length > 0 ? (
-                            <div className="flex flex-wrap gap-1">
-                              {[...patient.groups].sort((a, b) => a.name.localeCompare(b.name)).map((group, index) => (
-                                <div key={group.id} className="flex items-center gap-1">
-                                  <div
-                                    className="w-3 h-3 rounded-full"
-                                    style={{ backgroundColor: group.color }}
-                                  />
-                                  <span>{group.name}</span>
-                                  {index < patient.groups.length - 1 && <span>,</span>}
-                                </div>
-                              ))}
-                            </div>
-                          ) : (
-                            <span className="text-gray-400">ยังไม่ได้จัดกลุ่ม</span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleManualAssign(patient.id)}
-                      disabled={isLoading}
-                    >
-                      <Zap className="h-4 w-4 mr-1" />
-                      ประเมินกลุ่มใหม่
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+              <PatientCard
+                key={patient.id}
+                patient={patient}
+                onManualAssign={handleManualAssign}
+                isLoading={isLoading}
+              />
             ))}
           </div>
         </TabsContent>
@@ -984,7 +579,7 @@ export function GroupAssignmentManagementClient() {
         <TabsContent value="history" className="space-y-4">
           <div>
             <h2 className="text-xl font-semibold">ประวัติการแบ่งกลุ่ม</h2>
-            <p className="text-gray-600">ประวัติการเปลี่ยนแปลงกลุ่มผู้รับบริการ</p>
+            <p className="text-gray-600">ประวัติการเปลี่ยนแปลงกลุ่มผู้ใช้บริการ</p>
           </div>
 
           <div className="grid gap-4">
@@ -994,7 +589,7 @@ export function GroupAssignmentManagementClient() {
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="font-semibold mb-1">
-                        ผู้รับบริการ ID: {assignment.patient_id}
+                        ผู้ใช้บริการ ID: {assignment.patient_id}
                       </div>
                       <div className="text-sm text-gray-600 mb-2">
                         {assignment.assignment_reason}
@@ -1051,7 +646,7 @@ export function GroupAssignmentManagementClient() {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600 mb-4">
-                  ประเมินและเพิ่มผู้รับบริการเข้ากลุ่มที่เหมาะสมทั้งหมดตามเงื่อนไขปัจจุบัน (สามารถอยู่ในหลายกลุ่มได้)
+                  ประเมินและเพิ่มผู้ใช้บริการเข้ากลุ่มที่เหมาะสมทั้งหมดตามเงื่อนไขปัจจุบัน (สามารถอยู่ในหลายกลุ่มได้)
                 </p>
                 <Button
                   onClick={handleRecalculateAll}
@@ -1073,7 +668,7 @@ export function GroupAssignmentManagementClient() {
           <DialogHeader>
             <DialogTitle>แก้ไขเงื่อนไขการแบ่งกลุ่ม</DialogTitle>
             <DialogDescription>
-              อัปเดตเงื่อนไขสำหรับเพิ่มผู้รับบริการเข้ากลุ่มอัตโนมัติ
+              อัปเดตเงื่อนไขสำหรับเพิ่มผู้ใช้บริการเข้ากลุ่มอัตโนมัติ
             </DialogDescription>
           </DialogHeader>
 
@@ -1085,7 +680,7 @@ export function GroupAssignmentManagementClient() {
                   id="edit-name"
                   value={editForm.name}
                   onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                  placeholder="เช่น ผู้รับบริการเสี่ยงสูง"
+                  placeholder="เช่น ผู้ใช้บริการเสี่ยงสูง"
                 />
               </div>
             </div>
@@ -1127,7 +722,7 @@ export function GroupAssignmentManagementClient() {
 
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <Label>แบบฟอร์มและน้ำหนัก *</Label>
+                <Label>แบบแบบสอบถามและน้ำหนัก *</Label>
                 <Button
                   type="button"
                   variant="outline"
@@ -1135,7 +730,7 @@ export function GroupAssignmentManagementClient() {
                   onClick={() => addFormConfig(true)}
                 >
                   <Plus className="h-4 w-4 mr-1" />
-                  เพิ่มแบบฟอร์ม
+                  เพิ่มแบบแบบสอบถาม
                 </Button>
               </div>
 
@@ -1147,7 +742,7 @@ export function GroupAssignmentManagementClient() {
                       onValueChange={(value) => updateFormConfig(index, 'form_id', value, true)}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="เลือกแบบฟอร์ม" />
+                        <SelectValue placeholder="เลือกแบบแบบสอบถาม" />
                       </SelectTrigger>
                       <SelectContent>
                         {availableForms.map((availableForm) => (
@@ -1258,9 +853,9 @@ export function GroupAssignmentManagementClient() {
       <Dialog open={isEditGroupDialogOpen} onOpenChange={setIsEditGroupDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>แก้ไขกลุ่มผู้รับบริการ</DialogTitle>
+            <DialogTitle>แก้ไขกลุ่มผู้ใช้บริการ</DialogTitle>
             <DialogDescription>
-              อัปเดตข้อมูลกลุ่มผู้รับบริการ
+              อัปเดตข้อมูลกลุ่มผู้ใช้บริการ
             </DialogDescription>
           </DialogHeader>
 

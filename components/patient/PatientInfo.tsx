@@ -111,64 +111,63 @@ export default function PatientInfo({ patient, todayCheckIn, history }: PatientI
                             <span className="text-sm text-muted-foreground">เพศ:</span>
                             <span>{patient.gender === 'male' ? 'ชาย' : patient.gender === 'female' ? 'หญิง' : '-'}</span>
                         </div>
-                        {patient.phone_num && (
-                            <div className="flex items-center gap-2">
-                                <Phone className="h-4 w-4 text-muted-foreground" />
-                                <span className="text-sm text-muted-foreground">โทรศัพท์:</span>
-                                <span>{patient.phone_num}</span>
-                            </div>
-                        )}
-                        {patient.caregiver_name && (
-                            <div className="flex items-center gap-2">
-                                <Users className="h-4 w-4 text-muted-foreground" />
-                                <span className="text-sm text-muted-foreground">ผู้ดูแล:</span>
-                                <span>{patient.caregiver_name}</span>
-                            </div>
-                        )}
+                        <div className="flex items-center gap-2">
+                            <Phone className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm text-muted-foreground">โทรศัพท์:</span>
+                            <span>{patient.phone_num || '-'}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Users className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm text-muted-foreground">ผู้ดูแล:</span>
+                            <span>{patient.caregiver_name || '-'}</span>
+                        </div>
                     </div>
 
                     <div className="space-y-4">
-                        <div className="flex items-center gap-4">
-                            {patient.weight && (
-                                <div className="flex items-center gap-2">
-                                    <Weight className="h-4 w-4 text-muted-foreground" />
-                                    <span className="text-sm text-muted-foreground">น้ำหนัก:</span>
-                                    <span>{patient.weight} กก.</span>
+                        <div className="flex items-center gap-2">
+                            <Weight className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm text-muted-foreground">น้ำหนัก:</span>
+                            <span>{patient.weight ? `${patient.weight} กก.` : '-'}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Ruler className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm text-muted-foreground">ส่วนสูง:</span>
+                            <span>{patient.height ? `${patient.height} ซม.` : '-'}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Activity className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm text-muted-foreground">BMI:</span>
+                            <span className={patient.weight && patient.height ? `font-medium ${
+                                (patient.weight / Math.pow(patient.height / 100, 2)) > 25 ? 'text-orange-500' : 'text-green-600'
+                            }` : ''}>
+                                {patient.weight && patient.height 
+                                    ? (patient.weight / Math.pow(patient.height / 100, 2)).toFixed(1)
+                                    : '-'
+                                }
+                            </span>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                            <div className="flex items-center gap-2">
+                                <Heart className="h-4 w-4 text-muted-foreground" />
+                                <span className="text-sm text-muted-foreground">โรคประจำตัว:</span>
+                            </div>
+                            {patient.underlying_diseases && patient.underlying_diseases.length > 0 && !patient.underlying_diseases.includes('none') ? (
+                                <div className="flex flex-wrap gap-1 mt-1">
+                                    {patient.underlying_diseases.map((disease, index) => (
+                                        <Badge key={index} variant="secondary" className="text-xs">
+                                            {getDiseaseLabel(disease)}
+                                        </Badge>
+                                    ))}
                                 </div>
-                            )}
-                            {patient.height && (
-                                <div className="flex items-center gap-2">
-                                    <Ruler className="h-4 w-4 text-muted-foreground" />
-                                    <span className="text-sm text-muted-foreground">ส่วนสูง:</span>
-                                    <span>{patient.height} ซม.</span>
-                                </div>
+                            ) : (
+                                <span className="ml-6">-</span>
                             )}
                         </div>
-                        {patient.weight && patient.height && (
-                            <div className="flex items-center gap-2">
-                                <Activity className="h-4 w-4 text-muted-foreground" />
-                                <span className="text-sm text-muted-foreground">BMI:</span>
-                                <span className={`font-medium ${
-                                    (patient.weight / Math.pow(patient.height / 100, 2)) > 25 ? 'text-orange-500' : 'text-green-600'
-                                }`}>
-                                    {(patient.weight / Math.pow(patient.height / 100, 2)).toFixed(1)}
-                                </span>
-                            </div>
-                        )}
-                        {patient.underlying_diseases && patient.underlying_diseases.length > 0 && !patient.underlying_diseases.includes('none') && (
-                            <div className="flex flex-wrap gap-1 mt-2">
-                                {patient.underlying_diseases.map((disease, index) => (
-                                    <Badge key={index} variant="secondary" className="text-xs">
-                                        {getDiseaseLabel(disease)}
-                                    </Badge>
-                                ))}
-                            </div>
-                        )}
                     </div>
 
                     <div className="space-y-4">
                         <div className="flex flex-col gap-2">
-                            {/* Removed alerts from here, moved to expanded view */}
+                            {/* Space for future use */}
                         </div>
                     </div>
                 </div>
