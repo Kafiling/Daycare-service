@@ -15,7 +15,7 @@ export default function AdminPage() {
                   แผงควบคุมสำหรับผู้ดูแลระบบ
                 </h1>
                 <p className="text-gray-600 mt-1">
-                  จัดการพนักงานและแบบแบบสอบถามได้จากที่นี่
+                  จัดการพนักงานและแบบสอบถามได้จากที่นี่
                 </p>
               </div>
               <ExportDataButton />
@@ -44,13 +44,13 @@ export default function AdminPage() {
             <Card className="h-full">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-lg font-medium">
-                  จัดการแบบแบบสอบถาม
+                  จัดการแบบสอบถาม
                 </CardTitle>
                 <FileText className="h-6 w-6 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  สร้าง แก้ไข และจัดการแบบแบบสอบถามและแบบสำรวจสำหรับผู้ใช้บริการ
+                  สร้าง แก้ไข และจัดการแบบสอบถามและแบบสำรวจสำหรับผู้ใช้บริการ
                 </p>
               </CardContent>
             </Card>
@@ -66,7 +66,7 @@ export default function AdminPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  ตั้งค่าเงื่อนไขการแบ่งกลุ่มผู้ใช้บริการอัตโนมัติตามคะแนนจากแบบแบบสอบถาม
+                  ตั้งค่าเงื่อนไขการแบ่งกลุ่มผู้ใช้บริการอัตโนมัติตามคะแนนจากแบบสอบถาม
                 </p>
               </CardContent>
             </Card>
