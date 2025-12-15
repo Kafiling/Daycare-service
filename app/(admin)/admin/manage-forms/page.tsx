@@ -399,6 +399,20 @@ export default function ManageFormsPage() {
                                                 ))}
                                             </SelectContent>
                                         </Select>
+                                        <Button 
+                                            variant="outline" 
+                                            size="sm"
+                                            onClick={() => {
+                                                setSearchTerm('');
+                                                setStatusFilter('all');
+                                                setPriorityFilter('all');
+                                                setCategoryFilter('all');
+                                            }}
+                                            className="gap-2"
+                                        >
+                                            <Filter className="h-4 w-4" />
+                                            รีเซ็ต
+                                        </Button>
                                     </div>
                                 </div>
                             </CardContent>

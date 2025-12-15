@@ -1,6 +1,5 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FileText, Users, History, Calendar } from 'lucide-react';
 import { getPatientById, getActiveForms, getCompletedSubmissions } from '@/app/service/patient';
 import { getPatientGroupsForPatient, getUpcomingGroupEvents } from '@/app/service/group-assignment';
@@ -8,7 +7,6 @@ import { getTodayCheckIn, getCheckInHistory } from '@/app/service/checkin';
 import PatientHeader from '@/components/patient/PatientHeader';
 import PatientInfo from '@/components/patient/PatientInfo';
 import AvailableSurveys from '@/components/patient/AvailableSurveys';
-import CompletedSurveys from '@/components/patient/CompletedSurveys';
 import SubmissionHistory from '@/components/patient/SubmissionHistory';
 import { GroupEventsList } from '@/components/group/GroupEventsList';
 
@@ -156,32 +154,15 @@ export default async function PatientHomePage({ params }: PatientHomePageProps) 
                             แบบประเมินและแบบสำรวจ
                         </CardTitle>
                         <CardDescription>
-                            แบบประเมินที่พร้อมใช้งานและผลการประเมินที่เสร็จสิ้นแล้ว
+                            แบบประเมินที่พร้อมใช้งาน
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <Tabs defaultValue="available" className="w-full">
-                            <TabsList className="grid w-full grid-cols-2">
-                                <TabsTrigger value="available">
-                                    แบบประเมินที่พร้อมใช้งาน ({availableForms.length})
-                                </TabsTrigger>
-                                <TabsTrigger value="completed">
-                                    เสร็จสิ้นแล้ว ({completedSubmissions.length})
-                                </TabsTrigger>
-                            </TabsList>
-
-                            <TabsContent value="available" className="mt-6">
-                                <AvailableSurveys 
-                                    patientId={resolvedParams.id} 
-                                    forms={availableForms} 
-                                    submissions={completedSubmissions}
-                                />
-                            </TabsContent>
-
-                            <TabsContent value="completed" className="mt-6">
-                                <CompletedSurveys submissions={completedSubmissions} />
-                            </TabsContent>
-                        </Tabs>
+                        <AvailableSurveys 
+                            patientId={resolvedParams.id} 
+                            forms={availableForms} 
+                            submissions={completedSubmissions}
+                        />
                     </CardContent>
                 </Card>
             </div>
