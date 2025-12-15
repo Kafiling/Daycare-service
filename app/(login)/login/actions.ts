@@ -12,7 +12,7 @@ export async function login(formData: FormData) {
   const password = formData.get("password") as string;
 
   if (!emailOrUsername || !password) {
-    redirect("/error?message=missing_credentials");
+    redirect("/login?error=missing_credentials");
     return;
   }
 
@@ -28,7 +28,7 @@ export async function login(formData: FormData) {
       .single();
 
     if (profileError || !profile) {
-      redirect("/error?message=user_not_found");
+      redirect("/login?error=user_not_found");
       return;
     }
 
@@ -41,7 +41,7 @@ export async function login(formData: FormData) {
   });
 
   if (error) {
-    redirect("/error?message=invalid_credentials");
+    redirect("/login?error=invalid_credentials");
     return;
   }
 
