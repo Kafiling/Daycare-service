@@ -233,8 +233,7 @@ export default function AvailableSurveys({ patientId, forms, submissions }: Avai
                                             variant={status.status === 'due' || status.status === 'available' ? 'default' : 'outline'}
                                             className={status.status === 'due' ? 'bg-orange-600 hover:bg-orange-700 text-white' : ''}
                                         >
-                                            {status.status === 'available' ? 'เริ่มประเมิน' : 
-                                             status.status === 'due' ? 'ทำซ้ำ' : 'เริ่มประเมินอีกครั้ง'}
+                                            {status.status === 'available' ? 'เริ่มประเมิน' : 'เริ่มประเมินอีกครั้ง'}
                                         </Button>
                                     </div>
                                 </div>
