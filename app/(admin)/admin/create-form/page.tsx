@@ -606,6 +606,7 @@ export default function CreateFormPage() {
                                         <SelectValue placeholder="เลือกความถี่ในการทำซ้ำ" />
                                     </SelectTrigger>
                                     <SelectContent>
+                                        <SelectItem value="0">ทำครั้งเดียว</SelectItem>
                                         <SelectItem value="0.5">ทุก 2 สัปดาห์ (0.5 เดือน)</SelectItem>
                                         <SelectItem value="1">ทุก 1 เดือน</SelectItem>
                                         <SelectItem value="2">ทุก 2 เดือน</SelectItem>

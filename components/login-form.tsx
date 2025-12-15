@@ -16,7 +16,7 @@ export function LoginForm({
           <form className="p-6 md:p-8">
             <div className="flex flex-col gap-6">
               <div className="flex flex-col items-center text-center">
-                <h1 className="text-2xl font-bold">เข้าสู่ระบบ Daycare</h1>
+                <h1 className="text-2xl font-bold">เข้าสู่ระบบ Chula Daycare</h1>
               </div>
               <div className="grid gap-3">
                 <Label htmlFor="email">อีเมล หรือ ชื่อผู้ใช้</Label>

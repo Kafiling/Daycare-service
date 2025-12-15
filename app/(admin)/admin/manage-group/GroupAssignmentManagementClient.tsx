@@ -722,7 +722,7 @@ export function GroupAssignmentManagementClient() {
 
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <Label>แบบแบบสอบถามและน้ำหนัก *</Label>
+                <Label>แบบสอบถามและน้ำหนัก *</Label>
                 <Button
                   type="button"
                   variant="outline"
@@ -730,7 +730,7 @@ export function GroupAssignmentManagementClient() {
                   onClick={() => addFormConfig(true)}
                 >
                   <Plus className="h-4 w-4 mr-1" />
-                  เพิ่มแบบแบบสอบถาม
+                  เพิ่มแบบสอบถาม
                 </Button>
               </div>
 
@@ -742,7 +742,7 @@ export function GroupAssignmentManagementClient() {
                       onValueChange={(value) => updateFormConfig(index, 'form_id', value, true)}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="เลือกแบบแบบสอบถาม" />
+                        <SelectValue placeholder="เลือกแบบสอบถาม" />
                       </SelectTrigger>
                       <SelectContent>
                         {availableForms.map((availableForm) => (
