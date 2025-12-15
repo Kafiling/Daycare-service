@@ -112,7 +112,8 @@ export default function AvailableSurveys({ patientId, forms, submissions }: Avai
             return { status: 'available', message: 'พร้อมใช้งาน' };
         }
 
-        if (!form.recurrence_schedule || form.recurrence_schedule.length === 0) {
+        // Check if recurrence_schedule is empty, has no values, or first value is 0 (one-time form)
+        if (!form.recurrence_schedule || form.recurrence_schedule.length === 0 || form.recurrence_schedule[0] === 0) {
             return { status: 'completed', message: 'ทำแบบประเมินแล้ว', lastSubmission };
         }
 
