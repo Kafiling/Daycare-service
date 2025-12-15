@@ -15,7 +15,7 @@ export default async function ManageGroupAssignmentsPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">จัดการการแบ่งกลุ่มอัตโนมัติ</h1>
+        <h1 className="text-3xl font-bold text-gray-900">จัดการการจัดการกลุ่ม</h1>
         <p className="text-gray-600 mt-2">
           ตั้งค่าเงื่อนไขการแบ่งกลุ่มผู้ใช้บริการอัตโนมัติตามคะแนนจากแบบสอบถาม
         </p>
