@@ -50,7 +50,7 @@ export function RuleCard({ rule, onEdit, onDelete, isLoading }: RuleCardProps) {
                 <span>กลุ่ม: {rule.group?.name}</span>
               </div>
               <div>
-                แบบแบบสอบถาม: {rule.rule_config.forms?.length || 0} แบบแบบสอบถาม
+                แบบสอบถาม: {rule.rule_config.forms?.length || 0} แบบสอบถาม
               </div>
               <div>
                 เงื่อนไข: {rule.rule_config.operator === 'gte' ? '≥' : rule.rule_config.operator === 'lte' ? '≤' : 'ระหว่าง'} {rule.rule_config.min_score}

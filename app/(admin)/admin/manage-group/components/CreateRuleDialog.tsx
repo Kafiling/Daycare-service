@@ -122,7 +122,7 @@ export function CreateRuleDialog({
 
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <Label>แบบแบบสอบถามและน้ำหนัก *</Label>
+              <Label>แบบสอบถามและน้ำหนัก *</Label>
               <Button
                 type="button"
                 variant="outline"
@@ -130,7 +130,7 @@ export function CreateRuleDialog({
                 onClick={onAddForm}
               >
                 <Plus className="h-4 w-4 mr-1" />
-                เพิ่มแบบแบบสอบถาม
+                เพิ่มแบบสอบถาม
               </Button>
             </div>
 
@@ -142,7 +142,7 @@ export function CreateRuleDialog({
                     onValueChange={(value) => onUpdateFormConfig(index, 'form_id', value)}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="เลือกแบบแบบสอบถาม" />
+                      <SelectValue placeholder="เลือกแบบสอบถาม" />
                     </SelectTrigger>
                     <SelectContent>
                       {availableForms.map((availableForm) => (
