@@ -96,7 +96,7 @@ serve(async (req) => {
     })
 
     const patientsWorksheet = XLSX.utils.json_to_sheet(patientRows)
-    XLSX.utils.book_append_sheet(workbook, patientsWorksheet, "Patients Info")
+    XLSX.utils.book_append_sheet(workbook, patientsWorksheet, "Members Info")
 
     // --- Sheets 2+: Submissions per Form ---
     for (const form of forms) {
@@ -149,8 +149,8 @@ serve(async (req) => {
           // Build the row with fixed columns first
           const row: any = {
             Date: new Date(s.submitted_at).toLocaleDateString('th-TH'),
-            Patient: `${s.patients?.first_name || ''} ${s.patients?.last_name || ''}`.trim(),
-            Nurse: `${s.profiles?.first_name || ''} ${s.profiles?.last_name || ''}`.trim(),
+            Member: `${s.patients?.first_name || ''} ${s.patients?.last_name || ''}`.trim(),
+            Staff: `${s.profiles?.first_name || ''} ${s.profiles?.last_name || ''}`.trim(),
             Score: s.total_evaluation_score,
             Result: s.evaluation_result,
           };
