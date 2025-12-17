@@ -78,3 +78,35 @@ export async function getTodayCheckIn(patientId: string) {
 
   return data as CheckIn | null;
 }
+
+export async function updateCheckIn(
+  checkInId: string,
+  vitals: { systolic_bp?: number; diastolic_bp?: number; heart_rate?: number }
+) {
+  const supabase = await createClient();
+
+  console.log('Updating check-in with ID:', checkInId);
+  console.log('Vitals data:', vitals);
+
+  const { data, error } = await supabase
+    .from('patient_checkins')
+    .update({
+      systolic_bp: vitals.systolic_bp,
+      diastolic_bp: vitals.diastolic_bp,
+      heart_rate: vitals.heart_rate
+    })
+    .eq('id', checkInId)
+    .select();
+
+  if (error) {
+    console.error('Error updating check-in:', error);
+    throw error;
+  }
+
+  if (!data || data.length === 0) {
+    console.error('No check-in record found with ID:', checkInId);
+    throw new Error('Check-in record not found');
+  }
+
+  return data[0];
+}

@@ -12,7 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CheckCircle2, History, Clock, Activity } from "lucide-react";
-import { checkInPatientAction } from "@/app/(main)/patient/[id]/home/_actions/checkin";
+import { checkInPatientAction, updateCheckInAction } from "@/app/(main)/patient/[id]/home/_actions/checkin";
 import { toast } from "sonner";
 import type { CheckIn } from "@/app/service/checkin";
 
@@ -29,6 +29,23 @@ export function PatientCheckIn({ patientId, todayCheckIn, history }: PatientChec
   const [diastolicBp, setDiastolicBp] = useState('');
   const [heartRate, setHeartRate] = useState('');
 
+  const isEditMode = todayCheckIn !== null;
+
+  const openDialog = () => {
+    if (todayCheckIn) {
+      // Pre-fill with existing data when editing
+      setSystolicBp(todayCheckIn.systolic_bp?.toString() || '');
+      setDiastolicBp(todayCheckIn.diastolic_bp?.toString() || '');
+      setHeartRate(todayCheckIn.heart_rate?.toString() || '');
+    } else {
+      // Clear fields for new check-in
+      setSystolicBp('');
+      setDiastolicBp('');
+      setHeartRate('');
+    }
+    setIsCheckInDialogOpen(true);
+  };
+
   const handleCheckIn = async () => {
     setIsLoading(true);
     try {
@@ -38,15 +55,27 @@ export function PatientCheckIn({ patientId, todayCheckIn, history }: PatientChec
         heart_rate: heartRate ? parseInt(heartRate) : undefined,
       };
 
-      const result = await checkInPatientAction(patientId, vitals);
+      let result;
+      if (isEditMode && todayCheckIn) {
+        console.log('Editing check-in:', todayCheckIn.id);
+        result = await updateCheckInAction(patientId, todayCheckIn.id, vitals);
+        if (result.success) {
+          toast.success("อัปเดตข้อมูลสำเร็จ");
+        }
+      } else {
+        result = await checkInPatientAction(patientId, vitals);
+        if (result.success) {
+          toast.success("เช็คอินสำเร็จ");
+        }
+      }
+
       if (result.success) {
-        toast.success("เช็คอินสำเร็จ");
         setIsCheckInDialogOpen(false);
         setSystolicBp('');
         setDiastolicBp('');
         setHeartRate('');
       } else {
-        toast.error("เช็คอินล้มเหลว");
+        toast.error(isEditMode ? "อัปเดตข้อมูลล้มเหลว" : "เช็คอินล้มเหลว");
       }
     } catch (error) {
       toast.error("เกิดข้อผิดพลาด");
@@ -67,27 +96,49 @@ export function PatientCheckIn({ patientId, todayCheckIn, history }: PatientChec
 
   return (
     <div className="flex gap-2">
-      {todayCheckIn ? (
-        <Button variant="outline" className="gap-2 cursor-default hover:bg-background text-pink-600 border-pink-200 bg-pink-50">
-          <CheckCircle2 className="h-4 w-4" />
-          เช็คอินแล้ว ({new Date(todayCheckIn.check_in_time).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })})
-        </Button>
-      ) : (
-        <Dialog open={isCheckInDialogOpen} onOpenChange={setIsCheckInDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="gap-2">
+      <Dialog open={isCheckInDialogOpen} onOpenChange={setIsCheckInDialogOpen}>
+        <DialogTrigger asChild>
+          {todayCheckIn ? (
+            <Button 
+              variant="outline" 
+              className="gap-2 text-pink-600 border-pink-200 bg-pink-50 hover:bg-pink-100"
+              onClick={openDialog}
+            >
+              <CheckCircle2 className="h-4 w-4" />
+              เช็คอินแล้ว ({new Date(todayCheckIn.check_in_time).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })})
+            </Button>
+          ) : (
+            <Button className="gap-2" onClick={openDialog}>
               <Clock className="h-4 w-4" />
               เช็คอิน
             </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <Activity className="h-5 w-5" />
-                บันทึกสัญญาณชีพ
-              </DialogTitle>
-            </DialogHeader>
+          )}
+        </DialogTrigger>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Activity className="h-5 w-5" />
+              {isEditMode ? 'แก้ไขสัญญาณชีพ' : 'บันทึกสัญญาณชีพ'}
+            </DialogTitle>
+          </DialogHeader>
             <div className="space-y-4 mt-4">
+              {isEditMode && todayCheckIn && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-start gap-2">
+                  <div className="text-yellow-600 mt-0.5">⚠️</div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-yellow-800">กำลังแก้ไขข้อมูลเช็คอิน</p>
+                    <p className="text-xs text-yellow-700 mt-1">
+                      {new Date(todayCheckIn.check_in_time).toLocaleDateString('th-TH', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </p>
+                  </div>
+                </div>
+              )}
               <div className="space-y-2">
                 <Label>ความดันเลือด (mmHg)</Label>
                 <div className="flex gap-2 items-center">
@@ -139,13 +190,15 @@ export function PatientCheckIn({ patientId, todayCheckIn, history }: PatientChec
                   ยกเลิก
                 </Button>
                 <Button onClick={handleCheckIn} disabled={isLoading}>
-                  {isLoading ? "กำลังบันทึก..." : "บันทึกเช็คอิน"}
+                  {isLoading 
+                    ? (isEditMode ? "กำลังอัปเดต..." : "กำลังบันทึก...") 
+                    : (isEditMode ? "อัปเดตข้อมูล" : "บันทึกเช็คอิน")
+                  }
                 </Button>
               </div>
             </div>
           </DialogContent>
         </Dialog>
-      )}
 
       <Dialog>
         <DialogTrigger asChild>
