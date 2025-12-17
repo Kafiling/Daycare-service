@@ -9,7 +9,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { CheckCircle2, History, Clock } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { CheckCircle2, History, Clock, Activity } from "lucide-react";
 import { checkInPatientAction } from "@/app/(main)/patient/[id]/home/_actions/checkin";
 import { toast } from "sonner";
 import type { CheckIn } from "@/app/service/checkin";
@@ -22,13 +24,27 @@ interface PatientCheckInProps {
 
 export function PatientCheckIn({ patientId, todayCheckIn, history }: PatientCheckInProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [isCheckInDialogOpen, setIsCheckInDialogOpen] = useState(false);
+  const [systolicBp, setSystolicBp] = useState('');
+  const [diastolicBp, setDiastolicBp] = useState('');
+  const [heartRate, setHeartRate] = useState('');
 
   const handleCheckIn = async () => {
     setIsLoading(true);
     try {
-      const result = await checkInPatientAction(patientId);
+      const vitals = {
+        systolic_bp: systolicBp ? parseInt(systolicBp) : undefined,
+        diastolic_bp: diastolicBp ? parseInt(diastolicBp) : undefined,
+        heart_rate: heartRate ? parseInt(heartRate) : undefined,
+      };
+
+      const result = await checkInPatientAction(patientId, vitals);
       if (result.success) {
         toast.success("เช็คอินสำเร็จ");
+        setIsCheckInDialogOpen(false);
+        setSystolicBp('');
+        setDiastolicBp('');
+        setHeartRate('');
       } else {
         toast.error("เช็คอินล้มเหลว");
       }
@@ -57,10 +73,78 @@ export function PatientCheckIn({ patientId, todayCheckIn, history }: PatientChec
           เช็คอินแล้ว ({new Date(todayCheckIn.check_in_time).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })})
         </Button>
       ) : (
-        <Button onClick={handleCheckIn} disabled={isLoading} className="gap-2">
-          <Clock className="h-4 w-4" />
-          {isLoading ? "กำลังเช็คอิน..." : "เช็คอิน"}
-        </Button>
+        <Dialog open={isCheckInDialogOpen} onOpenChange={setIsCheckInDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="gap-2">
+              <Clock className="h-4 w-4" />
+              เช็คอิน
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Activity className="h-5 w-5" />
+                บันทึกสัญญาณชีพ
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 mt-4">
+              <div className="space-y-2">
+                <Label>ความดันเลือด (mmHg)</Label>
+                <div className="flex gap-2 items-center">
+                  <div className="flex-1">
+                    <Input
+                      type="number"
+                      placeholder="Systolic"
+                      value={systolicBp}
+                      onChange={(e) => setSystolicBp(e.target.value)}
+                      min="0"
+                      max="300"
+                    />
+                    <span className="text-xs text-muted-foreground mt-1 block">ค่าบน</span>
+                  </div>
+                  <span className="text-muted-foreground">/</span>
+                  <div className="flex-1">
+                    <Input
+                      type="number"
+                      placeholder="Diastolic"
+                      value={diastolicBp}
+                      onChange={(e) => setDiastolicBp(e.target.value)}
+                      min="0"
+                      max="200"
+                    />
+                    <span className="text-xs text-muted-foreground mt-1 block">ค่าล่าง</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="heart-rate">อัตราการเต้นของหัวใจ (bpm)</Label>
+                <Input
+                  id="heart-rate"
+                  type="number"
+                  placeholder="ครั้งต่อนาที"
+                  value={heartRate}
+                  onChange={(e) => setHeartRate(e.target.value)}
+                  min="0"
+                  max="300"
+                />
+              </div>
+
+              <div className="flex gap-2 justify-end pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setIsCheckInDialogOpen(false)}
+                  disabled={isLoading}
+                >
+                  ยกเลิก
+                </Button>
+                <Button onClick={handleCheckIn} disabled={isLoading}>
+                  {isLoading ? "กำลังบันทึก..." : "บันทึกเช็คอิน"}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
 
       <Dialog>
@@ -70,26 +154,52 @@ export function PatientCheckIn({ patientId, todayCheckIn, history }: PatientChec
             ประวัติ
           </Button>
         </DialogTrigger>
-        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>ประวัติการเช็คอิน</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 mt-4">
+          <div className="mt-4">
             {history.length === 0 ? (
               <p className="text-center text-muted-foreground py-8">ไม่พบประวัติการเช็คอิน</p>
             ) : (
-              <div className="space-y-2">
-                {history.map((checkIn) => (
-                  <div key={checkIn.id} className="flex justify-between items-center p-3 bg-muted/50 rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <CheckCircle2 className="h-4 w-4 text-pink-600" />
-                      <span className="font-medium">เช็คอิน</span>
-                    </div>
-                    <span className="text-sm text-muted-foreground">
-                      {formatDate(checkIn.check_in_time)}
-                    </span>
-                  </div>
-                ))}
+              <div className="overflow-x-auto">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left p-3 font-semibold">วันที่</th>
+                      <th className="text-left p-3 font-semibold">เวลา</th>
+                      <th className="text-left p-3 font-semibold">ความดันเลือด</th>
+                      <th className="text-left p-3 font-semibold">อัตราการเต้นหัวใจ</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {history.map((checkIn) => (
+                      <tr key={checkIn.id} className="border-b hover:bg-muted/50">
+                        <td className="p-3">
+                          {new Date(checkIn.check_in_time).toLocaleDateString('th-TH', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                          })}
+                        </td>
+                        <td className="p-3">
+                          {new Date(checkIn.check_in_time).toLocaleTimeString('th-TH', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </td>
+                        <td className="p-3">
+                          {checkIn.systolic_bp && checkIn.diastolic_bp
+                            ? `${checkIn.systolic_bp}/${checkIn.diastolic_bp} mmHg`
+                            : '-'}
+                        </td>
+                        <td className="p-3">
+                          {checkIn.heart_rate ? `${checkIn.heart_rate} bpm` : '-'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
           </div>

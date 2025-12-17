@@ -4,11 +4,17 @@ export interface CheckIn {
   id: string;
   patient_id: string;
   check_in_time: string;
+  systolic_bp?: number;
+  diastolic_bp?: number;
+  heart_rate?: number;
   created_by?: string;
   created_at: string;
 }
 
-export async function checkInPatient(patientId: string) {
+export async function checkInPatient(
+  patientId: string,
+  vitals?: { systolic_bp?: number; diastolic_bp?: number; heart_rate?: number }
+) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -16,7 +22,12 @@ export async function checkInPatient(patientId: string) {
     .from('patient_checkins')
     .insert({
       patient_id: patientId,
-      created_by: user?.id
+      created_by: user?.id,
+      ...(vitals && {
+        systolic_bp: vitals.systolic_bp,
+        diastolic_bp: vitals.diastolic_bp,
+        heart_rate: vitals.heart_rate
+      })
     })
     .select()
     .single();
