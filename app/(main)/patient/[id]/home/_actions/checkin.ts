@@ -3,9 +3,12 @@
 import { checkInPatient } from "@/app/service/checkin";
 import { revalidatePath } from "next/cache";
 
-export async function checkInPatientAction(patientId: string) {
+export async function checkInPatientAction(
+  patientId: string,
+  vitals?: { systolic_bp?: number; diastolic_bp?: number; heart_rate?: number }
+) {
   try {
-    await checkInPatient(patientId);
+    await checkInPatient(patientId, vitals);
     revalidatePath(`/patient/${patientId}/home`);
     return { success: true };
   } catch (error) {
