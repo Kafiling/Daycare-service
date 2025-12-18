@@ -128,7 +128,7 @@ export default function PatientTable({ initialPatients }: PatientTableProps) {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <Link href={`/patient/${patient.id}/home`}>
+                        <Link href={`/admin/patient-view/${patient.id}`}>
                           <Button size="sm" variant="outline" className="gap-2">
                             <ExternalLink className="h-4 w-4" />
                             ดูข้อมูล
