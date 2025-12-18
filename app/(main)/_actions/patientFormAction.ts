@@ -21,8 +21,11 @@ export async function searchPatientByID(id: string) {
 
   // Check if patient is soft deleted
   if (data && data.deleted_at) {
-    // Return null so the search shows "not found" - deleted patients shouldn't be accessible
-    return null;
+    // Return special object indicating patient is soft deleted
+    return {
+      ...data,
+      isSoftDeleted: true,
+    };
   }
 
   return data;
