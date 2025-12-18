@@ -19,6 +19,11 @@ export async function searchPatientByID(id: string) {
     throw new Error("Error fetching patient", error);
   }
 
+  // Check if patient is soft deleted
+  if (data && data.deleted_at) {
+    // Return null so the search shows "not found" - deleted patients shouldn't be accessible
+    return null;
+  }
 
   return data;
 }
