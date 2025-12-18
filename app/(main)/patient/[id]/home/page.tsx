@@ -65,11 +65,6 @@ export default async function PatientHomePage({ params }: PatientHomePageProps) 
             );
         }
 
-        // Continue with normal page rendering...
-                </div>
-            );
-        }
-
         return (
             <div className="container mx-auto px-4 py-8 max-w-6xl flex flex-col gap-y-4">
                 {/* Patient Header */}
