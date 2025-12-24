@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
-import { Users, FileText, Target, UserCog } from 'lucide-react';
+import { Users, FileText, Target, UserCog, Activity } from 'lucide-react';
 import ExportDataButton from "@/components/admin/ExportDataButton";
 
 export default function AdminPage() {
@@ -83,6 +83,22 @@ export default function AdminPage() {
               <CardContent>
                 <p className="text-sm text-muted-foreground">
                   ตั้งค่าเงื่อนไขการแบ่งกลุ่มผู้ใช้บริการอัตโนมัติตามคะแนนจากแบบสอบถาม
+                </p>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link href="/admin/activity-logs" className="hover:shadow-lg transition-shadow duration-300 rounded-lg">
+            <Card className="h-full">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-lg font-medium">
+                  บันทึกกิจกรรม
+                </CardTitle>
+                <Activity className="h-6 w-6 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  ติดตามและตรวจสอบบันทึกการเปลี่ยนแปลงทั้งหมดในระบบ
                 </p>
               </CardContent>
             </Card>
