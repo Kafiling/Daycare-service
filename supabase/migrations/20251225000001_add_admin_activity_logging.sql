@@ -103,7 +103,7 @@ BEGIN
             jsonb_build_object(
                 'survey_id', NEW.form_id,
                 'title', NEW.title,
-                'type', NEW.form_type,
+                'label', NEW.label,
                 'created_by', COALESCE(NEW.created_by, v_user_id)
             )
         );

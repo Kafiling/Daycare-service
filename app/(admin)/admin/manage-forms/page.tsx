@@ -63,6 +63,7 @@ import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 // Import from the same service as AvailableSurveys
 import { type Form } from '@/app/service/patient-client';
+import { logFormStatusChange } from './_actions/logFormStatusChange';
 
 // Icon mapping for form categories (same as AvailableSurveys)
 const getCategoryIcon = (label?: string) => {
@@ -267,6 +268,13 @@ export default function ManageFormsPage() {
                 f.form_id === formId ? updatedForm : f
             );
             setForms(updatedForms);
+            
+            // Log the status change activity
+            await logFormStatusChange(
+                updatedForm.form_id,
+                updatedForm.title,
+                updatedForm.is_active
+            );
             
             toast.success(`${updatedForm.is_active ? 'เปิดใช้งาน' : 'ปิดใช้งาน'}แบบสอบถามเรียบร้อยแล้ว`);
             
