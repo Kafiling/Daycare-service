@@ -42,7 +42,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Search,
-  X
+  X,
+  FileDown
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { th } from 'date-fns/locale';
@@ -115,6 +116,7 @@ export function ActivityLogsTableClient({ initialLogs }: ActivityLogsTableClient
       group_created: <Target className="h-4 w-4" />,
       group_updated: <Target className="h-4 w-4" />,
       group_deleted: <Target className="h-4 w-4" />,
+      admin_export_data: <FileDown className="h-4 w-4" />,
     };
     return iconMap[activityType] || <FileText className="h-4 w-4" />;
   };
@@ -142,15 +144,17 @@ export function ActivityLogsTableClient({ initialLogs }: ActivityLogsTableClient
     event_created: 'สร้างกิจกรรม',
     event_updated: 'แก้ไขกิจกรรม',
     event_deleted: 'ลบกิจกรรม',
+    admin_export_data: 'ส่งออกข้อมูล Excel',
   };
 
   const entityTypeLabels: Record<string, string> = {
     submission: 'แบบสอบถาม',
-    survey: 'แบบสอบถาม (Admin)',
+    survey: 'แบบสอบถาม',
     patient: 'ผู้ใช้บริการ',
     patient_group: 'กลุ่ม',
     checkin: 'เช็คอิน',
     group_event: 'กิจกรรม',
+    admin_action: 'การดำเนินการของแอดมิน',
   };
 
   // Get unique activity and entity types for filters

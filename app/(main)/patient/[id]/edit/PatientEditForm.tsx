@@ -691,7 +691,7 @@ function PatientEditForm({ initialData }: PatientEditFormProps) {
           </div>
 
           <div className="grid md:col-span-2">
-            <Label className="py-2 text-base">ที่อยู่ปัจจุบัน (Current Address)</Label>
+            <Label className="py-2 text-base">ที่อยู่ปัจจุบัน (Current Address) <span className="text-red-500">*</span></Label>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border rounded-md bg-gray-50">
                 <div className="grid md:col-span-2">
                     <Label className="text-sm">บ้านเลขที่, หมู่, ซอย</Label>

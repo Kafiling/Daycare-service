@@ -267,9 +267,9 @@ export const ACTIVITY_TYPES = {
   
   // Survey activities
   SURVEY_SUBMITTED: 'survey_submitted',
-  SURVEY_CREATED: 'form_created',
-  SURVEY_UPDATED: 'form_updated',
-  SURVEY_DELETED: 'form_deleted',
+  SURVEY_CREATED: 'survey_created',
+  SURVEY_UPDATED: 'survey_updated',
+  SURVEY_DELETED: 'survey_deleted',
   
   // Group activities
   GROUP_CREATED: 'group_created',
@@ -281,6 +281,9 @@ export const ACTIVITY_TYPES = {
   EVENT_CREATED: 'event_created',
   EVENT_UPDATED: 'event_updated',
   EVENT_DELETED: 'event_deleted',
+  
+  // Admin activities
+  ADMIN_EXPORT_DATA: 'admin_export_data',
 } as const;
 
 /**
@@ -289,8 +292,41 @@ export const ACTIVITY_TYPES = {
 export const ENTITY_TYPES = {
   PATIENT: 'patient',
   SUBMISSION: 'submission',
-  SURVEY: 'form',
+  SURVEY: 'survey',
   PATIENT_GROUP: 'patient_group',
   GROUP_EVENT: 'group_event',
   CHECKIN: 'checkin',
+  ADMIN_ACTION: 'admin_action',
 } as const;
+
+/**
+ * Log admin export activity
+ */
+export async function logAdminExport(
+  export_type: string = 'full_export',
+  metadata: Record<string, any> = {}
+): Promise<string | null> {
+  const supabase = await createClient();
+  
+  // Get current user
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  
+  if (userError || !user) {
+    console.error('Error getting user for admin export log:', userError);
+    return null;
+  }
+
+  // Call the database function
+  const { data, error } = await supabase.rpc('log_admin_export', {
+    p_performed_by: user.id,
+    p_export_type: export_type,
+    p_metadata: metadata
+  });
+
+  if (error) {
+    console.error('Error logging admin export:', error);
+    return null;
+  }
+
+  return data;
+}
