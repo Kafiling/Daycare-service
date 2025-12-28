@@ -270,6 +270,8 @@ export const ACTIVITY_TYPES = {
   SURVEY_CREATED: 'survey_created',
   SURVEY_UPDATED: 'survey_updated',
   SURVEY_DELETED: 'survey_deleted',
+  SURVEY_ACTIVATED: 'survey_activated',
+  SURVEY_DEACTIVATED: 'survey_deactivated',
   
   // Group activities
   GROUP_CREATED: 'group_created',

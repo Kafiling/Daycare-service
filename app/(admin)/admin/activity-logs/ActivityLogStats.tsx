@@ -16,6 +16,8 @@ export async function ActivityLogStats() {
     survey_created: 'สร้างแบบสอบถาม',
     survey_updated: 'แก้ไขแบบสอบถาม',
     survey_deleted: 'ลบแบบสอบถาม',
+    survey_activated: 'เปิดใช้งานแบบสอบถาม',
+    survey_deactivated: 'ปิดใช้งานแบบสอบถาม',
     patient_created: 'สร้างผู้ใช้บริการ',
     patient_updated: 'แก้ไขผู้ใช้บริการ',
     patient_deleted: 'ลบผู้ใช้บริการ',

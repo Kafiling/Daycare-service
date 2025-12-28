@@ -43,7 +43,9 @@ import {
   ChevronRight,
   Search,
   X,
-  FileDown
+  FileDown,
+  ToggleLeft,
+  ToggleRight
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { th } from 'date-fns/locale';
@@ -106,6 +108,8 @@ export function ActivityLogsTableClient({ initialLogs }: ActivityLogsTableClient
       survey_created: <FolderPlus className="h-4 w-4" />,
       survey_updated: <FolderEdit className="h-4 w-4" />,
       survey_deleted: <FolderEdit className="h-4 w-4" />,
+      survey_activated: <ToggleRight className="h-4 w-4" />,
+      survey_deactivated: <ToggleLeft className="h-4 w-4" />,
       patient_created: <UserPlus className="h-4 w-4" />,
       patient_updated: <Users className="h-4 w-4" />,
       patient_deleted: <UserMinus className="h-4 w-4" />,
@@ -134,6 +138,8 @@ export function ActivityLogsTableClient({ initialLogs }: ActivityLogsTableClient
     survey_created: 'สร้างแบบสอบถาม',
     survey_updated: 'แก้ไขแบบสอบถาม',
     survey_deleted: 'ลบแบบสอบถาม',
+    survey_activated: 'เปิดใช้งานแบบสอบถาม',
+    survey_deactivated: 'ปิดใช้งานแบบสอบถาม',
     patient_created: 'สร้างผู้ใช้บริการ',
     patient_updated: 'แก้ไขผู้ใช้บริการ',
     patient_deleted: 'ลบผู้ใช้บริการ',

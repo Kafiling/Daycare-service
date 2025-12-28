@@ -202,7 +202,7 @@ BEGIN
             jsonb_build_object(
                 'survey_id', NEW.form_id,
                 'title', NEW.title,
-                'type', NEW.form_type
+                'label', NEW.label
             )
         );
     ELSIF (TG_OP = 'UPDATE') THEN
