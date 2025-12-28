@@ -6,6 +6,7 @@ import { Users, FileText, Target, UserCog, Activity, FileDown, Loader2 } from 'l
 import { createClient } from "@/utils/supabase/client";
 import { toast } from "sonner";
 import { useState } from "react";
+import { logExportAction } from "./_actions/logExport";
 
 export default function AdminPage() {
   const [isExporting, setIsExporting] = useState(false);
@@ -38,11 +39,20 @@ export default function AdminPage() {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `daycare_data_${new Date().toISOString().split('T')[0]}.xlsx`;
+      const filename = `daycare_data_${new Date().toISOString().split('T')[0]}.xlsx`;
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
+      
+      // Log the export activity via server action
+      await logExportAction('full_export', {
+        filename,
+        export_date: new Date().toISOString(),
+        file_size_bytes: blob.size
+      });
+      
       toast.success("ดาวน์โหลดข้อมูลสำเร็จ");
 
     } catch (error) {

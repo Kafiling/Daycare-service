@@ -13,25 +13,30 @@ export async function ActivityLogStats() {
 
   const activityTypeLabels: Record<string, string> = {
     survey_submitted: 'ส่งแบบสอบถาม',
+    survey_created: 'สร้างแบบสอบถาม',
+    survey_updated: 'แก้ไขแบบสอบถาม',
+    survey_deleted: 'ลบแบบสอบถาม',
     patient_created: 'สร้างผู้ใช้บริการ',
     patient_updated: 'แก้ไขผู้ใช้บริการ',
     patient_deleted: 'ลบผู้ใช้บริการ',
-    form_created: 'สร้างแบบสอบถาม',
-    form_updated: 'แก้ไขแบบสอบถาม',
-    form_deleted: 'ลบแบบสอบถาม',
     group_created: 'สร้างกลุ่ม',
     group_updated: 'แก้ไขกลุ่ม',
+    group_deleted: 'ลบกลุ่ม',
     patient_checkin: 'เช็คอิน',
     event_created: 'สร้างกิจกรรม',
+    event_updated: 'แก้ไขกิจกรรม',
+    event_deleted: 'ลบกิจกรรม',
+    admin_export_data: 'ส่งออกข้อมูล Excel',
   };
 
   const entityTypeLabels: Record<string, string> = {
     submission: 'แบบสอบถาม',
-    form: 'แบบสอบถาม',
+    survey: 'แบบสอบถาม',
     patient: 'ผู้ใช้บริการ',
     patient_group: 'กลุ่ม',
     checkin: 'เช็คอิน',
     group_event: 'กิจกรรม',
+    admin_action: 'การดำเนินการของแอดมิน',
   };
 
   return (
