@@ -158,15 +158,15 @@ BEGIN
                     'scheduled_deletion', NEW.scheduled_permanent_delete_at
                 )
             );
-        -- Log patient update (excluding automated fields)
-        ELSIF (OLD.first_name != NEW.first_name OR 
-               OLD.last_name != NEW.last_name OR 
-               OLD.date_of_birth != NEW.date_of_birth OR
-               OLD.gender != NEW.gender OR
-               OLD.phone_number != NEW.phone_number OR
-               OLD.address != NEW.address OR
-               OLD.emergency_contact != NEW.emergency_contact OR
-               OLD.emergency_phone != NEW.emergency_phone) THEN
+        -- Log patient update (check only basic fields that definitely exist)
+        ELSIF (OLD.first_name IS DISTINCT FROM NEW.first_name OR 
+               OLD.last_name IS DISTINCT FROM NEW.last_name OR 
+               OLD.date_of_birth IS DISTINCT FROM NEW.date_of_birth OR
+               OLD.gender IS DISTINCT FROM NEW.gender OR
+               OLD.phone_num IS DISTINCT FROM NEW.phone_num OR
+               OLD.address IS DISTINCT FROM NEW.address OR
+               OLD.weight IS DISTINCT FROM NEW.weight OR
+               OLD.height IS DISTINCT FROM NEW.height) THEN
             PERFORM public.log_activity(
                 'patient_updated',
                 'patient',
