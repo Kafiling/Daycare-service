@@ -30,6 +30,56 @@ interface ActionResult {
 }
 
 /**
+ * Log staff activity to activity_logs table
+ */
+async function logStaffActivity(
+  activityType: string,
+  staffId: string,
+  staffName: string,
+  performedBy: string,
+  metadata?: Record<string, any>
+) {
+  try {
+    const supabase = await createClient();
+    
+    // Get performer's profile for name
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('first_name, last_name, username')
+      .eq('id', performedBy)
+      .single();
+
+    const performedByName = profile
+      ? `${profile.first_name} ${profile.last_name}`.trim() || profile.username
+      : null;
+
+    const descriptions: Record<string, string> = {
+      staff_created: `สร้างบัญชีพนักงานใหม่: ${staffName}`,
+      staff_updated: `อัปเดตข้อมูลพนักงาน: ${staffName}`,
+      staff_password_reset: `รีเซ็ตรหัสผ่านพนักงาน: ${staffName}`,
+      staff_deleted: `ลบบัญชีพนักงาน: ${staffName}`,
+    };
+
+    await supabase.from('activity_logs').insert({
+      activity_type: activityType,
+      entity_type: 'staff',
+      entity_id: staffId,
+      performed_by: performedBy,
+      performed_by_name: performedByName,
+      description: descriptions[activityType] || `กิจกรรมพนักงาน: ${staffName}`,
+      metadata: {
+        staff_id: staffId,
+        staff_name: staffName,
+        ...metadata
+      }
+    });
+  } catch (error) {
+    console.error('Error logging staff activity:', error);
+    // Don't fail the main operation if logging fails
+  }
+}
+
+/**
  * Create a new staff member with Supabase Auth and profile
  */
 export async function createStaff(data: CreateStaffData): Promise<ActionResult> {
@@ -78,6 +128,23 @@ export async function createStaff(data: CreateStaffData): Promise<ActionResult> 
         return { success: false, error: 'เกิดข้อผิดพลาดในการสร้างโปรไฟล์' };
       }
 
+      // Get current user for logging
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await logStaffActivity(
+          'staff_created',
+          newUser.user.id,
+          `${data.first_name} ${data.last_name}`.trim() || data.username,
+          user.id,
+          {
+            email: data.email,
+            username: data.username,
+            title: data.title,
+            position: data.position,
+          }
+        );
+      }
+
       return { success: true, profile };
     } catch (profileError) {
       console.error('Error creating profile:', profileError);
@@ -115,6 +182,26 @@ export async function updateStaff(staffId: string, data: UpdateStaffData): Promi
       return { success: false, error: 'เกิดข้อผิดพลาดในการอัปเดตข้อมูล' };
     }
 
+    // Get current user for logging
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await logStaffActivity(
+        'staff_updated',
+        staffId,
+        `${data.first_name} ${data.last_name}`.trim() || data.username,
+        user.id,
+        {
+          updated_fields: {
+            first_name: data.first_name,
+            last_name: data.last_name,
+            username: data.username,
+            title: data.title,
+            position: data.position,
+          }
+        }
+      );
+    }
+
     return { success: true, profile: updatedProfile };
 
   } catch (error) {
@@ -147,6 +234,24 @@ export async function resetStaffPassword(staffId: string, newPassword: string): 
       };
     }
 
+    // Get staff profile info for logging
+    const { data: staffProfile } = await supabase
+      .from('profiles')
+      .select('first_name, last_name, username')
+      .eq('id', staffId)
+      .single();
+
+    // Get current user for logging
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user && staffProfile) {
+      await logStaffActivity(
+        'staff_password_reset',
+        staffId,
+        `${staffProfile.first_name} ${staffProfile.last_name}`.trim() || staffProfile.username,
+        user.id
+      );
+    }
+
     return { success: true };
 
   } catch (error) {
@@ -170,6 +275,13 @@ export async function deleteStaff(staffId: string): Promise<ActionResult> {
     if (user.id === staffId) {
       return { success: false, error: 'ไม่สามารถลบบัญชีของตนเองได้' };
     }
+
+    // Get staff profile info before deleting for logging
+    const { data: staffProfile } = await supabase
+      .from('profiles')
+      .select('first_name, last_name, username, email')
+      .eq('id', staffId)
+      .single();
 
     // Delete profile first (due to foreign key constraints)
     const { error: profileError } = await supabase
@@ -195,6 +307,19 @@ export async function deleteStaff(staffId: string): Promise<ActionResult> {
         success: false,
         error: deleteError.message || 'เกิดข้อผิดพลาดในการลบบัญชีผู้ใช้'
       };
+    }
+
+    // Log activity after successful deletion
+    if (staffProfile) {
+      await logStaffActivity(
+        'staff_deleted',
+        staffId,
+        `${staffProfile.first_name} ${staffProfile.last_name}`.trim() || staffProfile.username,
+        user.id,
+        {
+          deleted_email: staffProfile.email,
+        }
+      );
     }
 
     return { success: true };

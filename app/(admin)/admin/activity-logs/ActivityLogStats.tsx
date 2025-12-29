@@ -29,6 +29,10 @@ export async function ActivityLogStats() {
     event_updated: 'แก้ไขกิจกรรม',
     event_deleted: 'ลบกิจกรรม',
     admin_export_data: 'ส่งออกข้อมูล Excel',
+    staff_created: 'สร้างพนักงาน',
+    staff_updated: 'แก้ไขข้อมูลพนักงาน',
+    staff_password_reset: 'รีเซ็ตรหัสผ่านพนักงาน',
+    staff_deleted: 'ลบพนักงาน',
   };
 
   const entityTypeLabels: Record<string, string> = {
@@ -39,6 +43,7 @@ export async function ActivityLogStats() {
     checkin: 'เช็คอิน',
     group_event: 'กิจกรรม',
     admin_action: 'การดำเนินการของแอดมิน',
+    staff: 'พนักงาน',
   };
 
   return (
