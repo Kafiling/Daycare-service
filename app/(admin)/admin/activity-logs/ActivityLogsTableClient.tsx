@@ -121,6 +121,10 @@ export function ActivityLogsTableClient({ initialLogs }: ActivityLogsTableClient
       group_updated: <Target className="h-4 w-4" />,
       group_deleted: <Target className="h-4 w-4" />,
       admin_export_data: <FileDown className="h-4 w-4" />,
+      staff_created: <UserPlus className="h-4 w-4" />,
+      staff_updated: <Users className="h-4 w-4" />,
+      staff_password_reset: <Users className="h-4 w-4" />,
+      staff_deleted: <UserMinus className="h-4 w-4" />,
     };
     return iconMap[activityType] || <FileText className="h-4 w-4" />;
   };
@@ -151,6 +155,10 @@ export function ActivityLogsTableClient({ initialLogs }: ActivityLogsTableClient
     event_updated: 'แก้ไขกิจกรรม',
     event_deleted: 'ลบกิจกรรม',
     admin_export_data: 'ส่งออกข้อมูล Excel',
+    staff_created: 'สร้างพนักงาน',
+    staff_updated: 'แก้ไขข้อมูลพนักงาน',
+    staff_password_reset: 'รีเซ็ตรหัสผ่านพนักงาน',
+    staff_deleted: 'ลบพนักงาน',
   };
 
   const entityTypeLabels: Record<string, string> = {
@@ -161,6 +169,7 @@ export function ActivityLogsTableClient({ initialLogs }: ActivityLogsTableClient
     checkin: 'เช็คอิน',
     group_event: 'กิจกรรม',
     admin_action: 'การดำเนินการของแอดมิน',
+    staff: 'พนักงาน',
   };
 
   // Get unique activity and entity types for filters
