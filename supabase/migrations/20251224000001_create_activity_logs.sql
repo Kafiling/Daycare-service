@@ -297,7 +297,10 @@ BEGIN
         jsonb_build_object(
             'patient_id', NEW.patient_id,
             'check_in_time', NEW.check_in_time,
-            'has_vitals', (NEW.vitals IS NOT NULL)
+            'has_vitals', (NEW.systolic_bp IS NOT NULL OR NEW.diastolic_bp IS NOT NULL OR NEW.heart_rate IS NOT NULL),
+            'systolic_bp', NEW.systolic_bp,
+            'diastolic_bp', NEW.diastolic_bp,
+            'heart_rate', NEW.heart_rate
         )
     );
     
