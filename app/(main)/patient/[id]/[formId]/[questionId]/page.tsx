@@ -469,15 +469,7 @@ export default function QuestionPage() {
                                 ย้อนกลับ
                             </Button>
 
-                            <Button
-                                variant="ghost"
-                                onClick={handleSaveDraft}
-                                disabled={isSaving}
-                                className="text-base px-6 py-3"
-                            >
-                                <Save className="h-5 w-5 mr-2" />
-                                บันทึกร่าง
-                            </Button>
+                            
                         </div>
 
                         <div className="flex items-center gap-2">

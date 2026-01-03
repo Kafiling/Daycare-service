@@ -25,6 +25,7 @@ import type { GetProp, UploadProps } from "antd";
 import { uploadImage } from "@/app/(main)/patient-create/_actions/uploadImage";
 import { useRouter } from "next/navigation";
 import { ImageCropModal } from "@/components/ImageCropModal";
+import { logPatientEdit } from "./_actions/logPatientEdit";
 
 dayjs.extend(buddhistEra);
 dayjs.locale("th");
@@ -453,6 +454,16 @@ function PatientEditForm({ initialData }: PatientEditFormProps) {
         if (response.ok) {
           const data = await response.json();
           console.log("Patient updated successfully:", data);
+          
+          // Log the patient edit activity
+          await logPatientEdit(
+            formData.patientId,
+            `${formData.first_name} ${formData.last_name}`,
+            {
+              updated_fields: Object.keys(payload)
+            }
+          );
+          
           toast.success("บันทึกการแก้ไขสำเร็จ");
           router.push(`/patient/${formData.patientId}/home`);
         } else {
@@ -691,7 +702,7 @@ function PatientEditForm({ initialData }: PatientEditFormProps) {
           </div>
 
           <div className="grid md:col-span-2">
-            <Label className="py-2 text-base">ที่อยู่ปัจจุบัน (Current Address)</Label>
+            <Label className="py-2 text-base">ที่อยู่ปัจจุบัน (Current Address) <span className="text-red-500">*</span></Label>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border rounded-md bg-gray-50">
                 <div className="grid md:col-span-2">
                     <Label className="text-sm">บ้านเลขที่, หมู่, ซอย</Label>

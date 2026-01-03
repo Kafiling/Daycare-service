@@ -9,6 +9,7 @@ import PatientInfo from '@/components/patient/PatientInfo';
 import AvailableSurveys from '@/components/patient/AvailableSurveys';
 import SubmissionHistory from '@/components/patient/SubmissionHistory';
 import { GroupEventsList } from '@/components/group/GroupEventsList';
+import DeletedPatientAlert from '@/components/patient/DeletedPatientAlert';
 
 interface PatientHomePageProps {
     params: Promise<{ id: string }>;
@@ -48,6 +49,18 @@ export default async function PatientHomePage({ params }: PatientHomePageProps) 
                         <h1 className="text-2xl font-bold text-red-600">ไม่พบข้อมูลผู้ใช้บริการ</h1>
                         <p className="text-muted-foreground mt-2">กรุณาตรวจสอบรหัสผู้ใช้บริการและลองใหม่อีกครั้ง</p>
                     </div>
+                </div>
+            );
+        }
+
+        // Check if patient is soft deleted
+        if (patient.deleted_at) {
+            return (
+                <div className="container mx-auto px-4 py-8">
+                    <DeletedPatientAlert 
+                        patientName={patient.full_name} 
+                        deletedAt={patient.deleted_at}
+                    />
                 </div>
             );
         }

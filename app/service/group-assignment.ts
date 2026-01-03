@@ -377,14 +377,17 @@ export async function getPatientsWithGroups(): Promise<Array<{
     id: string;
     first_name: string;
     last_name: string;
+    date_of_birth: string | null;
+    created_at: string;
     groups: PatientGroup[];
 }>> {
     const supabase = createClient();
 
-    // First get all patients
+    // First get all patients (excluding soft-deleted)
     const { data: patients, error: patientsError } = await supabase
         .from('patients')
-        .select('id, first_name, last_name')
+        .select('id, first_name, last_name, date_of_birth, created_at')
+        .is('deleted_at', null)
         .order('first_name');
 
     if (patientsError) {

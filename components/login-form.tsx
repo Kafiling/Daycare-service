@@ -1,3 +1,5 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -5,10 +7,35 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { login } from "@/app/(login)/login/actions";
 import { ModalOneAction } from "./modal";
+import { toast } from "sonner";
+import { useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
+
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const searchParams = useSearchParams();
+  const hasShownToast = useRef(false);
+
+  useEffect(() => {
+    const error = searchParams.get("error");
+    if (error && !hasShownToast.current) {
+      hasShownToast.current = true;
+      
+      // Clear the error from URL after showing toast
+      window.history.replaceState({}, '', '/login');
+      
+      if (error === "missing_credentials") {
+        toast.error("กรุณากรอกอีเมลและรหัสผ่าน");
+      } else if (error === "user_not_found") {
+        toast.error("ไม่พบผู้ใช้งานในระบบ");
+      } else if (error === "invalid_credentials") {
+        toast.error("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
+      }
+    }
+  }, [searchParams]);
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="overflow-hidden p-0">

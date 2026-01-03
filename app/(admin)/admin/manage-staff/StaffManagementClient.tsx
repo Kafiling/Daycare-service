@@ -114,6 +114,11 @@ export function StaffManagementClient({ initialStaff }: StaffManagementClientPro
             return;
         }
 
+        if (createForm.password.length < 6) {
+            toast.error('รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร');
+            return;
+        }
+
         setIsLoading(true);
         try {
             const result = await createStaff(createForm);
@@ -164,6 +169,11 @@ export function StaffManagementClient({ initialStaff }: StaffManagementClientPro
     const handleResetPassword = async () => {
         if (!resetPasswordStaff || !newPassword) {
             toast.error('กรุณากรอกรหัสผ่านใหม่');
+            return;
+        }
+
+        if (newPassword.length < 6) {
+            toast.error('รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร');
             return;
         }
 
@@ -429,6 +439,9 @@ export function StaffManagementClient({ initialStaff }: StaffManagementClientPro
                                     onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })}
                                     placeholder="รหัสผ่านสำหรับเข้าสู่ระบบ"
                                 />
+                                <p className="text-sm text-muted-foreground mt-1">
+                                    รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร
+                                </p>
                             </div>
                         </div>
 
@@ -594,6 +607,9 @@ export function StaffManagementClient({ initialStaff }: StaffManagementClientPro
                                 onChange={(e) => setNewPassword(e.target.value)}
                                 placeholder="ใส่รหัสผ่านใหม่"
                             />
+                            <p className="text-sm text-muted-foreground mt-1">
+                                รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร
+                            </p>
                         </div>
                     </div>
 

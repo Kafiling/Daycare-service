@@ -14,6 +14,11 @@ export function PatientIdInput() {
   const router = useRouter();
   const [showDialog, setShowDialog] = useState(false);
   const [currentPatientId, setCurrentPatientId] = useState("");
+  const [showDeletedDialog, setShowDeletedDialog] = useState(false);
+  const [deletedPatientInfo, setDeletedPatientInfo] = useState<{
+    scheduledDeleteAt: string;
+    daysRemaining: number;
+  } | null>(null);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -30,6 +35,23 @@ export function PatientIdInput() {
       const patient = await searchPatientByID(patientID);
 
       if (patient && patient.id) {
+        // Check if patient is soft deleted
+        if (patient.isSoftDeleted) {
+          const deletionDate = new Date(patient.scheduled_permanent_delete_at);
+          const daysRemaining = Math.ceil((deletionDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+          
+          setDeletedPatientInfo({
+            scheduledDeleteAt: deletionDate.toLocaleDateString('th-TH', { 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric' 
+            }),
+            daysRemaining,
+          });
+          setShowDeletedDialog(true);
+          return;
+        }
+        
         router.push(`/patient/${patient.id}/home`);
       } else {
         // Show dialog instead of toast
@@ -98,6 +120,38 @@ export function PatientIdInput() {
             <Button onClick={handleCreateNewPatient} className="gap-2">
               <Plus className="h-4 w-4" />
               สร้างผู้ใช้บริการใหม่
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showDeletedDialog} onOpenChange={setShowDeletedDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-red-500" />
+              ผู้ใช้บริการถูกลบโดยผู้ดูแลระบบ
+            </DialogTitle>
+            <DialogDescription>
+              ข้อมูลผู้ใช้บริการนี้ถูกลบโดยผู้ดูแลระบบแล้ว
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4 space-y-3">
+            <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+              <p className="text-sm font-medium text-red-900 mb-2">
+                ข้อมูลจะถูกลบถาวรในอีก {deletedPatientInfo?.daysRemaining} วัน
+              </p>
+              <p className="text-sm text-red-700">
+                วันที่ลบถาวร: {deletedPatientInfo?.scheduledDeleteAt}
+              </p>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              กรุณาติดต่อผู้ดูแลระบบเพื่อขอข้อมูลเพิ่มเติม
+            </p>
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setShowDeletedDialog(false)}>
+              ปิด
             </Button>
           </DialogFooter>
         </DialogContent>
