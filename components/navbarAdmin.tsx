@@ -44,6 +44,12 @@ export async function NavbarAdmin() {
           >
             แบ่งกลุ่มและกิจกรรม
           </Link>
+          <Link
+            href="/admin/activity-logs"
+            className="text-sm font-medium transition-colors hover:text-primary"
+          >
+            บันทึกกิจกรรม
+          </Link>
 
 
         </div>

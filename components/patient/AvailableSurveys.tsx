@@ -219,8 +219,8 @@ export default function AvailableSurveys({ patientId, forms, submissions }: Avai
                                     </div>
                                     <div className="flex items-center gap-2">
                                         {status.lastSubmission && (
-                                            <Link href={`/patient/${patientId}/history/${status.lastSubmission.id}`}>
-                                                <Button size="sm" variant="outline" title="ดูประวัติล่าสุด">
+                                            <Link href={`/patient/${patientId}/form-history/${form.form_id}`}>
+                                                <Button size="sm" variant="outline" title="ดูประวัติทั้งหมด">
                                                     <History className="h-4 w-4 mr-1" />
                                                     ประวัติ
                                                 </Button>

@@ -26,7 +26,11 @@ import {
   RefreshCw,
   Target,
   Users,
-  Trash2
+  Trash2,
+  IdCard,
+  Calendar,
+  Cake,
+  UserPlus
 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
@@ -83,6 +87,8 @@ export function GroupAssignmentManagementClient() {
     id: string;
     first_name: string;
     last_name: string;
+    date_of_birth: string | null;
+    created_at: string;
     groups: PatientGroup[];
   }>>([]);
   const [assignments, setAssignments] = useState<PatientGroupAssignment[]>([]);
@@ -95,6 +101,7 @@ export function GroupAssignmentManagementClient() {
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('rules');
   const [selectedGroupIdForEvents, setSelectedGroupIdForEvents] = useState<string>('');
+  const [selectedGroupIdForMembers, setSelectedGroupIdForMembers] = useState<string>('');
 
   const [createForm, setCreateForm] = useState<CreateRuleForm>({
     name: '',
@@ -423,11 +430,12 @@ export function GroupAssignmentManagementClient() {
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="groups">จัดการกลุ่ม</TabsTrigger>
           <TabsTrigger value="rules">เงื่อนไขการแบ่งกลุ่ม</TabsTrigger>
           <TabsTrigger value="events">กิจกรรมกลุ่ม</TabsTrigger>
-          <TabsTrigger value="patients">ผู้ใช้บริการในกลุ่ม</TabsTrigger>
+          <TabsTrigger value="members">สมาชิกในกลุ่ม</TabsTrigger>
+          <TabsTrigger value="patients">ผู้ใช้บริการทั้งหมด</TabsTrigger>
           <TabsTrigger value="history">ประวัติการแบ่งกลุ่ม</TabsTrigger>
           <TabsTrigger value="tools">เครื่องมือ</TabsTrigger>
         </TabsList>
@@ -550,16 +558,132 @@ export function GroupAssignmentManagementClient() {
               </Select>
             </div>
           </div>
-          
           <GroupEventsManagement groups={groups} selectedGroupId={selectedGroupIdForEvents} />
+        </TabsContent>
+
+        {/* Members Tab */}
+        <TabsContent value="members" className="space-y-4">
+          <div className="flex justify-between items-center">
+            <div>
+              <h2 className="text-xl font-semibold">สมาชิกในกลุ่ม</h2>
+              <p className="text-gray-600">ดูสมาชิกในแต่ละกลุ่ม</p>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Select
+                value={selectedGroupIdForMembers || 'all'}
+                onValueChange={(value) => setSelectedGroupIdForMembers(value === 'all' ? '' : value)}
+              >
+                <SelectTrigger className="w-[240px]">
+                  <SelectValue placeholder="เลือกกลุ่ม" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">ทุกกลุ่ม</SelectItem>
+                  {[...groups].sort((a, b) => a.name.localeCompare(b.name)).map((group) => (
+                    <SelectItem key={group.id} value={group.id}>
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="w-3 h-3 rounded-full"
+                          style={{ backgroundColor: group.color }}
+                        />
+                        {group.name}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Display groups with their members */}
+          <div className="space-y-6">
+            {(selectedGroupIdForMembers ? groups.filter(g => g.id === selectedGroupIdForMembers) : groups)
+              .sort((a, b) => a.name.localeCompare(b.name))
+              .map((group) => {
+                const groupMembers = patients.filter(p => 
+                  p.groups.some(g => g.id === group.id)
+                );
+
+                return (
+                  <Card key={group.id}>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <div
+                          className="w-4 h-4 rounded-full"
+                          style={{ backgroundColor: group.color }}
+                        />
+                        กลุ่ม {group.name}
+                        <span className="text-sm font-normal text-gray-500">
+                          ({groupMembers.length} คน)
+                        </span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {groupMembers.length === 0 ? (
+                        <p className="text-gray-500 text-sm">ยังไม่มีสมาชิกในกลุ่มนี้</p>
+                      ) : (
+                        <div className="grid gap-2">
+                          {groupMembers.map((patient) => {
+                            const age = patient.date_of_birth 
+                              ? Math.floor((new Date().getTime() - new Date(patient.date_of_birth).getTime()) / (1000 * 60 * 60 * 24 * 365.25))
+                              : null;
+
+                            return (
+                              <div
+                                key={patient.id}
+                                className="p-2 rounded-lg border bg-gray-50 hover:bg-gray-100 transition-colors"
+                              >
+                                <div className="font-medium">
+                                  {patient.first_name} {patient.last_name}
+                                </div>
+                                <div className="text-xs text-gray-600 flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-0.5">
+                                  <span className="flex items-center gap-1 whitespace-nowrap">
+                                    <IdCard className="h-3 w-3" />
+                                    ID : {patient.id}
+                                  </span>
+                                  {age !== null && (
+                                    <span className="flex items-center gap-1 whitespace-nowrap">
+                                      <Users className="h-3 w-3" />
+                                      อายุ {age} ปี
+                                    </span>
+                                  )}
+                                  {patient.date_of_birth && (
+                                    <span className="flex items-center gap-1 whitespace-nowrap">
+                                      <Cake className="h-3 w-3" />
+                                      วันเกิด {new Date(patient.date_of_birth).toLocaleDateString('th-TH', {
+                                        year: 'numeric',
+                                        month: 'short',
+                                        day: 'numeric'
+                                      })}
+                                    </span>
+                                  )}
+                                  <span className="flex items-center gap-1 whitespace-nowrap">
+                                    <UserPlus className="h-3 w-3" />
+                                    เป็นสมาชิก Daycare {new Date(patient.created_at).toLocaleDateString('th-TH', {
+                                      year: 'numeric',
+                                      month: 'short',
+                                      day: 'numeric'
+                                    })}
+                                  </span>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                );
+              })}
+          </div>
         </TabsContent>
 
         {/* Patients Tab */}
         <TabsContent value="patients" className="space-y-4">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-xl font-semibold">ผู้ใช้บริการในกลุ่ม</h2>
-              <p className="text-gray-600">ดูการสมาชิกภาพในกลุ่มของผู้ใช้บริการ (สามารถอยู่ในหลายกลุ่มได้)</p>
+              <h2 className="text-xl font-semibold">ผู้ใช้บริการทั้งหมด</h2>
+              <p className="text-gray-600">ดูการสมาชิกภาพในกลุ่มของผู้ใช้บริการแต่ละคน (สามารถอยู่ในหลายกลุ่มได้)</p>
             </div>
           </div>
 

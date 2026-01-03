@@ -19,6 +19,22 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
+    // Get the authorization header to identify the user
+    const authHeader = req.headers.get('Authorization');
+    let userId = null;
+    
+    if (authHeader) {
+      // Create an authenticated client to get user info
+      const userClient = createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+        { global: { headers: { Authorization: authHeader } } }
+      );
+      
+      const { data: { user } } = await userClient.auth.getUser();
+      userId = user?.id;
+    }
+
     // 2. Fetch Patients Data
     const { data: patients, error: patientsError } = await supabaseClient
       .from('patients')
@@ -96,7 +112,7 @@ serve(async (req) => {
     })
 
     const patientsWorksheet = XLSX.utils.json_to_sheet(patientRows)
-    XLSX.utils.book_append_sheet(workbook, patientsWorksheet, "Patients Info")
+    XLSX.utils.book_append_sheet(workbook, patientsWorksheet, "Members Info")
 
     // --- Sheets 2+: Submissions per Form ---
     for (const form of forms) {
@@ -149,8 +165,8 @@ serve(async (req) => {
           // Build the row with fixed columns first
           const row: any = {
             Date: new Date(s.submitted_at).toLocaleDateString('th-TH'),
-            Patient: `${s.patients?.first_name || ''} ${s.patients?.last_name || ''}`.trim(),
-            Nurse: `${s.profiles?.first_name || ''} ${s.profiles?.last_name || ''}`.trim(),
+            Member: `${s.patients?.first_name || ''} ${s.patients?.last_name || ''}`.trim(),
+            Staff: `${s.profiles?.first_name || ''} ${s.profiles?.last_name || ''}`.trim(),
             Score: s.total_evaluation_score,
             Result: s.evaluation_result,
           };
@@ -184,7 +200,25 @@ serve(async (req) => {
     // 5. Generate Buffer
     const excelBuffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' })
 
-    // 6. Return Response
+    // 6. Log the export activity
+    if (userId) {
+      try {
+        await supabaseClient.rpc('log_admin_export', {
+          p_performed_by: userId,
+          p_export_type: 'full_export',
+          p_metadata: {
+            patient_count: patients.length,
+            form_count: forms.length,
+            export_timestamp: new Date().toISOString()
+          }
+        });
+      } catch (logError) {
+        console.error('Error logging export activity:', logError);
+        // Don't fail the export if logging fails
+      }
+    }
+
+    // 7. Return Response
     return new Response(excelBuffer, {
       headers: {
         ...corsHeaders,

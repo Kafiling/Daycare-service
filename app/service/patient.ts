@@ -34,6 +34,9 @@ export interface Patient {
     fall_history?: boolean;
     underlying_diseases?: string[];
     hospitalization_history?: boolean;
+    deleted_at?: string;
+    deleted_by?: string;
+    scheduled_permanent_delete_at?: string;
 }
 
 export interface Form {
