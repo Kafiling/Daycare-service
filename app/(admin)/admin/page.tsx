@@ -68,17 +68,12 @@ export default function AdminPage() {
       <main className="container mx-auto p-8 space-y-8">
         <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
           <CardContent className="p-6">
-            <div className="flex items-center justify-between space-x-4">
-              <div className="flex-1">
-                <h1 className="text-2xl font-bold text-gray-900">
-                  แผงควบคุมสำหรับผู้ดูแลระบบ
-                </h1>
-                <p className="text-gray-600 mt-1">
-                  จัดการพนักงานและแบบสอบถามได้จากที่นี่
-                </p>
-              </div>
-              <ExportDataButton />
-            </div>
+            <h1 className="text-2xl font-bold text-gray-900">
+              แผงควบคุมสำหรับผู้ดูแลระบบ
+            </h1>
+            <p className="text-gray-600 mt-1">
+              จัดการพนักงานและแบบสอบถามได้จากที่นี่
+            </p>
           </CardContent>
         </Card>
 
