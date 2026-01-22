@@ -58,7 +58,7 @@ export async function ActivityLogStats() {
         <CardContent>
           <div className="text-2xl font-bold">{stats.total_activities.toLocaleString()}</div>
           <p className="text-xs text-muted-foreground mt-1">
-            บันทึกกิจกรรมในระบบ
+            ประวัติการใช้งานระบบ
           </p>
         </CardContent>
       </Card>
@@ -66,7 +66,7 @@ export async function ActivityLogStats() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">
-            กิจกรรมที่พบบ่อยที่สุด
+            กิจกรรมที่พบบ่อยที่สุด (7 วันล่าสุด)
           </CardTitle>
           <TrendingUp className="h-5 w-5 text-muted-foreground" />
         </CardHeader>
@@ -83,7 +83,7 @@ export async function ActivityLogStats() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">
-            ประเภทกิจกรรมที่พบบ่อยที่สุด
+            ประเภทกิจกรรมที่พบบ่อย (7 วันล่าสุด)
           </CardTitle>
           <Users className="h-5 w-5 text-muted-foreground" />
         </CardHeader>
