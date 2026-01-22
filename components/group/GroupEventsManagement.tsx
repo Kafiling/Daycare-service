@@ -198,10 +198,10 @@ export function GroupEventsManagement({ groups, selectedGroupId }: GroupEventsMa
         event_datetime: eventDatetime,
         is_active: formData.is_active,
         is_recurring: formData.is_recurring,
-        recurrence_pattern: formData.is_recurring ? formData.recurrence_pattern : null,
+        recurrence_pattern: formData.is_recurring ? formData.recurrence_pattern : undefined,
         recurrence_end_date: formData.is_recurring && formData.recurrence_end_date 
           ? new Date(formData.recurrence_end_date).toISOString() 
-          : null
+          : undefined
       });
       
       if (updatedEvent) {
