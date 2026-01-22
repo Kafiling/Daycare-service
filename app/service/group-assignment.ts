@@ -729,28 +729,43 @@ export async function getGroupEvent(eventId: string): Promise<GroupEvent | null>
 export async function updateGroupEvent(eventId: string, updates: Partial<Omit<GroupEvent, 'id' | 'created_at' | 'updated_at'>>): Promise<GroupEvent | null> {
     const supabase = createClient();
     
+    // Build update object with only defined values
+    const updateData: Record<string, any> = {};
+    
+    if (updates.group_id !== undefined) updateData.group_id = updates.group_id;
+    if (updates.title !== undefined) updateData.title = updates.title;
+    if (updates.description !== undefined) updateData.description = updates.description;
+    if (updates.location !== undefined) updateData.location = updates.location;
+    if (updates.event_datetime !== undefined) updateData.event_datetime = updates.event_datetime;
+    if (updates.is_active !== undefined) updateData.is_active = updates.is_active;
+    if (updates.is_recurring !== undefined) updateData.is_recurring = updates.is_recurring;
+    if (updates.recurrence_pattern !== undefined) updateData.recurrence_pattern = updates.recurrence_pattern;
+    if (updates.recurrence_end_date !== undefined) updateData.recurrence_end_date = updates.recurrence_end_date;
+    
+    console.log('[updateGroupEvent] Updating event:', { eventId, updateData });
+    
     const { data, error } = await supabase
         .from('group_events')
-        .update({
-            group_id: updates.group_id,
-            title: updates.title,
-            description: updates.description,
-            location: updates.location,
-            event_datetime: updates.event_datetime,
-            is_active: updates.is_active,
-            is_recurring: updates.is_recurring,
-            recurrence_pattern: updates.recurrence_pattern,
-            recurrence_end_date: updates.recurrence_end_date
-        })
+        .update(updateData)
         .eq('id', eventId)
         .select('*')
         .single();
     
     if (error) {
-        console.error('Error updating group event:', error);
-        return null;
+        console.error('[updateGroupEvent] Error:', {
+            error,
+            errorString: JSON.stringify(error),
+            code: error?.code,
+            message: error?.message,
+            details: error?.details,
+            hint: error?.hint,
+            eventId,
+            updateData
+        });
+        throw new Error(`Failed to update group event: ${error?.message || JSON.stringify(error) || 'Unknown error'}`);
     }
     
+    console.log('[updateGroupEvent] Success:', data);
     return data;
 }
 
@@ -763,8 +778,15 @@ export async function deleteGroupEvent(eventId: string): Promise<boolean> {
         .eq('id', eventId);
     
     if (error) {
-        console.error('Error deleting group event:', error);
-        return false;
+        console.error('Error deleting group event:', {
+            error,
+            code: error.code,
+            message: error.message,
+            details: error.details,
+            hint: error.hint,
+            eventId
+        });
+        throw new Error(`Failed to delete group event: ${error.message || 'Unknown error'}`);
     }
     
     return true;
