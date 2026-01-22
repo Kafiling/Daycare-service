@@ -13,7 +13,7 @@ export default function ActivityLogsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">
-                  บันทึกกิจกรรมระบบ
+                  ประวัติการใช้งานระบบ
                 </h1>
                 <p className="text-gray-600 mt-1">
                   ติดตามการเปลี่ยนแปลงและกิจกรรมทั้งหมดในระบบ (เก็บข้อมูล 90 วัน)

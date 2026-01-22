@@ -48,7 +48,7 @@ export async function NavbarAdmin() {
             href="/admin/activity-logs"
             className="text-sm font-medium transition-colors hover:text-primary"
           >
-            บันทึกกิจกรรม
+            ประวัติการใช้งานระบบ
           </Link>
 
 

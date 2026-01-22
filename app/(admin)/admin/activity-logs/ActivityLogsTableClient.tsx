@@ -188,7 +188,7 @@ export function ActivityLogsTableClient({ initialLogs }: ActivityLogsTableClient
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle>บันทึกกิจกรรมทั้งหมด</CardTitle>
+          <CardTitle>ประวัติการใช้งานระบบทั้งหมด</CardTitle>
           <div className="text-sm text-muted-foreground">
             แสดง {startIndex + 1}-{Math.min(endIndex, filteredLogs.length)} จาก {filteredLogs.length} รายการ
           </div>
@@ -263,7 +263,7 @@ export function ActivityLogsTableClient({ initialLogs }: ActivityLogsTableClient
       <CardContent>
         {currentLogs.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
-            {hasActiveFilters ? 'ไม่พบข้อมูลที่ตรงกับเงื่อนไข' : 'ยังไม่มีบันทึกกิจกรรม'}
+            {hasActiveFilters ? 'ไม่พบข้อมูลที่ตรงกับเงื่อนไข' : 'ยังไม่มีประวัติการใช้งานระบบ'}
           </div>
         ) : (
           <>
