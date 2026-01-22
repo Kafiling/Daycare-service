@@ -13,6 +13,14 @@ const nextConfig: NextConfig = {
       // Add any alias configurations here if needed
     },
   },
+
+  // Suppress webpack warnings from Supabase realtime-js
+  webpack: (config) => {
+    config.ignoreWarnings = [
+      { module: /node_modules\/@supabase\/realtime-js/ },
+    ];
+    return config;
+  },
 };
 
 export default nextConfig;
