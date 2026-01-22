@@ -193,13 +193,15 @@ export function GroupEventsManagement({ groups, selectedGroupId }: GroupEventsMa
       const updatedEvent = await updateGroupEvent(currentEvent.id, {
         group_id: formData.group_id,
         title: formData.title,
-        description: formData.description,
-        location: formData.location,
+        description: formData.description || '',
+        location: formData.location || '',
         event_datetime: eventDatetime,
         is_active: formData.is_active,
         is_recurring: formData.is_recurring,
         recurrence_pattern: formData.is_recurring ? formData.recurrence_pattern : undefined,
-        recurrence_end_date: formData.is_recurring ? new Date(formData.recurrence_end_date).toISOString() : undefined
+        recurrence_end_date: formData.is_recurring && formData.recurrence_end_date 
+          ? new Date(formData.recurrence_end_date).toISOString() 
+          : undefined
       });
       
       if (updatedEvent) {
@@ -212,7 +214,8 @@ export function GroupEventsManagement({ groups, selectedGroupId }: GroupEventsMa
       }
     } catch (error) {
       console.error('Error updating event:', error);
-      toast.error('เกิดข้อผิดพลาดในการอัพเดทกิจกรรม');
+      const errorMessage = error instanceof Error ? error.message : 'เกิดข้อผิดพลาดในการอัพเดทกิจกรรม';
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }

@@ -7,11 +7,22 @@ const nextConfig: NextConfig = {
   serverExternalPackages: [],
 
   // Configure Turbopack (now stable in Next.js 15)
+  // Turbopack doesn't need special configuration for suppressing warnings
+  // It's already optimized for faster builds
   turbopack: {
-    // Configure Turbopack for better development experience
     resolveAlias: {
       // Add any alias configurations here if needed
     },
+  },
+
+  // Suppress webpack warnings from Supabase realtime-js (only used in production builds)
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.ignoreWarnings = [
+        { module: /node_modules\/@supabase\/realtime-js/ },
+      ];
+    }
+    return config;
   },
 };
 
