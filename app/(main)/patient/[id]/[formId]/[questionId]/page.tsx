@@ -254,19 +254,54 @@ export default function QuestionPage() {
 
             if (formData?.evaluation_thresholds) {
                 const thresholds = formData.evaluation_thresholds;
-                console.log('🎯 Processing evaluation thresholds:', thresholds);
+                console.log('🎯 Processing evaluation thresholds:', JSON.stringify(thresholds, null, 2));
+                console.log('📊 Total score to match:', totalScore);
                 
                 for (const threshold of thresholds) {
-                    if (totalScore >= threshold.minScore && totalScore <= threshold.maxScore) {
+                    const minScore = threshold.min_score ?? threshold.minScore;
+                    const maxScore = threshold.max_score ?? threshold.maxScore;
+                    
+                    console.log(`🔍 Checking threshold: min=${minScore}, max=${maxScore}, result="${threshold.result}"`);
+                    console.log(`   Condition: ${totalScore} >= ${minScore} && ${totalScore} <= ${maxScore} = ${totalScore >= minScore && totalScore <= maxScore}`);
+                    
+                    if (totalScore >= minScore && totalScore <= maxScore) {
                         evaluationResult = threshold.result;
                         evaluationDescription = threshold.description;
-                        console.log(`✅ Evaluation match found: ${evaluationResult} (${threshold.minScore}-${threshold.maxScore})`);
+                        console.log(`✅ Evaluation match found: ${evaluationResult} (${minScore}-${maxScore})`);
                         break;
                     }
+                }
+                
+                if (!evaluationResult) {
+                    console.log('⚠️ No matching threshold found for score:', totalScore);
                 }
             } else {
                 console.log('⚠️ No evaluation thresholds found');
             }
+            
+            console.log('📋 Final evaluation values:', { evaluationResult, evaluationDescription });
+
+            // Check if there's already an in-progress submission for this patient/form
+            console.log('🔍 Checking for existing in-progress submission...');
+            const { data: existingSubmissions, error: checkError } = await supabase
+                .from('submissions')
+                .select('id')
+                .eq('patient_id', patientId)
+                .eq('form_id', formId)
+                .eq('nurse_id', userData.user.id)
+                .eq('status', 'in_progress')
+                .order('submitted_at', { ascending: false })
+                .limit(1);
+
+            if (checkError) {
+                console.error('❌ Error checking existing submissions:', checkError);
+            } else {
+                console.log('📋 Existing in-progress submissions:', existingSubmissions);
+            }
+
+            const existingSubmissionId = existingSubmissions && existingSubmissions.length > 0 
+                ? existingSubmissions[0].id 
+                : null;
 
             // Prepare submission data
             const submissionData = {
@@ -282,27 +317,58 @@ export default function QuestionPage() {
                 notes: `Form submission completed with total score: ${totalScore}`
             };
             
-            console.log('💾 Preparing to insert submission data:', submissionData);
+            console.log('💾 Preparing to save submission data:', JSON.stringify(submissionData, null, 2));
 
-            // Insert submission record
-            const { data: submission, error: submitError } = await supabase
-                .from('submissions')
-                .insert(submissionData)
-                .select()
-                .single();
+            let submission;
+            
+            if (existingSubmissionId) {
+                // Update existing in-progress submission
+                console.log('🔄 Updating existing submission:', existingSubmissionId);
+                const { data: updatedSubmission, error: updateError } = await supabase
+                    .from('submissions')
+                    .update(submissionData)
+                    .eq('id', existingSubmissionId)
+                    .select()
+                    .single();
 
-            if (submitError) {
-                console.error('❌ Submission insert error:', {
-                    error: submitError,
-                    message: submitError.message,
-                    details: submitError.details,
-                    hint: submitError.hint,
-                    code: submitError.code
-                });
-                throw new Error(`Failed to save submission: ${submitError.message || 'Unknown error'}`);
+                if (updateError) {
+                    console.error('❌ Submission update error:', {
+                        error: updateError,
+                        message: updateError.message,
+                        details: updateError.details,
+                        hint: updateError.hint,
+                        code: updateError.code
+                    });
+                    throw new Error(`Failed to update submission: ${updateError.message || 'Unknown error'}`);
+                }
+
+                submission = updatedSubmission;
+                console.log('✅ Submission updated successfully:', JSON.stringify(submission, null, 2));
+            } else {
+                // Create new submission if none exists
+                console.log('➕ Creating new submission (no in-progress found)');
+                const { data: newSubmission, error: insertError } = await supabase
+                    .from('submissions')
+                    .insert(submissionData)
+                    .select()
+                    .single();
+
+                if (insertError) {
+                    console.error('❌ Submission insert error:', {
+                        error: insertError,
+                        message: insertError.message,
+                        details: insertError.details,
+                        hint: insertError.hint,
+                        code: insertError.code
+                    });
+                    throw new Error(`Failed to save submission: ${insertError.message || 'Unknown error'}`);
+                }
+
+                submission = newSubmission;
+                console.log('✅ Submission saved successfully:', JSON.stringify(submission, null, 2));
             }
 
-            console.log('✅ Submission saved successfully:', submission);
+            console.log('🔍 Verifying saved evaluation_result:', submission.evaluation_result);
             console.log('🔑 Submission ID:', submission.id);
 
             // Clear saved answers from localStorage since form is completed
