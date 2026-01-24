@@ -1,4 +1,5 @@
 import { createClient } from '@/utils/supabase/client';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 export interface PatientGroup {
     id: string;
@@ -494,8 +495,8 @@ export async function getGroupEvents(groupId?: string): Promise<GroupEvent[]> {
     return data || [];
 }
 
-export async function getUpcomingGroupEvents(groupIds?: string[], limit: number = 20): Promise<GroupEvent[]> {
-    const supabase = createClient();
+export async function getUpcomingGroupEvents(groupIds?: string[], limit: number = 20, supabaseClient?: SupabaseClient): Promise<GroupEvent[]> {
+    const supabase = supabaseClient || createClient();
     const now = new Date().toISOString();
     
     // First query: get upcoming non-recurring events and upcoming recurring events
@@ -527,6 +528,13 @@ export async function getUpcomingGroupEvents(groupIds?: string[], limit: number 
         upcomingQuery,
         pastRecurringQuery
     ]);
+    
+    console.log('[getUpcomingGroupEvents] Filtered query results:', {
+        upcomingCount: upcomingResult.data?.length || 0,
+        upcomingError: upcomingResult.error,
+        pastRecurringCount: pastRecurringResult.data?.length || 0,
+        pastRecurringError: pastRecurringResult.error
+    });
     
     if (upcomingResult.error) {
         console.error('Error fetching upcoming group events:', upcomingResult.error);
