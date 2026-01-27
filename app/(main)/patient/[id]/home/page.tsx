@@ -10,6 +10,7 @@ import AvailableSurveys from '@/components/patient/AvailableSurveys';
 import SubmissionHistory from '@/components/patient/SubmissionHistory';
 import { GroupEventsList } from '@/components/group/GroupEventsList';
 import DeletedPatientAlert from '@/components/patient/DeletedPatientAlert';
+import { createClient } from '@/utils/supabase/server';
 
 interface PatientHomePageProps {
     params: Promise<{ id: string }>;
@@ -18,6 +19,8 @@ interface PatientHomePageProps {
 export default async function PatientHomePage({ params }: PatientHomePageProps) {
     try {
         const resolvedParams = await params;
+        const supabase = await createClient(); // Get server-side authenticated client
+        
         const patient = await getPatientById(resolvedParams.id);
         const availableForms = await getActiveForms();
         const completedSubmissions = await getCompletedSubmissions(resolvedParams.id);
@@ -28,29 +31,8 @@ export default async function PatientHomePage({ params }: PatientHomePageProps) 
         const patientGroups = await getPatientGroupsForPatient(resolvedParams.id);
         const groupIds = patientGroups.map(group => group.id);
 
-        console.log('[PatientHome] Patient groups:', { 
-            patientId: resolvedParams.id, 
-            groupCount: patientGroups.length, 
-            groups: patientGroups.map(g => ({ id: g.id, name: g.name })),
-            groupIds 
-        });
-
-        // Get upcoming events and filter to only show events within the next month
-        const allUpcomingEvents = await getUpcomingGroupEvents(groupIds);
-
-        console.log('[PatientHome] All upcoming events:', {
-            patientId: resolvedParams.id,
-            groupIds,
-            eventCount: allUpcomingEvents.length,
-            events: allUpcomingEvents.map(e => ({
-                id: e.id,
-                title: e.title,
-                event_datetime: e.event_datetime,
-                group_id: e.group_id,
-                is_active: e.is_active,
-                is_recurring: e.is_recurring
-            }))
-        });
+        // Get upcoming events with server-side authenticated client
+        const allUpcomingEvents = await getUpcomingGroupEvents(groupIds, 20, supabase);
 
         // Filter events to only include those within the next month (30 days)
         const oneMonthFromNow = new Date();
@@ -62,13 +44,6 @@ export default async function PatientHomePage({ params }: PatientHomePageProps) 
                 return eventDate <= oneMonthFromNow;
             })
             .slice(0, 4); // Limit to maximum 4 events
-
-        console.log('[PatientHome] Filtered upcoming events:', {
-            patientId: resolvedParams.id,
-            oneMonthFromNow: oneMonthFromNow.toISOString(),
-            filteredCount: upcomingEvents.length,
-            events: upcomingEvents.map(e => ({ title: e.title, event_datetime: e.event_datetime }))
-        });
 
         if (!patient) {
             return (
