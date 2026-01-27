@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import * as XLSX from 'https://cdn.sheetjs.com/xlsx-0.20.0/package/xlsx.mjs'
+import * as XLSX from 'npm:xlsx'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -143,24 +143,48 @@ serve(async (req) => {
       }
 
       if (submissions && submissions.length > 0) {
-        const submissionRows = submissions.map((s: any) => {
-          // Parse answers - stored as { "1": "answer", "2": "answer" } where keys are 1-based index
+        console.log(`[${form.title}] Processing ${submissions.length} submissions`);
+        console.log(`[${form.title}] Questions for this form:`, formQuestions?.map((q: any) => ({ 
+          id: q.question_id, 
+          type: typeof q.question_id,
+          text: q.question_text.substring(0, 50) 
+        })));
+        
+        const submissionRows = submissions.map((s: any, idx: number) => {
+          // Parse answers - stored as { "13": "answer", "14": "answer" } where keys are question_ids
           let answersData = s.answers;
+          
+          console.log(`[${form.title}] Submission ${idx + 1}:`, {
+            raw_answers_type: typeof answersData,
+            raw_answers_isArray: Array.isArray(answersData),
+            raw_answers_keys: answersData ? Object.keys(answersData) : 'null',
+            raw_answers_sample: answersData
+          });
           
           // Handle if answers is a string (shouldn't be, but just in case)
           if (typeof answersData === 'string') {
             try {
               answersData = JSON.parse(answersData);
+              console.log(`[${form.title}] Parsed string to:`, answersData);
             } catch (e) {
               console.error("Failed to parse answers JSON", e);
               answersData = {};
             }
           }
           
-          // Ensure answersData is an object
-          if (!answersData || typeof answersData !== 'object') {
+          // Handle if answers is an array (default value is []) - convert to empty object
+          if (Array.isArray(answersData)) {
+            console.log(`[${form.title}] Converting array to empty object`);
             answersData = {};
           }
+          
+          // Ensure answersData is an object
+          if (!answersData || typeof answersData !== 'object') {
+            console.log(`[${form.title}] Invalid answers data, using empty object`);
+            answersData = {};
+          }
+
+          console.log(`[${form.title}] Final answersData keys:`, Object.keys(answersData));
 
           // Build the row with fixed columns first
           const row: any = {
@@ -172,12 +196,13 @@ serve(async (req) => {
           };
 
           // Add question columns in order
-          // answersData format: { "1": "answer", "2": "answer" } - keys are 1-based sequential index
-          // formQuestions is ordered by question_id, so index+1 maps to the answer key
-          formQuestions?.forEach((q: any, index: number) => {
-             // The answer key is the 1-based index (index + 1)
-             const answerKey = String(index + 1);
-             let val = answersData[answerKey];
+          // answersData format: { "13": "answer", "14": "answer" } - keys are actual question_ids as strings
+          formQuestions?.forEach((q: any) => {
+             // Try multiple key formats since question_id is numeric type
+             const qid = q.question_id;
+             let val = answersData[String(qid)] || answersData[qid] || answersData[Number(qid)];
+             
+             console.log(`[${form.title}] Q${qid}: Tried keys [${String(qid)}, ${qid}, ${Number(qid)}], found: ${val !== undefined ? 'YES' : 'NO'}, value:`, val);
              
              // Handle object values (like checkboxes might be)
              if (typeof val === 'object' && val !== null) {
