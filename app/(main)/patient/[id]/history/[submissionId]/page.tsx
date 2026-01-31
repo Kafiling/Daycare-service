@@ -31,6 +31,13 @@ async function getSubmissionDetails(submissionId: string) {
                 id,
                 first_name,
                 last_name
+            ),
+            profiles (
+                id,
+                first_name,
+                last_name,
+                title,
+                position
             )
         `)
         .eq('id', submissionId)
@@ -139,7 +146,9 @@ export default async function HistoryDetailPage({ params }: HistoryDetailPagePro
                             </div>
                             <div className="flex items-center gap-2 text-muted-foreground">
                                 <User className="h-4 w-4" />
-                                <span>{submission.patients?.first_name} {submission.patients?.last_name}</span>
+                                <span>
+                                    บันทึกโดย: {submission.profiles?.title || ''} {submission.profiles?.first_name} {submission.profiles?.last_name}
+                                </span>
                             </div>
                         </div>
                         
