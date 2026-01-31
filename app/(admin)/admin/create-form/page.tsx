@@ -554,7 +554,7 @@ export default function CreateFormPage() {
                             </div>
                             <div>
                                 <Label htmlFor="form-label" className="pb-2 text-lg">
-                                    คำอธิบาย <span className="text-red-500">*</span>
+                                    หมวดหมู่ <span className="text-red-500">*</span>
                                 </Label>
                                 <Input 
                                     id="form-label" 
