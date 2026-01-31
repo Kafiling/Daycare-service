@@ -31,9 +31,10 @@ interface PatientInfoProps {
     patient: Patient;
     todayCheckIn?: CheckIn | null;
     history?: CheckIn[];
+    latestVitals?: { weight?: number; height?: number } | null;
 }
 
-export default function PatientInfo({ patient, todayCheckIn, history }: PatientInfoProps) {
+export default function PatientInfo({ patient, todayCheckIn, history, latestVitals }: PatientInfoProps) {
     const [isExpanded, setIsExpanded] = useState(false);
 
     const formatDate = (dateString: string) => {
@@ -91,7 +92,8 @@ export default function PatientInfo({ patient, todayCheckIn, history }: PatientI
                         <PatientCheckIn 
                             patientId={patient.id} 
                             todayCheckIn={todayCheckIn} 
-                            history={history} 
+                            history={history}
+                            latestVitals={latestVitals}
                         />
                     )}
                 </div>

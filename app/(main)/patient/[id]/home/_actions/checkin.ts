@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 
 export async function checkInPatientAction(
   patientId: string,
-  vitals?: { systolic_bp?: number; diastolic_bp?: number; heart_rate?: number }
+  vitals?: { systolic_bp?: number; diastolic_bp?: number; heart_rate?: number; temperature?: number; weight?: number; height?: number }
 ) {
   try {
     await checkInPatient(patientId, vitals);
@@ -20,10 +20,10 @@ export async function checkInPatientAction(
 export async function updateCheckInAction(
   patientId: string,
   checkInId: string,
-  vitals: { systolic_bp?: number; diastolic_bp?: number; heart_rate?: number }
+  vitals: { systolic_bp?: number; diastolic_bp?: number; heart_rate?: number; temperature?: number; weight?: number; height?: number }
 ) {
   try {
-    await updateCheckIn(checkInId, vitals);
+    await updateCheckIn(patientId, checkInId, vitals);
     revalidatePath(`/patient/${patientId}/home`);
     return { success: true };
   } catch (error) {

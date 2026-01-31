@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CheckCircle2, History, Clock, Activity } from "lucide-react";
+import { CheckCircle2, History, Clock, Activity, Thermometer } from "lucide-react";
 import { checkInPatientAction, updateCheckInAction } from "@/app/(main)/patient/[id]/home/_actions/checkin";
 import { toast } from "sonner";
 import type { CheckIn } from "@/app/service/checkin";
@@ -20,14 +20,18 @@ interface PatientCheckInProps {
   patientId: string;
   todayCheckIn: CheckIn | null;
   history: CheckIn[];
+  latestVitals?: { weight?: number; height?: number } | null;
 }
 
-export function PatientCheckIn({ patientId, todayCheckIn, history }: PatientCheckInProps) {
+export function PatientCheckIn({ patientId, todayCheckIn, history, latestVitals }: PatientCheckInProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isCheckInDialogOpen, setIsCheckInDialogOpen] = useState(false);
   const [systolicBp, setSystolicBp] = useState('');
   const [diastolicBp, setDiastolicBp] = useState('');
   const [heartRate, setHeartRate] = useState('');
+  const [temperature, setTemperature] = useState('');
+  const [weight, setWeight] = useState('');
+  const [height, setHeight] = useState('');
 
   const isEditMode = todayCheckIn !== null;
 
@@ -37,11 +41,17 @@ export function PatientCheckIn({ patientId, todayCheckIn, history }: PatientChec
       setSystolicBp(todayCheckIn.systolic_bp?.toString() || '');
       setDiastolicBp(todayCheckIn.diastolic_bp?.toString() || '');
       setHeartRate(todayCheckIn.heart_rate?.toString() || '');
+      setTemperature(todayCheckIn.temperature?.toString() || '');
+      setWeight(todayCheckIn.weight?.toString() || '');
+      setHeight(todayCheckIn.height?.toString() || '');
     } else {
-      // Clear fields for new check-in
+      // Clear fields for new check-in, but prefill weight/height from latest check-in
       setSystolicBp('');
       setDiastolicBp('');
       setHeartRate('');
+      setTemperature('');
+      setWeight(latestVitals?.weight?.toString() || '');
+      setHeight(latestVitals?.height?.toString() || '');
     }
     setIsCheckInDialogOpen(true);
   };
@@ -53,6 +63,9 @@ export function PatientCheckIn({ patientId, todayCheckIn, history }: PatientChec
         systolic_bp: systolicBp ? parseInt(systolicBp) : undefined,
         diastolic_bp: diastolicBp ? parseInt(diastolicBp) : undefined,
         heart_rate: heartRate ? parseInt(heartRate) : undefined,
+        temperature: temperature ? parseFloat(temperature) : undefined,
+        weight: weight ? parseFloat(weight) : undefined,
+        height: height ? parseFloat(height) : undefined,
       };
 
       let result;
@@ -74,6 +87,9 @@ export function PatientCheckIn({ patientId, todayCheckIn, history }: PatientChec
         setSystolicBp('');
         setDiastolicBp('');
         setHeartRate('');
+        setTemperature('');
+        setWeight('');
+        setHeight('');
       } else {
         toast.error(isEditMode ? "อัปเดตข้อมูลล้มเหลว" : "เช็คอินล้มเหลว");
       }
@@ -181,6 +197,51 @@ export function PatientCheckIn({ patientId, todayCheckIn, history }: PatientChec
                 />
               </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="temperature" className="flex items-center gap-2">
+                  <Thermometer className="h-4 w-4" />
+                  อุณหภูมิที่วัดได้ (°C)
+                </Label>
+                <Input
+                  id="temperature"
+                  type="number"
+                  placeholder="เช่น 36.5"
+                  value={temperature}
+                  onChange={(e) => setTemperature(e.target.value)}
+                  min="30"
+                  max="45"
+                  step="0.1"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="weight">น้ำหนัก (กก.)</Label>
+                <Input
+                  id="weight"
+                  type="number"
+                  placeholder="กิโลกรัม"
+                  value={weight}
+                  onChange={(e) => setWeight(e.target.value)}
+                  min="0"
+                  max="300"
+                  step="0.1"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="height">ส่วนสูง (ซม.)</Label>
+                <Input
+                  id="height"
+                  type="number"
+                  placeholder="เซนติเมตร"
+                  value={height}
+                  onChange={(e) => setHeight(e.target.value)}
+                  min="0"
+                  max="250"
+                  step="0.1"
+                />
+              </div>
+
               <div className="flex gap-2 justify-end pt-4">
                 <Button
                   variant="outline"
@@ -207,7 +268,7 @@ export function PatientCheckIn({ patientId, todayCheckIn, history }: PatientChec
             ประวัติ
           </Button>
         </DialogTrigger>
-        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-5xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>ประวัติการเช็คอิน</DialogTitle>
           </DialogHeader>
@@ -223,6 +284,9 @@ export function PatientCheckIn({ patientId, todayCheckIn, history }: PatientChec
                       <th className="text-left p-3 font-semibold">เวลา</th>
                       <th className="text-left p-3 font-semibold">ความดันเลือด</th>
                       <th className="text-left p-3 font-semibold">อัตราการเต้นหัวใจ</th>
+                      <th className="text-left p-3 font-semibold">อุณหภูมิ</th>
+                      <th className="text-left p-3 font-semibold">น้ำหนัก</th>
+                      <th className="text-left p-3 font-semibold">ส่วนสูง</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -248,6 +312,15 @@ export function PatientCheckIn({ patientId, todayCheckIn, history }: PatientChec
                         </td>
                         <td className="p-3">
                           {checkIn.heart_rate ? `${checkIn.heart_rate} bpm` : '-'}
+                        </td>
+                        <td className="p-3">
+                          {checkIn.temperature ? `${checkIn.temperature} °C` : '-'}
+                        </td>
+                        <td className="p-3">
+                          {checkIn.weight ? `${checkIn.weight} กก.` : '-'}
+                        </td>
+                        <td className="p-3">
+                          {checkIn.height ? `${checkIn.height} ซม.` : '-'}
                         </td>
                       </tr>
                     ))}
