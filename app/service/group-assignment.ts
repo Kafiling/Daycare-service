@@ -426,11 +426,24 @@ export async function getPatientsWithGroups(): Promise<Array<{
     return patientsWithGroups;
 }
 
-export async function getPatientGroupsForPatient(patientId: string): Promise<PatientGroup[]> {
-    const supabase = createClient();
+export async function getPatientGroupsForPatient(
+    patientId: string,
+    supabaseClient?: SupabaseClient
+): Promise<PatientGroup[]> {
+    const supabase = supabaseClient || createClient();
     const { data, error } = await supabase
         .from('patient_group_memberships')
-        .select('group:patient_groups(*)')
+        .select(`
+            group_id,
+            patient_groups (
+                id,
+                name,
+                description,
+                color,
+                created_at,
+                updated_at
+            )
+        `)
         .eq('patient_id', patientId);
 
     if (error) {
@@ -438,12 +451,8 @@ export async function getPatientGroupsForPatient(patientId: string): Promise<Pat
         return [];
     }
 
-    // Ensure we properly extract the group objects and handle potential array structure
-    return data?.map(item => {
-        // Handle possible array format (from foreign table joins)
-        const group = Array.isArray(item.group) ? item.group[0] : item.group;
-        return group as PatientGroup;
-    }).filter(Boolean) || [];
+    // Extract the group objects from the join
+    return data?.map((item: any) => item.patient_groups).filter(Boolean) || [];
 }
 
 // Group Events CRUD Functions

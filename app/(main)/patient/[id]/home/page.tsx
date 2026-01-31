@@ -29,7 +29,7 @@ export default async function PatientHomePage({ params }: PatientHomePageProps) 
         const latestCheckInVitals = await getLatestCheckInWithVitals(resolvedParams.id);
 
         // Get patient groups and upcoming events
-        const patientGroups = await getPatientGroupsForPatient(resolvedParams.id);
+        const patientGroups = await getPatientGroupsForPatient(resolvedParams.id, supabase);
         const groupIds = patientGroups.map(group => group.id);
 
         // Get upcoming events with server-side authenticated client
