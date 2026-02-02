@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Calendar, Clock, FileText, User } from 'lucide-react';
 import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
+import { toThaiDate, toThaiTimeShort } from '@/lib/timezone';
 
 interface HistoryDetailPageProps {
     params: Promise<{

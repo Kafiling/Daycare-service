@@ -26,6 +26,7 @@ import type { Patient } from '@/app/service/patient';
 import { PatientCheckIn } from './PatientCheckIn';
 import type { CheckIn } from '@/app/service/checkin';
 import { Badge } from '@/components/ui/badge';
+import { toThaiDate, getBangkokDate } from '@/lib/timezone';
 
 interface PatientInfoProps {
     patient: Patient;

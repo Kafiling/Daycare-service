@@ -15,6 +15,7 @@ import { CheckCircle2, History, Clock, Activity, Thermometer } from "lucide-reac
 import { checkInPatientAction, updateCheckInAction } from "@/app/(main)/patient/[id]/home/_actions/checkin";
 import { toast } from "sonner";
 import type { CheckIn } from "@/app/service/checkin";
+import { toThaiDateTime, toThaiTimeShort } from '@/lib/timezone';
 
 interface PatientCheckInProps {
   patientId: string;

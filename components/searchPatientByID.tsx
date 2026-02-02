@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Search, Plus, AlertTriangle, User, Phone, MapPin, Calendar, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useCallback, useRef } from "react";
+import { toThaiDate, toThaiDateTime } from '@/lib/timezone';
 
 // Highlight matched text component
 function HighlightedText({ text, search }: { text: string; search: string }) {
