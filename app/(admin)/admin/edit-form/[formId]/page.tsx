@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -432,6 +432,21 @@ export default function EditFormPage() {
     const [evaluationThresholds, setEvaluationThresholds] = useState<any[]>([]);
     const [recurrenceInterval, setRecurrenceInterval] = useState<string>('');
     const [isActive, setIsActive] = useState(true);
+    const [validationError, setValidationError] = useState<string>('');
+
+    // Refs for auto-focus on validation errors
+    const formTitleRef = useRef<HTMLInputElement>(null);
+    const formDescriptionRef = useRef<HTMLTextAreaElement>(null);
+    const formLabelRef = useRef<HTMLInputElement>(null);
+    const timeToCompleteRef = useRef<HTMLInputElement>(null);
+    const questionRefs = useRef<{[key: string]: HTMLDivElement | null}>({});
+
+    // Run validation whenever form fields change (including after form data loads)
+    useEffect(() => {
+        if (!isLoading) {
+            isFormValid();
+        }
+    }, [formTitle, formDescription, formLabel, timeToComplete, questions, evaluationThresholds, isLoading]);
 
     // Load form data when component mounts
     useEffect(() => {
@@ -493,7 +508,9 @@ export default function EditFormPage() {
 
     // Check if form is valid for saving
     const isFormValid = () => {
-        return validateForm().length === 0;
+        const validation = validateForm();
+        setValidationError(validation.error || '');
+        return validation.isValid;
     };
 
     const addQuestion = () => {
@@ -533,97 +550,161 @@ export default function EditFormPage() {
         setEvaluationThresholds(evaluationThresholds.filter((_, i) => i !== index));
     };
 
-    const validateForm = () => {
-        const errors: string[] = [];
-
+    const validateForm = (): { isValid: boolean; error?: string; focusElement?: HTMLElement | null; scrollToElement?: HTMLElement | null } => {
         // Check form title
         if (!formTitle.trim()) {
-            errors.push("ชื่อแบบสอบถามเป็นข้อมูลที่จำเป็น");
+            return {
+                isValid: false,
+                error: "กรุณากรอกชื่อแบบสอบถาม",
+                focusElement: formTitleRef.current
+            };
         }
 
         // Check form description
         if (!formDescription.trim()) {
-            errors.push("คำอธิบายแบบสอบถามเป็นข้อมูลที่จำเป็น");
+            return {
+                isValid: false,
+                error: "กรุณากรอกคำอธิบายแบบสอบถาม",
+                focusElement: formDescriptionRef.current
+            };
         }
 
         // Check form label
         if (!formLabel.trim()) {
-            errors.push("คำอธิบายแบบสอบถามเป็นข้อมูลที่จำเป็น");
+            return {
+                isValid: false,
+                error: "กรุณากรอกป้ายกำกับแบบสอบถาม",
+                focusElement: formLabelRef.current
+            };
         }
 
         // Check time to complete
         if (!timeToComplete || Number(timeToComplete) <= 0) {
-            errors.push("เวลาในการทำแบบสอบถามต้องมากกว่า 0 นาที");
+            return {
+                isValid: false,
+                error: "กรุณากรอกเวลาในการทำแบบสอบถาม (ต้องมากกว่า 0 นาที)",
+                focusElement: timeToCompleteRef.current
+            };
         }
 
         // Check if there are questions
         if (questions.length === 0) {
-            errors.push("ต้องมีคำถามอย่างน้อย 1 คำถาม");
+            return {
+                isValid: false,
+                error: "กรุณาเพิ่มคำถามอย่างน้อย 1 คำถาม"
+            };
         }
 
         // Validate each question
-        questions.forEach((question, index) => {
+        for (let index = 0; index < questions.length; index++) {
+            const question = questions[index];
+            const questionElement = questionRefs.current[question.id];
+
             if (!question.question_text.trim()) {
-                errors.push(`คำถามที่ ${index + 1}: ข้อความคำถามเป็นข้อมูลที่จำเป็น`);
+                return {
+                    isValid: false,
+                    error: `คำถามที่ ${index + 1}: กรุณากรอกข้อความคำถาม`,
+                    scrollToElement: questionElement
+                };
             }
 
             // Validate question-specific options
             switch (question.question_type) {
                 case QUESTION_TYPES.MULTIPLE_CHOICE:
                     if (!question.options.choices || question.options.choices.length === 0) {
-                        errors.push(`คำถามที่ ${index + 1}: ต้องมีตัวเลือกอย่างน้อย 1 ตัวเลือก`);
-                    } else {
-                        question.options.choices.forEach((choice: any, choiceIndex: number) => {
-                            if (!choice.text || !choice.text.trim()) {
-                                errors.push(`คำถามที่ ${index + 1}: ตัวเลือกที่ ${choiceIndex + 1} ต้องมีข้อความ`);
-                            }
-                        });
+                        return {
+                            isValid: false,
+                            error: `คำถามที่ ${index + 1}: กรุณาเพิ่มตัวเลือกอย่างน้อย 1 ตัวเลือก`,
+                            scrollToElement: questionElement
+                        };
+                    }
+                    for (let choiceIndex = 0; choiceIndex < question.options.choices.length; choiceIndex++) {
+                        const choice = question.options.choices[choiceIndex];
+                        if (!choice.text || !choice.text.trim()) {
+                            return {
+                                isValid: false,
+                                error: `คำถามที่ ${index + 1}, ตัวเลือกที่ ${choiceIndex + 1}: กรุณากรอกข้อความตัวเลือก`,
+                                scrollToElement: questionElement
+                            };
+                        }
                     }
                     break;
                 case QUESTION_TYPES.RATING:
                     if (question.options.min === '' || question.options.min === undefined || question.options.max === '' || question.options.max === undefined) {
-                        errors.push(`คำถามที่ ${index + 1}: ต้องกำหนดค่าต่ำสุดและค่าสูงสุด`);
-                    } else if (Number(question.options.min) >= Number(question.options.max)) {
-                        errors.push(`คำถามที่ ${index + 1}: ค่าต่ำสุดต้องน้อยกว่าค่าสูงสุด`);
+                        return {
+                            isValid: false,
+                            error: `คำถามที่ ${index + 1}: กรุณาระบุค่าต่ำสุดและค่าสูงสุด`,
+                            scrollToElement: questionElement
+                        };
+                    }
+                    if (Number(question.options.min) >= Number(question.options.max)) {
+                        return {
+                            isValid: false,
+                            error: `คำถามที่ ${index + 1}: ค่าต่ำสุดต้องน้อยกว่าค่าสูงสุด`,
+                            scrollToElement: questionElement
+                        };
                     }
                     break;
                 case QUESTION_TYPES.NUMBER:
                     if (question.options.min !== '' && question.options.min !== undefined && 
                         question.options.max !== '' && question.options.max !== undefined && 
                         Number(question.options.min) >= Number(question.options.max)) {
-                        errors.push(`คำถามที่ ${index + 1}: ค่าต่ำสุดต้องน้อยกว่าค่าสูงสุด`);
+                        return {
+                            isValid: false,
+                            error: `คำถามที่ ${index + 1}: ค่าต่ำสุดต้องน้อยกว่าค่าสูงสุด`,
+                            scrollToElement: questionElement
+                        };
                     }
                     break;
             }
-        });
+        }
 
         // Validate evaluation thresholds if any exist
         if (evaluationThresholds.length > 0) {
-            evaluationThresholds.forEach((threshold, index) => {
+            for (let index = 0; index < evaluationThresholds.length; index++) {
+                const threshold = evaluationThresholds[index];
                 if (!threshold.result || !threshold.result.trim()) {
-                    errors.push(`เกณฑ์การประเมินที่ ${index + 1}: ต้องระบุผลการประเมิน`);
+                    return {
+                        isValid: false,
+                        error: `เกณฑ์การประเมินที่ ${index + 1}: กรุณาระบุผลการประเมิน`
+                    };
                 }
                 if (threshold.minScore === '' || threshold.maxScore === '') {
-                    errors.push(`เกณฑ์การประเมินที่ ${index + 1}: ต้องระบุช่วงคะแนน`);
-                } else if (Number(threshold.minScore) >= Number(threshold.maxScore)) {
-                    errors.push(`เกณฑ์การประเมินที่ ${index + 1}: คะแนนต่ำสุดต้องน้อยกว่าคะแนนสูงสุด`);
+                    return {
+                        isValid: false,
+                        error: `เกณฑ์การประเมินที่ ${index + 1}: กรุณาระบุช่วงคะแนน (คะแนนต่ำสุดและคะแนนสูงสุด)`
+                    };
                 }
-            });
+                if (Number(threshold.minScore) >= Number(threshold.maxScore)) {
+                    return {
+                        isValid: false,
+                        error: `เกณฑ์การประเมินที่ ${index + 1}: คะแนนต่ำสุดต้องน้อยกว่าคะแนนสูงสุด`
+                    };
+                }
+            }
         }
 
-        return errors;
+        return { isValid: true };
     };
 
     const handleSave = async () => {
-        const validationErrors = validateForm();
+        const validation = validateForm();
         
-        if (validationErrors.length > 0) {
-            toast.error("กรุณาแก้ไขข้อผิดพลาดต่อไปนี้:", {
-                description: validationErrors.join('\n'),
-            });
+        if (!validation.isValid) {
+            setValidationError(validation.error || "กรุณาตรวจสอบข้อมูลอีกครั้ง");
+            toast.error(validation.error || "กรุณาตรวจสอบข้อมูลอีกครั้ง");
+            
+            // Focus or scroll to the problematic field
+            if (validation.focusElement) {
+                validation.focusElement.focus();
+                validation.focusElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else if (validation.scrollToElement) {
+                validation.scrollToElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
             return;
         }
 
+        setValidationError('');
         setIsSaving(true);
 
         // Prepare questions data with correct question_id
@@ -698,6 +779,7 @@ export default function EditFormPage() {
                                     ชื่อแบบสอบถาม <span className="text-red-500">*</span>
                                 </Label>
                                 <Input 
+                                    ref={formTitleRef}
                                     id="form-title" 
                                     value={formTitle} 
                                     onChange={e => setFormTitle(e.target.value)} 
@@ -710,6 +792,7 @@ export default function EditFormPage() {
                                     คำอธิบายแบบสอบถาม <span className="text-red-500">*</span>
                                 </Label>
                                 <Textarea 
+                                    ref={formDescriptionRef}
                                     id="form-description" 
                                     value={formDescription} 
                                     onChange={e => setFormDescription(e.target.value)} 
@@ -722,6 +805,7 @@ export default function EditFormPage() {
                                     หมวดหมู่ <span className="text-red-500">*</span>
                                 </Label>
                                 <Input 
+                                    ref={formLabelRef}
                                     id="form-label" 
                                     value={formLabel} 
                                     onChange={e => setFormLabel(e.target.value)} 
@@ -735,6 +819,7 @@ export default function EditFormPage() {
                                         เวลาในการทำแบบสอบถาม (นาที) <span className="text-red-500">*</span>
                                     </Label>
                                     <Input 
+                                        ref={timeToCompleteRef}
                                         id="time-to-complete" 
                                         type="number"
                                         value={timeToComplete} 
@@ -799,12 +884,13 @@ export default function EditFormPage() {
                     </Card>
 
                     {questions.map((q) => (
-                        <QuestionEditor
-                            key={q.id}
-                            question={q}
-                            updateQuestion={updateQuestion}
-                            removeQuestion={removeQuestion}
-                        />
+                        <div key={q.id} ref={(el) => { questionRefs.current[q.id] = el; }}>
+                            <QuestionEditor
+                                question={q}
+                                updateQuestion={updateQuestion}
+                                removeQuestion={removeQuestion}
+                            />
+                        </div>
                     ))}
 
                     <div className="flex justify-center">
@@ -887,16 +973,16 @@ export default function EditFormPage() {
                     </Card>
 
                     <div className="flex flex-col items-end gap-2">
-                        {!isFormValid() && (
-                            <p className="text-sm text-red-500">
-                                กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน (ช่องที่มีเครื่องหมาย *)
+                        {validationError && (
+                            <p className="text-sm text-red-500 font-medium">
+                                {validationError}
                             </p>
                         )}
                         <Button 
                             onClick={handleSave} 
                             size="lg" 
                             className="text-lg" 
-                            disabled={isSaving || !isFormValid()}
+                            disabled={isSaving}
                         >
                             {isSaving ? "กำลังบันทึก..." : "บันทึกการเปลี่ยนแปลง"}
                         </Button>
