@@ -88,6 +88,7 @@ export function StaffManagementClient({ initialStaff }: StaffManagementClientPro
     const [isResetPasswordDialogOpen, setIsResetPasswordDialogOpen] = useState(false);
     const [resetPasswordStaff, setResetPasswordStaff] = useState<Profile | null>(null);
     const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
     const [createForm, setCreateForm] = useState<CreateStaffForm>({
@@ -177,9 +178,15 @@ export function StaffManagementClient({ initialStaff }: StaffManagementClientPro
             return;
         }
 
+        if (newPassword !== confirmPassword) {
+            toast.error('รหัสผ่านและยืนยันรหัสผ่านไม่ตรงกัน');
+            return;
+        }
+
         setIsLoading(true);
         try {
             const result = await resetStaffPassword(resetPasswordStaff.id, newPassword);
+                setConfirmPassword('');
             if (result.success) {
                 toast.success('รีเซ็ตรหัสผ่านสำเร็จ');
                 setIsResetPasswordDialogOpen(false);
@@ -221,6 +228,7 @@ export function StaffManagementClient({ initialStaff }: StaffManagementClientPro
             title: staffMember.title || '',
             position: staffMember.position || '',
         });
+        setConfirmPassword('');
         setIsEditDialogOpen(true);
     };
 
@@ -610,6 +618,16 @@ export function StaffManagementClient({ initialStaff }: StaffManagementClientPro
                             <p className="text-sm text-muted-foreground mt-1">
                                 รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร
                             </p>
+                        </div>
+                        <div>
+                            <Label htmlFor="confirm-password">ยืนยันรหัสผ่านใหม่</Label>
+                            <Input
+                                id="confirm-password"
+                                type="password"
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                placeholder="ใส่รหัสผ่านใหม่อีกครั้ง"
+                            />
                         </div>
                     </div>
 
