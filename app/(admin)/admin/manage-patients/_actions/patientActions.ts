@@ -14,6 +14,7 @@ export interface PatientListItem {
   email?: string;
   created_at: string;
   deleted_at?: string;
+  scheduled_permanent_delete_at?: string;
   group_id?: string;
 }
 
@@ -118,6 +119,7 @@ export async function getDeletedPatients(): Promise<PatientListItem[]> {
       email,
       created_at,
       deleted_at,
+      scheduled_permanent_delete_at,
       group_id
     `)
     .not('deleted_at', 'is', null)
