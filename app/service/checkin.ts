@@ -7,13 +7,16 @@ export interface CheckIn {
   systolic_bp?: number;
   diastolic_bp?: number;
   heart_rate?: number;
+  temperature?: number;
+  weight?: number;
+  height?: number;
   created_by?: string;
   created_at: string;
 }
 
 export async function checkInPatient(
   patientId: string,
-  vitals?: { systolic_bp?: number; diastolic_bp?: number; heart_rate?: number }
+  vitals?: { systolic_bp?: number; diastolic_bp?: number; heart_rate?: number; temperature?: number; weight?: number; height?: number }
 ) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -26,7 +29,10 @@ export async function checkInPatient(
       ...(vitals && {
         systolic_bp: vitals.systolic_bp,
         diastolic_bp: vitals.diastolic_bp,
-        heart_rate: vitals.heart_rate
+        heart_rate: vitals.heart_rate,
+        temperature: vitals.temperature,
+        weight: vitals.weight,
+        height: vitals.height
       })
     })
     .select()
@@ -35,6 +41,22 @@ export async function checkInPatient(
   if (error) {
     console.error('Error checking in patient:', error);
     throw error;
+  }
+
+  // Update patient weight and height if provided
+  if (vitals?.weight !== undefined || vitals?.height !== undefined) {
+    const updateData: { weight?: number; height?: number } = {};
+    if (vitals.weight !== undefined) updateData.weight = vitals.weight;
+    if (vitals.height !== undefined) updateData.height = vitals.height;
+    
+    const { error: updateError } = await supabase
+      .from('patients')
+      .update(updateData)
+      .eq('id', patientId);
+
+    if (updateError) {
+      console.error('Error updating patient weight/height:', updateError);
+    }
   }
 
   return data;
@@ -80,8 +102,9 @@ export async function getTodayCheckIn(patientId: string) {
 }
 
 export async function updateCheckIn(
+  patientId: string,
   checkInId: string,
-  vitals: { systolic_bp?: number; diastolic_bp?: number; heart_rate?: number }
+  vitals: { systolic_bp?: number; diastolic_bp?: number; heart_rate?: number; temperature?: number; weight?: number; height?: number }
 ) {
   const supabase = await createClient();
 
@@ -93,7 +116,10 @@ export async function updateCheckIn(
     .update({
       systolic_bp: vitals.systolic_bp,
       diastolic_bp: vitals.diastolic_bp,
-      heart_rate: vitals.heart_rate
+      heart_rate: vitals.heart_rate,
+      temperature: vitals.temperature,
+      weight: vitals.weight,
+      height: vitals.height
     })
     .eq('id', checkInId)
     .select();
@@ -108,5 +134,42 @@ export async function updateCheckIn(
     throw new Error('Check-in record not found');
   }
 
+  // Update patient weight and height if provided
+  if (vitals.weight !== undefined || vitals.height !== undefined) {
+    const updateData: { weight?: number; height?: number } = {};
+    if (vitals.weight !== undefined) updateData.weight = vitals.weight;
+    if (vitals.height !== undefined) updateData.height = vitals.height;
+    
+    const { error: updateError } = await supabase
+      .from('patients')
+      .update(updateData)
+      .eq('id', patientId);
+
+    if (updateError) {
+      console.error('Error updating patient weight/height:', updateError);
+    }
+  }
+
   return data[0];
+}
+
+export async function getLatestCheckInWithVitals(patientId: string) {
+  const supabase = await createClient();
+  
+  const { data, error } = await supabase
+    .from('patient_checkins')
+    .select('weight, height')
+    .eq('patient_id', patientId)
+    .not('weight', 'is', null)
+    .not('height', 'is', null)
+    .order('check_in_time', { ascending: false })
+    .limit(1)
+    .single();
+
+  if (error && error.code !== 'PGRST116') { // PGRST116 is "The result contains 0 rows"
+    console.error('Error fetching latest check-in vitals:', error);
+    return null;
+  }
+
+  return data as { weight?: number; height?: number } | null;
 }

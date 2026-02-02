@@ -219,6 +219,7 @@ export default function ManageFormsPage() {
             const duplicateData = {
                 ...form,
                 title: `${form.title} (สำเนา)`,
+                is_active: false,
                 // Keep the original form_id so the server can fetch the questions
                 // The server will generate a new ID for the duplicated form
             };

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -353,6 +353,19 @@ export default function CreateFormPage() {
     const [evaluationThresholds, setEvaluationThresholds] = useState<EvaluationThreshold[]>([]);
     const [recurrenceInterval, setRecurrenceInterval] = useState<string>('');
     const [isSaving, setIsSaving] = useState(false);
+    const [validationError, setValidationError] = useState<string>('');
+
+    // Refs for auto-focus on validation errors
+    const formTitleRef = useRef<HTMLInputElement>(null);
+    const formDescriptionRef = useRef<HTMLTextAreaElement>(null);
+    const formLabelRef = useRef<HTMLInputElement>(null);
+    const timeToCompleteRef = useRef<HTMLInputElement>(null);
+    const questionRefs = useRef<{[key: string]: HTMLDivElement | null}>({});
+
+    // Run validation whenever form fields change (including on initial mount)
+    useEffect(() => {
+        isFormValid();
+    }, [formTitle, formDescription, formLabel, timeToComplete, questions, evaluationThresholds]);
 
     const addQuestion = () => {
         setQuestions([
@@ -393,101 +406,195 @@ export default function CreateFormPage() {
         setEvaluationThresholds(newThresholds);
     };
 
-    const isFormValid = () => {
-        return validateForm().length === 0;
+    // Check for overlapping score ranges
+    const checkOverlaps = () => {
+        const overlaps: string[] = [];
+        const sortedThresholds = [...evaluationThresholds]
+            .map((t, idx) => ({ ...t, originalIndex: idx }))
+            .filter(t => t.minScore !== '' && t.maxScore !== '')
+            .sort((a, b) => Number(a.minScore) - Number(b.minScore));
+
+        for (let i = 0; i < sortedThresholds.length - 1; i++) {
+            const current = sortedThresholds[i];
+            const next = sortedThresholds[i + 1];
+            
+            if (Number(current.maxScore) >= Number(next.minScore)) {
+                overlaps.push(`เกณฑ์ที่ ${current.originalIndex + 1} (${current.minScore}-${current.maxScore}) และเกณฑ์ที่ ${next.originalIndex + 1} (${next.minScore}-${next.maxScore}) มีช่วงคะแนนที่ทับซ้อนกัน`);
+            }
+        }
+        return overlaps;
     };
 
-    const validateForm = () => {
-        const errors: string[] = [];
+    const isFormValid = () => {
+        const validation = validateForm();
+        setValidationError(validation.error || '');
+        return validation.isValid;
+    };
 
+    const validateForm = (): { isValid: boolean; error?: string; focusElement?: HTMLElement | null; scrollToElement?: HTMLElement | null } => {
         // Check form title
         if (!formTitle.trim()) {
-            errors.push("ชื่อแบบสอบถามเป็นข้อมูลที่จำเป็น");
+            return {
+                isValid: false,
+                error: "กรุณากรอกชื่อแบบสอบถาม",
+                focusElement: formTitleRef.current
+            };
         }
 
         // Check form description
         if (!formDescription.trim()) {
-            errors.push("คำอธิบายแบบสอบถามเป็นข้อมูลที่จำเป็น");
+            return {
+                isValid: false,
+                error: "กรุณากรอกคำอธิบายแบบสอบถาม",
+                focusElement: formDescriptionRef.current
+            };
         }
 
         // Check form label
         if (!formLabel.trim()) {
-            errors.push("คำอธิบายแบบสอบถามเป็นข้อมูลที่จำเป็น");
+            return {
+                isValid: false,
+                error: "กรุณากรอกป้ายกำกับแบบสอบถาม",
+                focusElement: formLabelRef.current
+            };
         }
 
         // Check time to complete
         if (!timeToComplete || Number(timeToComplete) <= 0) {
-            errors.push("เวลาในการทำแบบสอบถามต้องมากกว่า 0 นาที");
+            return {
+                isValid: false,
+                error: "กรุณากรอกเวลาในการทำแบบสอบถาม (ต้องมากกว่า 0 นาที)",
+                focusElement: timeToCompleteRef.current
+            };
         }
 
         // Check if there are questions
         if (questions.length === 0) {
-            errors.push("ต้องมีคำถามอย่างน้อย 1 คำถาม");
+            return {
+                isValid: false,
+                error: "กรุณาเพิ่มคำถามอย่างน้อย 1 คำถาม"
+            };
         }
 
         // Validate each question
-        questions.forEach((question, index) => {
+        for (let index = 0; index < questions.length; index++) {
+            const question = questions[index];
+            const questionElement = questionRefs.current[question.id];
+
             if (!question.question_text.trim()) {
-                errors.push(`คำถามที่ ${index + 1}: ข้อความคำถามเป็นข้อมูลที่จำเป็น`);
+                return {
+                    isValid: false,
+                    error: `คำถามที่ ${index + 1}: กรุณากรอกข้อความคำถาม`,
+                    scrollToElement: questionElement
+                };
             }
 
             // Validate question-specific options
             switch (question.question_type) {
                 case QUESTION_TYPES.MULTIPLE_CHOICE:
                     if (!question.options.choices || question.options.choices.length === 0) {
-                        errors.push(`คำถามที่ ${index + 1}: ต้องมีตัวเลือกอย่างน้อย 1 ตัวเลือก`);
-                    } else {
-                        question.options.choices.forEach((choice: any, choiceIndex: number) => {
-                            if (!choice.text || !choice.text.trim()) {
-                                errors.push(`คำถามที่ ${index + 1}: ตัวเลือกที่ ${choiceIndex + 1} ต้องมีข้อความ`);
-                            }
-                        });
+                        return {
+                            isValid: false,
+                            error: `คำถามที่ ${index + 1}: กรุณาเพิ่มตัวเลือกอย่างน้อย 1 ตัวเลือก`,
+                            scrollToElement: questionElement
+                        };
+                    }
+                    for (let choiceIndex = 0; choiceIndex < question.options.choices.length; choiceIndex++) {
+                        const choice = question.options.choices[choiceIndex];
+                        if (!choice.text || !choice.text.trim()) {
+                            return {
+                                isValid: false,
+                                error: `คำถามที่ ${index + 1}, ตัวเลือกที่ ${choiceIndex + 1}: กรุณากรอกข้อความตัวเลือก`,
+                                scrollToElement: questionElement
+                            };
+                        }
                     }
                     break;
                 case QUESTION_TYPES.RATING:
                     if (question.options.min === '' || question.options.min === undefined || question.options.max === '' || question.options.max === undefined) {
-                        errors.push(`คำถามที่ ${index + 1}: ต้องกำหนดค่าต่ำสุดและค่าสูงสุด`);
-                    } else if (Number(question.options.min) >= Number(question.options.max)) {
-                        errors.push(`คำถามที่ ${index + 1}: ค่าต่ำสุดต้องน้อยกว่าค่าสูงสุด`);
+                        return {
+                            isValid: false,
+                            error: `คำถามที่ ${index + 1}: กรุณาระบุค่าต่ำสุดและค่าสูงสุด`,
+                            scrollToElement: questionElement
+                        };
+                    }
+                    if (Number(question.options.min) >= Number(question.options.max)) {
+                        return {
+                            isValid: false,
+                            error: `คำถามที่ ${index + 1}: ค่าต่ำสุดต้องน้อยกว่าค่าสูงสุด`,
+                            scrollToElement: questionElement
+                        };
                     }
                     break;
                 case QUESTION_TYPES.NUMBER:
                     if (question.options.min !== '' && question.options.min !== undefined && 
                         question.options.max !== '' && question.options.max !== undefined && 
                         Number(question.options.min) >= Number(question.options.max)) {
-                        errors.push(`คำถามที่ ${index + 1}: ค่าต่ำสุดต้องน้อยกว่าค่าสูงสุด`);
+                        return {
+                            isValid: false,
+                            error: `คำถามที่ ${index + 1}: ค่าต่ำสุดต้องน้อยกว่าค่าสูงสุด`,
+                            scrollToElement: questionElement
+                        };
                     }
                     break;
             }
-        });
+        }
 
         // Validate evaluation thresholds if any exist
         if (evaluationThresholds.length > 0) {
-            evaluationThresholds.forEach((threshold, index) => {
+            // Check for overlaps first
+            const overlaps = checkOverlaps();
+            if (overlaps.length > 0) {
+                return {
+                    isValid: false,
+                    error: `พบช่วงคะแนนที่ทับซ้อนกัน: ${overlaps[0]}`
+                };
+            }
+
+            for (let index = 0; index < evaluationThresholds.length; index++) {
+                const threshold = evaluationThresholds[index];
                 if (!threshold.result || !threshold.result.trim()) {
-                    errors.push(`เกณฑ์การประเมินที่ ${index + 1}: ต้องระบุผลการประเมิน`);
+                    return {
+                        isValid: false,
+                        error: `เกณฑ์การประเมินที่ ${index + 1}: กรุณาระบุผลการประเมิน`
+                    };
                 }
                 if (threshold.minScore === '' || threshold.maxScore === '') {
-                    errors.push(`เกณฑ์การประเมินที่ ${index + 1}: ต้องระบุช่วงคะแนน`);
-                } else if (Number(threshold.minScore) >= Number(threshold.maxScore)) {
-                    errors.push(`เกณฑ์การประเมินที่ ${index + 1}: คะแนนต่ำสุดต้องน้อยกว่าคะแนนสูงสุด`);
+                    return {
+                        isValid: false,
+                        error: `เกณฑ์การประเมินที่ ${index + 1}: กรุณาระบุช่วงคะแนน (คะแนนต่ำสุดและคะแนนสูงสุด)`
+                    };
                 }
-            });
+                if (Number(threshold.minScore) > Number(threshold.maxScore)) {
+                    return {
+                        isValid: false,
+                        error: `เกณฑ์การประเมินที่ ${index + 1}: คะแนนต่ำสุดต้องไม่มากกว่าคะแนนสูงสุด`
+                    };
+                }
+            }
         }
 
-        return errors;
+        return { isValid: true };
     };
 
     const handleSave = async () => {
-        const validationErrors = validateForm();
+        const validation = validateForm();
         
-        if (validationErrors.length > 0) {
-            toast.error("กรุณาแก้ไขข้อผิดพลาดต่อไปนี้:", {
-                description: validationErrors.join('\n'),
-            });
+        if (!validation.isValid) {
+            setValidationError(validation.error || "กรุณาตรวจสอบข้อมูลอีกครั้ง");
+            toast.error(validation.error || "กรุณาตรวจสอบข้อมูลอีกครั้ง");
+            
+            // Focus or scroll to the problematic field
+            if (validation.focusElement) {
+                validation.focusElement.focus();
+                validation.focusElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else if (validation.scrollToElement) {
+                validation.scrollToElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
             return;
         }
 
+        setValidationError('');
         setIsSaving(true);
         const formPayload = {
             title: formTitle,
@@ -533,6 +640,7 @@ export default function CreateFormPage() {
                                     ชื่อแบบสอบถาม <span className="text-red-500">*</span>
                                 </Label>
                                 <Input 
+                                    ref={formTitleRef}
                                     id="form-title" 
                                     value={formTitle} 
                                     onChange={e => setFormTitle(e.target.value)} 
@@ -545,6 +653,7 @@ export default function CreateFormPage() {
                                     คำอธิบายแบบสอบถาม <span className="text-red-500">*</span>
                                 </Label>
                                 <Textarea 
+                                    ref={formDescriptionRef}
                                     id="form-description" 
                                     value={formDescription} 
                                     onChange={e => setFormDescription(e.target.value)} 
@@ -554,9 +663,10 @@ export default function CreateFormPage() {
                             </div>
                             <div>
                                 <Label htmlFor="form-label" className="pb-2 text-lg">
-                                    คำอธิบาย <span className="text-red-500">*</span>
+                                    หมวดหมู่ <span className="text-red-500">*</span>
                                 </Label>
                                 <Input 
+                                    ref={formLabelRef}
                                     id="form-label" 
                                     value={formLabel} 
                                     onChange={e => setFormLabel(e.target.value)} 
@@ -570,6 +680,7 @@ export default function CreateFormPage() {
                                         เวลาในการทำแบบสอบถาม (นาที) <span className="text-red-500">*</span>
                                     </Label>
                                     <Input 
+                                        ref={timeToCompleteRef}
                                         id="time-to-complete" 
                                         type="number"
                                         value={timeToComplete} 
@@ -624,12 +735,13 @@ export default function CreateFormPage() {
                     </Card>
 
                     {questions.map((q) => (
-                        <QuestionEditor
-                            key={q.id}
-                            question={q}
-                            updateQuestion={updateQuestion}
-                            removeQuestion={removeQuestion}
-                        />
+                        <div key={q.id} ref={(el) => { questionRefs.current[q.id] = el; }}>
+                            <QuestionEditor
+                                question={q}
+                                updateQuestion={updateQuestion}
+                                removeQuestion={removeQuestion}
+                            />
+                        </div>
                     ))}
 
                     <div className="flex justify-center">
@@ -644,7 +756,7 @@ export default function CreateFormPage() {
                         <CardHeader>
                             <CardTitle className="text-xl font-bold">เกณฑ์การประเมิน</CardTitle>
                             <p className="text-sm text-muted-foreground">
-                                กำหนดช่วงคะแนนและผลการประเมินที่สอดคล้องกัน
+                                กำหนดช่วงคะแนนและผลการประเมิน (ช่วงคะแนนต้องไม่ซ้อนทับกัน)
                             </p>
                         </CardHeader>
                         <CardContent className="p-6 space-y-4">
@@ -654,57 +766,102 @@ export default function CreateFormPage() {
                                     <p className="text-sm">คลิก "เพิ่มเกณฑ์การประเมิน" เพื่อเริ่มต้น</p>
                                 </div>
                             )}
-                            {evaluationThresholds.map((threshold, index) => (
-                                <div key={index} className="flex items-end gap-2 p-4 border rounded-lg">
-                                    <div className="flex-1 space-y-2">
-                                        <Label className="text-sm">ช่วงคะแนน</Label>
-                                        <div className="flex items-center gap-2">
-                                            <Input
-                                                type="number"
-                                                placeholder="คะแนนต่ำสุด *"
-                                                value={threshold.minScore}
-                                                onChange={(e) => updateThreshold(index, 'minScore', e.target.value)}
-                                                className={`w-24 ${threshold.minScore === '' ? 'border-red-300 focus-visible:border-red-500' : ''}`}
-                                                onWheel={(e) => e.currentTarget.blur()}
-                                            />
-                                            <span className="text-sm text-muted-foreground">ถึง</span>
-                                            <Input
-                                                type="number"
-                                                placeholder="คะแนนสูงสุด *"
-                                                value={threshold.maxScore}
-                                                onChange={(e) => updateThreshold(index, 'maxScore', e.target.value)}
-                                                className={`w-24 ${threshold.maxScore === '' ? 'border-red-300 focus-visible:border-red-500' : ''}`}
-                                                onWheel={(e) => e.currentTarget.blur()}
-                                            />
+                            
+                            {/* Overlap Warning */}
+                            {evaluationThresholds.length > 1 && checkOverlaps().length > 0 && (
+                                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                    <div className="flex items-start gap-2">
+                                        <svg className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                        </svg>
+                                        <div className="flex-1">
+                                            <h4 className="text-sm font-semibold text-yellow-800 mb-1">⚠️ พบช่วงคะแนนที่ทับซ้อนกัน</h4>
+                                            <ul className="text-sm text-yellow-700 list-disc list-inside space-y-1">
+                                                {checkOverlaps().map((msg, idx) => (
+                                                    <li key={idx}>{msg}</li>
+                                                ))}
+                                            </ul>
+                                            <p className="text-xs text-yellow-600 mt-2">💡 แนะนำ: ใช้ช่วงคะแนนที่ไม่ทับซ้อนกัน เช่น 0-2, 3-5, 6-10</p>
                                         </div>
                                     </div>
-                                    <div className="flex-1 space-y-2">
-                                        <Label className="text-sm">ผลการประเมิน <span className="text-red-500">*</span></Label>
-                                        <Input
-                                            placeholder="เช่น ดีมาก, ดี, ปานกลาง, ต้องปรับปรุง"
-                                            value={threshold.result}
-                                            onChange={(e) => updateThreshold(index, 'result', e.target.value)}
-                                            className={`${!threshold.result?.trim() ? 'border-red-300 focus-visible:border-red-500' : ''}`}
-                                        />
+                                </div>
+                            )}
+
+                            {evaluationThresholds.map((threshold, index) => (
+                                <div key={index} className="border-2 rounded-lg p-4 bg-white hover:bg-gray-50 transition-colors">
+                                    <div className="flex items-start gap-3">
+                                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-sm">
+                                            {index + 1}
+                                        </div>
+                                        <div className="flex-1 space-y-3">
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                                <div className="space-y-2">
+                                                    <Label className="text-sm font-semibold flex items-center gap-1">
+                                                        <span className="text-blue-600">📊</span>
+                                                        ช่วงคะแนน <span className="text-red-500">*</span>
+                                                    </Label>
+                                                    <div className="flex items-center gap-2">
+                                                        <Input
+                                                            type="number"
+                                                            placeholder="ต่ำสุด"
+                                                            value={threshold.minScore}
+                                                            onChange={(e) => updateThreshold(index, 'minScore', e.target.value)}
+                                                            className={`w-full ${threshold.minScore === '' ? 'border-red-300 focus-visible:ring-red-500' : ''}`}
+                                                            onWheel={(e) => e.currentTarget.blur()}
+                                                        />
+                                                        <span className="text-lg font-bold text-gray-400">-</span>
+                                                        <Input
+                                                            type="number"
+                                                            placeholder="สูงสุด"
+                                                            value={threshold.maxScore}
+                                                            onChange={(e) => updateThreshold(index, 'maxScore', e.target.value)}
+                                                            className={`w-full ${threshold.maxScore === '' ? 'border-red-300 focus-visible:ring-red-500' : ''}`}
+                                                            onWheel={(e) => e.currentTarget.blur()}
+                                                        />
+                                                    </div>
+                                                    {threshold.minScore !== '' && threshold.maxScore !== '' && (
+                                                        <p className="text-xs text-gray-500">
+                                                            ช่วง: {threshold.minScore} ≤ คะแนน ≤ {threshold.maxScore}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label className="text-sm font-semibold flex items-center gap-1">
+                                                        <span className="text-green-600">✅</span>
+                                                        ผลการประเมิน <span className="text-red-500">*</span>
+                                                    </Label>
+                                                    <Input
+                                                        placeholder="เช่น ดีมาก, ดี, ปานกลาง"
+                                                        value={threshold.result}
+                                                        onChange={(e) => updateThreshold(index, 'result', e.target.value)}
+                                                        className={`${!threshold.result?.trim() ? 'border-red-300 focus-visible:ring-red-500' : ''}`}
+                                                    />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label className="text-sm font-semibold flex items-center gap-1">
+                                                        <span className="text-gray-500">📝</span>
+                                                        คำอธิบาย (ไม่บังคับ)
+                                                    </Label>
+                                                    <Input
+                                                        placeholder="คำอธิบายเพิ่มเติม"
+                                                        value={threshold.description}
+                                                        onChange={(e) => updateThreshold(index, 'description', e.target.value)}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <Button 
+                                            variant="ghost" 
+                                            size="icon" 
+                                            onClick={() => removeThreshold(index)}
+                                            className="flex-shrink-0 hover:bg-red-50 hover:text-red-600"
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
                                     </div>
-                                    <div className="flex-1 space-y-2">
-                                        <Label className="text-sm">คำอธิบาย (ไม่บังคับ)</Label>
-                                        <Input
-                                            placeholder="คำอธิบายเพิ่มเติมเกี่ยวกับผลการประเมิน"
-                                            value={threshold.description}
-                                            onChange={(e) => updateThreshold(index, 'description', e.target.value)}
-                                        />
-                                    </div>
-                                    <Button 
-                                        variant="ghost" 
-                                        size="icon" 
-                                        onClick={() => removeThreshold(index)}
-                                    >
-                                        <Trash2 className="h-4 w-4 text-destructive" />
-                                    </Button>
                                 </div>
                             ))}
-                            <Button variant="outline" size="sm" onClick={addThreshold}>
+                            <Button variant="outline" size="sm" onClick={addThreshold} className="w-full md:w-auto">
                                 <PlusCircle className="h-4 w-4 mr-2" />
                                 เพิ่มเกณฑ์การประเมิน
                             </Button>
@@ -712,16 +869,16 @@ export default function CreateFormPage() {
                     </Card>
 
                     <div className="flex flex-col items-end gap-2">
-                        {!isFormValid() && (
-                            <p className="text-sm text-red-500">
-                                กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน (ช่องที่มีเครื่องหมาย *)
+                        {validationError && (
+                            <p className="text-sm text-red-500 font-medium">
+                                {validationError}
                             </p>
                         )}
                         <Button 
                             onClick={handleSave} 
                             size="lg" 
                             className="text-lg" 
-                            disabled={isSaving || !isFormValid()}
+                            disabled={isSaving}
                         >
                             {isSaving ? "กำลังบันทึก..." : "บันทึกแบบสอบถาม"}
                         </Button>

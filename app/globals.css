@@ -92,6 +92,57 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Increase all font sizes by one step */
+  .text-xs {
+    font-size: 0.875rem !important; /* was 0.75rem, now text-sm size */
+    line-height: 1.25rem !important;
+  }
+
+  .text-sm {
+    font-size: 1rem !important; /* was 0.875rem, now text-base size */
+    line-height: 1.5rem !important;
+  }
+
+  .text-base {
+    font-size: 1.125rem !important; /* was 1rem, now text-lg size */
+    line-height: 1.75rem !important;
+  }
+
+  .text-lg {
+    font-size: 1.25rem !important; /* was 1.125rem, now text-xl size */
+    line-height: 1.75rem !important;
+  }
+
+  .text-xl {
+    font-size: 1.5rem !important; /* was 1.25rem, now text-2xl size */
+    line-height: 2rem !important;
+  }
+
+  .text-2xl {
+    font-size: 1.875rem !important; /* was 1.5rem, now text-3xl size */
+    line-height: 2.25rem !important;
+  }
+
+  .text-3xl {
+    font-size: 2.25rem !important; /* was 1.875rem, now text-4xl size */
+    line-height: 2.5rem !important;
+  }
+
+  .text-4xl {
+    font-size: 3rem !important; /* was 2.25rem, now text-5xl size */
+    line-height: 1 !important;
+  }
+
+  .text-5xl {
+    font-size: 3.75rem !important; /* was 3rem, now text-6xl size */
+    line-height: 1 !important;
+  }
+
+  .text-6xl {
+    font-size: 4.5rem !important; /* was 3.75rem, now text-7xl size */
+    line-height: 1 !important;
+  }
 }
 
 .avatar-uploader .ant-upload {

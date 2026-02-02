@@ -30,7 +30,10 @@ export default function PatientHeader({ patient, patientId, patientGroups = [] }
             day: 'numeric'
         });
     };
-    console.log('PatientHeader', patient);
+    
+    console.log('PatientHeader - patient:', patient);
+    console.log('PatientHeader - patientGroups:', patientGroups);
+    console.log('PatientHeader - patientGroups length:', patientGroups?.length);
 
     return (
         <Card>
@@ -43,9 +46,28 @@ export default function PatientHeader({ patient, patientId, patientGroups = [] }
                         </AvatarFallback>
                     </Avatar>
                     <div className="flex-1">
-                        <CardTitle className="text-2xl">
-                            {patient.title} {patient.first_name} {patient.last_name}
-                        </CardTitle>
+                        <div className="flex items-center gap-3 flex-wrap">
+                            <CardTitle className="text-2xl">
+                                {patient.title} {patient.first_name} {patient.last_name}
+                            </CardTitle>
+                            {patientGroups && patientGroups.length > 0 && (
+                                <div className="flex flex-wrap items-center gap-2">
+                                    {[...patientGroups]
+                                        .sort((a, b) => a.name.localeCompare(b.name, 'th'))
+                                        .map(group => (
+                                            <Badge 
+                                                key={group.id} 
+                                                style={{ backgroundColor: group.color || '#6B7280' }}
+                                                className="font-normal text-white"
+                                            >
+                                                <Users className="h-3 w-3 mr-1" />
+                                                {group.name}
+                                            </Badge>
+                                        ))
+                                    }
+                                </div>
+                            )}
+                        </div>
                         <CardDescription className="text-lg">
                             รหัสผู้ใช้บริการ: {patientId}
                         </CardDescription>
@@ -57,27 +79,6 @@ export default function PatientHeader({ patient, patientId, patientGroups = [] }
                                 ลงทะเบียนเมื่อ {formatDate(patient.created_at)}
                             </Badge>
                         </div>
-                        
-                        {patientGroups && patientGroups.length > 0 && (
-                            <div className="flex flex-wrap items-center gap-2 mt-3">
-                                <div className="flex items-center mr-1">
-                                    <Users className="h-4 w-4 text-muted-foreground mr-1" />
-                                    <span className="text-sm text-muted-foreground">กลุ่ม:</span>
-                                </div>
-                                {[...patientGroups]
-                                    .sort((a, b) => a.name.localeCompare(b.name, 'th'))
-                                    .map(group => (
-                                        <Badge 
-                                            key={group.id} 
-                                            style={{ backgroundColor: group.color || '#6B7280' }}
-                                            className="font-normal"
-                                        >
-                                            {group.name}
-                                        </Badge>
-                                    ))
-                                }
-                            </div>
-                        )}
                     </div>
                 </div>
             </CardHeader>

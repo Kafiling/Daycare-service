@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { FileText, Users, History, Calendar } from 'lucide-react';
 import { getPatientById, getActiveForms, getCompletedSubmissions } from '@/app/service/patient';
 import { getPatientGroupsForPatient, getUpcomingGroupEvents } from '@/app/service/group-assignment';
-import { getTodayCheckIn, getCheckInHistory } from '@/app/service/checkin';
+import { getTodayCheckIn, getCheckInHistory, getLatestCheckInWithVitals } from '@/app/service/checkin';
 import PatientHeader from '@/components/patient/PatientHeader';
 import PatientInfo from '@/components/patient/PatientInfo';
 import AvailableSurveys from '@/components/patient/AvailableSurveys';
@@ -26,9 +26,10 @@ export default async function PatientHomePage({ params }: PatientHomePageProps) 
         const completedSubmissions = await getCompletedSubmissions(resolvedParams.id);
         const todayCheckIn = await getTodayCheckIn(resolvedParams.id);
         const checkInHistory = await getCheckInHistory(resolvedParams.id);
+        const latestCheckInVitals = await getLatestCheckInWithVitals(resolvedParams.id);
 
         // Get patient groups and upcoming events
-        const patientGroups = await getPatientGroupsForPatient(resolvedParams.id);
+        const patientGroups = await getPatientGroupsForPatient(resolvedParams.id, supabase);
         const groupIds = patientGroups.map(group => group.id);
 
         // Get upcoming events with server-side authenticated client
@@ -74,7 +75,7 @@ export default async function PatientHomePage({ params }: PatientHomePageProps) 
                 <PatientHeader patient={patient} patientId={resolvedParams.id} patientGroups={patientGroups} />
 
                 {/* Patient Information */}
-                <PatientInfo patient={patient} todayCheckIn={todayCheckIn} history={checkInHistory} />
+                <PatientInfo patient={patient} todayCheckIn={todayCheckIn} history={checkInHistory} latestVitals={latestCheckInVitals} />
 
                 {/* Upcoming Events */}
                 <Card>

@@ -41,21 +41,39 @@ export function RuleCard({ rule, onEdit, onDelete, isLoading }: RuleCardProps) {
               <p className="text-gray-600 mb-3">{rule.description}</p>
             )}
 
-            <div className="flex items-center gap-4 text-sm">
-              <div className="flex items-center gap-2">
-                <div
-                  className="w-3 h-3 rounded-full"
-                  style={{ backgroundColor: rule.group?.color }}
-                />
-                <span>กลุ่ม: {rule.group?.name}</span>
+            <div className="space-y-2">
+              <div className="flex items-center gap-4 text-sm">
+                <div className="flex items-center gap-2">
+                  <div
+                    className="w-3 h-3 rounded-full"
+                    style={{ backgroundColor: rule.group?.color }}
+                  />
+                  <span>กลุ่ม: {rule.group?.name}</span>
+                </div>
+                <div>
+                  แบบสอบถาม: {rule.rule_config.forms?.length || 0} แบบสอบถาม
+                </div>
+                {rule.rule_config.logic_operator && rule.rule_config.forms && rule.rule_config.forms.length > 1 && (
+                  <Badge variant="outline">
+                    {rule.rule_config.logic_operator === 'AND' ? 'ต้องผ่านทุกเงื่อนไข' : 'ผ่านเงื่อนไขใดเงื่อนไขหนึ่ง'}
+                  </Badge>
+                )}
               </div>
-              <div>
-                แบบสอบถาม: {rule.rule_config.forms?.length || 0} แบบสอบถาม
-              </div>
-              <div>
-                เงื่อนไข: {rule.rule_config.operator === 'gte' ? '≥' : rule.rule_config.operator === 'lte' ? '≤' : 'ระหว่าง'} {rule.rule_config.min_score}
-                {rule.rule_config.operator === 'between' && ` - ${rule.rule_config.max_score}`}
-              </div>
+              {rule.rule_config.forms && rule.rule_config.forms.length > 0 && (
+                <div className="text-xs text-gray-600 ml-4">
+                  {rule.rule_config.forms.map((form, idx) => {
+                    const operatorText = form.operator === 'gte' ? '≥' : 
+                                       form.operator === 'lte' ? '≤' :
+                                       form.operator === 'gt' ? '>' :
+                                       form.operator === 'lt' ? '<' : '=';
+                    return (
+                      <div key={idx}>
+                        เงื่อนไข {idx + 1}: คะแนน {operatorText} {form.threshold}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
 

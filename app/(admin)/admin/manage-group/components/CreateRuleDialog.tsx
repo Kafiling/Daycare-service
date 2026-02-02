@@ -31,9 +31,7 @@ interface CreateRuleDialogProps {
     description: string;
     group_id: string;
     forms: FormConfig[];
-    min_score?: number;
-    max_score?: number;
-    operator: 'gte' | 'lte' | 'eq' | 'between';
+    logic_operator: 'AND' | 'OR';
   };
   groups: PatientGroup[];
   availableForms: Array<{ form_id: string; title: string }>;
@@ -122,7 +120,7 @@ export function CreateRuleDialog({
 
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <Label>แบบสอบถามและน้ำหนัก *</Label>
+              <Label>แบบสอบถามและเงื่อนไข *</Label>
               <Button
                 type="button"
                 variant="outline"
@@ -136,7 +134,8 @@ export function CreateRuleDialog({
 
             {form.forms.map((formItem, index) => (
               <div key={index} className="grid grid-cols-12 gap-2 items-end">
-                <div className="col-span-6">
+                <div className="col-span-4">
+                  <Label className="text-xs">แบบสอบถาม</Label>
                   <Select
                     value={formItem.form_id}
                     onValueChange={(value) => onUpdateFormConfig(index, 'form_id', value)}
@@ -147,20 +146,40 @@ export function CreateRuleDialog({
                     <SelectContent>
                       {availableForms.map((availableForm) => (
                         <SelectItem key={availableForm.form_id} value={availableForm.form_id}>
-                          {availableForm.title}
+                          <div className="whitespace-normal break-words text-left py-2 pr-2">
+                            {availableForm.title}
+                          </div>
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="col-span-3">
+                  <Label className="text-xs">เงื่อนไข</Label>
+                  <Select
+                    value={formItem.operator}
+                    onValueChange={(value: any) => onUpdateFormConfig(index, 'operator', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="gte">≥</SelectItem>
+                      <SelectItem value="gt">&gt;</SelectItem>
+                      <SelectItem value="eq">=</SelectItem>
+                      <SelectItem value="lt">&lt;</SelectItem>
+                      <SelectItem value="lte">≤</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="col-span-3">
+                  <Label className="text-xs">คะแนน</Label>
                   <Input
                     type="number"
                     step="0.1"
-                    min="0"
-                    value={formItem.weight}
-                    onChange={(e) => onUpdateFormConfig(index, 'weight', parseFloat(e.target.value) || 1)}
-                    placeholder="น้ำหนัก"
+                    value={formItem.threshold}
+                    onChange={(e) => onUpdateFormConfig(index, 'threshold', parseFloat(e.target.value) || 0)}
+                    placeholder="0"
                   />
                 </div>
                 <div className="col-span-2">
@@ -179,48 +198,26 @@ export function CreateRuleDialog({
             ))}
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
+          {form.forms.length > 1 && (
             <div>
-              <Label htmlFor="create-operator">เงื่อนไข</Label>
+              <Label htmlFor="create-logic-operator">ตรรกะการรวมเงื่อนไข</Label>
               <Select
-                value={form.operator}
-                onValueChange={(value: any) => onFormChange({ ...form, operator: value })}
+                value={form.logic_operator}
+                onValueChange={(value: 'AND' | 'OR') => onFormChange({ ...form, logic_operator: value })}
               >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="gte">มากกว่าเท่ากับ (≥)</SelectItem>
-                  <SelectItem value="lte">น้อยกว่าเท่ากับ (≤)</SelectItem>
-                  <SelectItem value="between">ระหว่าง</SelectItem>
+                  <SelectItem value="AND">AND (ต้องผ่านเงื่อนไขทั้งหมด)</SelectItem>
+                  <SelectItem value="OR">OR (ผ่านเงื่อนไขใดเงื่อนไขหนึ่ง)</SelectItem>
                 </SelectContent>
               </Select>
+              <p className="text-xs text-muted-foreground mt-1">
+                AND: ผู้ใช้บริการต้องผ่านเงื่อนไขของแบบสอบถามทั้งหมด | OR: ผ่านแบบสอบถามใดแบบหนึ่งก็ได้
+              </p>
             </div>
-            <div>
-              <Label htmlFor="create-min-score">คะแนน</Label>
-              <Input
-                id="create-min-score"
-                type="number"
-                step="0.1"
-                value={form.min_score || ''}
-                onChange={(e) => onFormChange({ ...form, min_score: parseFloat(e.target.value) || undefined })}
-                placeholder="0"
-              />
-            </div>
-            {form.operator === 'between' && (
-              <div>
-                <Label htmlFor="create-max-score">คะแนน</Label>
-                <Input
-                  id="create-max-score"
-                  type="number"
-                  step="0.1"
-                  value={form.max_score || ''}
-                  onChange={(e) => onFormChange({ ...form, max_score: parseFloat(e.target.value) || undefined })}
-                  placeholder="100"
-                />
-              </div>
-            )}
-          </div>
+          )}
         </div>
 
         <div className="flex justify-end gap-3">
