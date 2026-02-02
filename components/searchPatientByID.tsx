@@ -110,7 +110,7 @@ function PatientCard({ patient, searchQuery, onClick }: {
                 <div className="flex items-center gap-1">
                   <Calendar className="h-3 w-3" />
                   <span className="text-xs">
-                    {new Date(patient.date_of_birth).toLocaleDateString('th-TH')}
+                    {toThaiDate(patient.date_of_birth)}
                   </span>
                 </div>
               )}

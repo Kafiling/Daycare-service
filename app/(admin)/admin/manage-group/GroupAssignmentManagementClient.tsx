@@ -611,7 +611,7 @@ export function GroupAssignmentManagementClient() {
                         <div className="grid gap-2">
                           {groupMembers.map((patient) => {
                             const age = patient.date_of_birth 
-                              ? Math.floor((new Date().getTime() - new Date(patient.date_of_birth).getTime()) / (1000 * 60 * 60 * 24 * 365.25))
+                              ? Math.floor((getBangkokDate().getTime() - new Date(patient.date_of_birth).getTime()) / (1000 * 60 * 60 * 24 * 365.25))
                               : null;
 
                             return (
@@ -636,7 +636,7 @@ export function GroupAssignmentManagementClient() {
                                   {patient.date_of_birth && (
                                     <span className="flex items-center gap-1 whitespace-nowrap">
                                       <Cake className="h-3 w-3" />
-                                      วันเกิด {new Date(patient.date_of_birth).toLocaleDateString('th-TH', {
+                                      วันเกิด {toThaiDateTime(patient.date_of_birth, {
                                         year: 'numeric',
                                         month: 'short',
                                         day: 'numeric'
@@ -645,7 +645,7 @@ export function GroupAssignmentManagementClient() {
                                   )}
                                   <span className="flex items-center gap-1 whitespace-nowrap">
                                     <UserPlus className="h-3 w-3" />
-                                    เป็นสมาชิก Daycare {new Date(patient.created_at).toLocaleDateString('th-TH', {
+                                    เป็นสมาชิก Daycare {toThaiDateTime(patient.created_at, {
                                       year: 'numeric',
                                       month: 'short',
                                       day: 'numeric'
@@ -730,7 +730,7 @@ export function GroupAssignmentManagementClient() {
                       </div>
                     </div>
                     <div className="text-sm text-gray-500">
-                      {new Date(assignment.created_at).toLocaleString('th-TH')}
+                      {toThaiDateTime(assignment.created_at)}
                     </div>
                   </div>
                 </CardContent>
