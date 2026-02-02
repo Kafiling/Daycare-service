@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Search, Plus, AlertTriangle, User, Phone, MapPin, Calendar, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useCallback, useRef } from "react";
+import { toThaiDate, toThaiDateTime } from '@/lib/timezone';
 
 // Highlight matched text component
 function HighlightedText({ text, search }: { text: string; search: string }) {
@@ -110,7 +111,7 @@ function PatientCard({ patient, searchQuery, onClick }: {
                 <div className="flex items-center gap-1">
                   <Calendar className="h-3 w-3" />
                   <span className="text-xs">
-                    {new Date(patient.date_of_birth).toLocaleDateString('th-TH')}
+                    {toThaiDate(patient.date_of_birth)}
                   </span>
                 </div>
               )}
@@ -196,11 +197,7 @@ export function PatientIdInput() {
           const daysRemaining = Math.ceil((deletionDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
           
           setDeletedPatientInfo({
-            scheduledDeleteAt: deletionDate.toLocaleDateString('th-TH', { 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
-            }),
+            scheduledDeleteAt: toThaiDate(patient.scheduled_permanent_delete_at),
             daysRemaining,
           });
           setShowDeletedDialog(true);

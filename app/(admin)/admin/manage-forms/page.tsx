@@ -61,6 +61,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import { toThaiDateShort } from '@/lib/timezone';
 // Import from the same service as AvailableSurveys
 import { type Form } from '@/app/service/patient-client';
 import { logFormStatusChange } from './_actions/logFormStatusChange';
@@ -480,7 +481,7 @@ export default function ManageFormsPage() {
                                                             {form.created_at && (
                                                                 <div className="flex items-center gap-1">
                                                                     <Calendar className="h-4 w-4" />
-                                                                    <span>สร้าง: {new Date(form.created_at).toLocaleDateString('th-TH')}</span>
+                                                                    <span>สร้าง: {toThaiDateShort(form.created_at)}</span>
                                                                 </div>
                                                             )}
                                                         </div>
@@ -615,7 +616,7 @@ export default function ManageFormsPage() {
                                 <div>
                                     <Label className="text-sm font-medium">วันที่สร้าง</Label>
                                     <p className="text-sm text-muted-foreground">
-                                        {selectedForm.created_at ? new Date(selectedForm.created_at).toLocaleDateString('th-TH') : 'ไม่ระบุ'}
+                                        {selectedForm.created_at ? toThaiDateShort(selectedForm.created_at) : 'ไม่ระบุ'}
                                     </p>
                                 </div>
                             </div>

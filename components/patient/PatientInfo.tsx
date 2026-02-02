@@ -26,6 +26,7 @@ import type { Patient } from '@/app/service/patient';
 import { PatientCheckIn } from './PatientCheckIn';
 import type { CheckIn } from '@/app/service/checkin';
 import { Badge } from '@/components/ui/badge';
+import { toThaiDate, getBangkokDate } from '@/lib/timezone';
 
 interface PatientInfoProps {
     patient: Patient;
@@ -38,15 +39,11 @@ export default function PatientInfo({ patient, todayCheckIn, history, latestVita
     const [isExpanded, setIsExpanded] = useState(false);
 
     const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('th-TH', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
+        return toThaiDate(dateString);
     };
 
     const calculateAge = (dateString: string) => {
-        const today = new Date();
+        const today = getBangkokDate();
         const birthDate = new Date(dateString);
         let age = today.getFullYear() - birthDate.getFullYear();
         const m = today.getMonth() - birthDate.getMonth();

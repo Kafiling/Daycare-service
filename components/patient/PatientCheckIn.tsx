@@ -15,6 +15,7 @@ import { CheckCircle2, History, Clock, Activity, Thermometer } from "lucide-reac
 import { checkInPatientAction, updateCheckInAction } from "@/app/(main)/patient/[id]/home/_actions/checkin";
 import { toast } from "sonner";
 import type { CheckIn } from "@/app/service/checkin";
+import { toThaiDateTime, toThaiTimeShort } from '@/lib/timezone';
 
 interface PatientCheckInProps {
   patientId: string;
@@ -101,7 +102,7 @@ export function PatientCheckIn({ patientId, todayCheckIn, history, latestVitals 
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('th-TH', {
+    return toThaiDateTime(dateString, {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
@@ -121,7 +122,7 @@ export function PatientCheckIn({ patientId, todayCheckIn, history, latestVitals 
               onClick={openDialog}
             >
               <CheckCircle2 className="h-4 w-4" />
-              เช็คอินแล้ว ({new Date(todayCheckIn.check_in_time).toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })})
+              เช็คอินแล้ว ({toThaiTimeShort(todayCheckIn.check_in_time)})
             </Button>
           ) : (
             <Button className="gap-2" onClick={openDialog}>
@@ -144,7 +145,7 @@ export function PatientCheckIn({ patientId, todayCheckIn, history, latestVitals 
                   <div className="flex-1">
                     <p className="text-sm font-medium text-yellow-800">กำลังแก้ไขข้อมูลเช็คอิน</p>
                     <p className="text-xs text-yellow-700 mt-1">
-                      {new Date(todayCheckIn.check_in_time).toLocaleDateString('th-TH', {
+                      {toThaiDateTime(todayCheckIn.check_in_time, {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric',
@@ -293,17 +294,14 @@ export function PatientCheckIn({ patientId, todayCheckIn, history, latestVitals 
                     {history.map((checkIn) => (
                       <tr key={checkIn.id} className="border-b hover:bg-muted/50">
                         <td className="p-3">
-                          {new Date(checkIn.check_in_time).toLocaleDateString('th-TH', {
+                          {toThaiDateTime(checkIn.check_in_time, {
                             year: 'numeric',
                             month: 'short',
                             day: 'numeric'
                           })}
                         </td>
                         <td className="p-3">
-                          {new Date(checkIn.check_in_time).toLocaleTimeString('th-TH', {
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
+                          {toThaiTimeShort(checkIn.check_in_time)}
                         </td>
                         <td className="p-3">
                           {checkIn.systolic_bp && checkIn.diastolic_bp

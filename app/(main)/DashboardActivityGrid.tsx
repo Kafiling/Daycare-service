@@ -7,6 +7,7 @@ import { getPatientGroups, getPatientsWithGroups, getUpcomingGroupEvents, GroupE
 import { format } from "date-fns";
 import { th } from "date-fns/locale";
 import { GroupEventsList } from "@/components/group/GroupEventsList";
+import { toThaiDate } from "@/lib/timezone";
 
 interface PatientGroup {
   id: string;
@@ -223,11 +224,7 @@ export function DashboardActivityGrid() {
 									<div className="flex items-center gap-2 text-sm text-gray-500 mt-2">
 										<Activity className="h-4 w-4" />
 										<span>
-											สร้างเมื่อ: {new Date(group.created_at).toLocaleDateString("th-TH", {
-												year: "numeric",
-												month: "long",
-												day: "numeric",
-											})}
+											สร้างเมื่อ: {toThaiDate(group.created_at)}
 										</span>
 									</div>
 								</CardHeader>

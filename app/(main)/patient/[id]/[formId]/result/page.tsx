@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { CheckCircle, Home, AlertCircle, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 import RedoFormButton from '@/components/RedoFormButton';
+import { toThaiDate, toThaiTimeShort } from '@/lib/timezone';
 
 interface ResultPageProps {
     params: Promise<{
@@ -208,20 +209,13 @@ export default async function ResultPage({ params, searchParams }: ResultPagePro
                                 <div>
                                     <p className="text-gray-600">วันที่ประเมิน</p>
                                     <p className="font-medium">
-                                        {new Date(submission.submitted_at).toLocaleDateString('th-TH', {
-                                            year: 'numeric',
-                                            month: 'long',
-                                            day: 'numeric'
-                                        })}
+                                        {toThaiDate(submission.submitted_at)}
                                     </p>
                                 </div>
                                 <div>
                                     <p className="text-gray-600">เวลา</p>
                                     <p className="font-medium">
-                                        {new Date(submission.submitted_at).toLocaleTimeString('th-TH', {
-                                            hour: '2-digit',
-                                            minute: '2-digit'
-                                        })}
+                                        {toThaiTimeShort(submission.submitted_at)}
                                     </p>
                                 </div>
                                 <div>

@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PatientIdInput } from "@/components/searchPatientByID"; // Import the new Client Component
 import { DashboardActivityGrid } from "./DashboardActivityGrid";
 import { getUserProfile } from "@/app/service/nurse";
+import { getBangkokDate, formatBangkokDate } from "@/lib/timezone";
 
 export default async function Page() {
   const supabase = await createClient();
@@ -28,8 +29,9 @@ export default async function Page() {
 
   const displayPosition = profile?.position || 'พนักงาน';
 
-  // Get current time for appropriate greeting
-  const currentHour = new Date().getHours();
+  // Get current time in Bangkok timezone for appropriate greeting
+  const bangkokNow = getBangkokDate();
+  const currentHour = bangkokNow.getHours();
   let greeting = 'สวัสดี'; // Default greeting
   if (currentHour >= 5 && currentHour < 12) {
     greeting = 'สวัสดีตอนเช้า';
@@ -60,18 +62,10 @@ export default async function Page() {
               <div className="hidden md:block">
                 <div className="text-right">
                   <p className="text-sm text-gray-500">
-                    วันที่: {new Date().toLocaleDateString('th-TH', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                      weekday: 'long'
-                    })}
+                    วันที่: {formatBangkokDate(new Date(), 'EEEEที่ d MMMM yyyy')}
                   </p>
                   <p className="text-sm text-gray-500">
-                    เวลา: {new Date().toLocaleTimeString('th-TH', {
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })} น.
+                    เวลา: {formatBangkokDate(new Date(), 'HH:mm')} น.
                   </p>
                 </div>
               </div>

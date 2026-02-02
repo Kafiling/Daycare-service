@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, User, Calendar, Phone, Mail, MapPin, Weight, Ruler, Activity, Heart, Users } from 'lucide-react';
 import Link from 'next/link';
+import { toThaiDate, getBangkokDate } from '@/lib/timezone';
 
 interface AdminPatientViewProps {
   params: Promise<{
@@ -21,15 +22,11 @@ export default async function AdminPatientView({ params }: AdminPatientViewProps
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('th-TH', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+    return toThaiDate(dateString);
   };
 
   const calculateAge = (dateString: string) => {
-    const today = new Date();
+    const today = getBangkokDate();
     const birthDate = new Date(dateString);
     let age = today.getFullYear() - birthDate.getFullYear();
     const m = today.getMonth() - birthDate.getMonth();

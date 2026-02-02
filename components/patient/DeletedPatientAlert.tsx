@@ -12,6 +12,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { AlertTriangle } from 'lucide-react';
+import { toThaiDateTime } from '@/lib/timezone';
 
 interface DeletedPatientAlertProps {
   patientName: string;
@@ -35,7 +36,7 @@ export default function DeletedPatientAlert({ patientName, deletedAt }: DeletedP
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('th-TH', {
+    return toThaiDateTime(dateString, {
       year: 'numeric',
       month: 'long',
       day: 'numeric',

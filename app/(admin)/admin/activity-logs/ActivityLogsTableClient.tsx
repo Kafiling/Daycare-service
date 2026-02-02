@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { toThaiDateTime, toThaiDate } from '@/lib/timezone';
 import {
   Table,
   TableBody,
@@ -325,7 +326,7 @@ export function ActivityLogsTableClient({ initialLogs }: ActivityLogsTableClient
                             })}
                           </span>
                           <span className="text-xs text-muted-foreground">
-                            {new Date(log.created_at).toLocaleDateString('th-TH', {
+                            {toThaiDateTime(log.created_at, {
                               year: 'numeric',
                               month: 'short',
                               day: 'numeric',
@@ -427,7 +428,7 @@ export function ActivityLogsTableClient({ initialLogs }: ActivityLogsTableClient
                 <div>
                   <Label className="text-xs text-muted-foreground">เวลาที่เกิดเหตุการณ์</Label>
                   <p className="text-sm">
-                    {new Date(selectedLog.created_at).toLocaleString('th-TH', {
+                    {toThaiDateTime(selectedLog.created_at, {
                       year: 'numeric',
                       month: 'long',
                       day: 'numeric',
@@ -440,11 +441,7 @@ export function ActivityLogsTableClient({ initialLogs }: ActivityLogsTableClient
                 <div>
                   <Label className="text-xs text-muted-foreground">หมดอายุ</Label>
                   <p className="text-sm">
-                    {new Date(selectedLog.expires_at).toLocaleDateString('th-TH', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                    })}
+                    {toThaiDate(selectedLog.expires_at)}
                   </p>
                 </div>
               </div>

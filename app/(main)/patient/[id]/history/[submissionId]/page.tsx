@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Calendar, Clock, FileText, User } from 'lucide-react';
 import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
+import { toThaiDate, toThaiTimeShort } from '@/lib/timezone';
 
 interface HistoryDetailPageProps {
     params: Promise<{
@@ -128,20 +129,13 @@ export default async function HistoryDetailPage({ params }: HistoryDetailPagePro
                             <div className="flex items-center gap-2 text-muted-foreground">
                                 <Calendar className="h-4 w-4" />
                                 <span>
-                                    {submittedDate.toLocaleDateString('th-TH', {
-                                        year: 'numeric',
-                                        month: 'long',
-                                        day: 'numeric'
-                                    })}
+                                    {toThaiDate(submission.submitted_at)}
                                 </span>
                             </div>
                             <div className="flex items-center gap-2 text-muted-foreground">
                                 <Clock className="h-4 w-4" />
                                 <span>
-                                    {submittedDate.toLocaleTimeString('th-TH', {
-                                        hour: '2-digit',
-                                        minute: '2-digit'
-                                    })} น.
+                                    {toThaiTimeShort(submission.submitted_at)}
                                 </span>
                             </div>
                             <div className="flex items-center gap-2 text-muted-foreground">
