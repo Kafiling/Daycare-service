@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { toThaiDateShort } from '@/lib/timezone';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -42,7 +43,7 @@ export function GroupCard({ group, onEdit, onDelete, isLoading }: GroupCardProps
               )}
               <div className="flex items-center gap-4 text-sm text-gray-500 mt-1">
                 <span>สี: {group.color}</span>
-                <span>สร้างเมื่อ: {new Date(group.created_at).toLocaleDateString('th-TH')}</span>
+                <span>สร้างเมื่อ: {toThaiDateShort(group.created_at)}</span>
               </div>
             </div>
           </div>

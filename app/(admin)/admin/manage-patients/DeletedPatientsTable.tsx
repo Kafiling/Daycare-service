@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { PatientListItem, restorePatient } from './_actions/patientActions';
+import { toThaiDateTime } from '@/lib/timezone';
 import {
   Table,
   TableBody,
@@ -75,7 +76,7 @@ export default function DeletedPatientsTable({ initialPatients }: DeletedPatient
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('th-TH', {
+    return toThaiDateTime(dateString, {
       year: 'numeric',
       month: 'short',
       day: 'numeric',

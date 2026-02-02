@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { toThaiDateTime } from '@/lib/timezone';
 import {
   Table,
   TableBody,
@@ -325,7 +326,7 @@ export function ActivityLogsTableClient({ initialLogs }: ActivityLogsTableClient
                             })}
                           </span>
                           <span className="text-xs text-muted-foreground">
-                            {new Date(log.created_at).toLocaleDateString('th-TH', {
+                            {toThaiDateTime(log.created_at, {
                               year: 'numeric',
                               month: 'short',
                               day: 'numeric',
