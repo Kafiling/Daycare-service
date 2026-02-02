@@ -147,7 +147,9 @@ export function CreateRuleDialog({
                     <SelectContent>
                       {availableForms.map((availableForm) => (
                         <SelectItem key={availableForm.form_id} value={availableForm.form_id}>
-                          {availableForm.title}
+                          <div className="whitespace-normal break-words text-left py-2 pr-2">
+                            {availableForm.title}
+                          </div>
                         </SelectItem>
                       ))}
                     </SelectContent>
