@@ -406,6 +406,25 @@ export default function CreateFormPage() {
         setEvaluationThresholds(newThresholds);
     };
 
+    // Check for overlapping score ranges
+    const checkOverlaps = () => {
+        const overlaps: string[] = [];
+        const sortedThresholds = [...evaluationThresholds]
+            .map((t, idx) => ({ ...t, originalIndex: idx }))
+            .filter(t => t.minScore !== '' && t.maxScore !== '')
+            .sort((a, b) => Number(a.minScore) - Number(b.minScore));
+
+        for (let i = 0; i < sortedThresholds.length - 1; i++) {
+            const current = sortedThresholds[i];
+            const next = sortedThresholds[i + 1];
+            
+            if (Number(current.maxScore) >= Number(next.minScore)) {
+                overlaps.push(`เกณฑ์ที่ ${current.originalIndex + 1} (${current.minScore}-${current.maxScore}) และเกณฑ์ที่ ${next.originalIndex + 1} (${next.minScore}-${next.maxScore}) มีช่วงคะแนนที่ทับซ้อนกัน`);
+            }
+        }
+        return overlaps;
+    };
+
     const isFormValid = () => {
         const validation = validateForm();
         setValidationError(validation.error || '');
@@ -523,6 +542,15 @@ export default function CreateFormPage() {
 
         // Validate evaluation thresholds if any exist
         if (evaluationThresholds.length > 0) {
+            // Check for overlaps first
+            const overlaps = checkOverlaps();
+            if (overlaps.length > 0) {
+                return {
+                    isValid: false,
+                    error: `พบช่วงคะแนนที่ทับซ้อนกัน: ${overlaps[0]}`
+                };
+            }
+
             for (let index = 0; index < evaluationThresholds.length; index++) {
                 const threshold = evaluationThresholds[index];
                 if (!threshold.result || !threshold.result.trim()) {
@@ -537,10 +565,10 @@ export default function CreateFormPage() {
                         error: `เกณฑ์การประเมินที่ ${index + 1}: กรุณาระบุช่วงคะแนน (คะแนนต่ำสุดและคะแนนสูงสุด)`
                     };
                 }
-                if (Number(threshold.minScore) >= Number(threshold.maxScore)) {
+                if (Number(threshold.minScore) > Number(threshold.maxScore)) {
                     return {
                         isValid: false,
-                        error: `เกณฑ์การประเมินที่ ${index + 1}: คะแนนต่ำสุดต้องน้อยกว่าคะแนนสูงสุด`
+                        error: `เกณฑ์การประเมินที่ ${index + 1}: คะแนนต่ำสุดต้องไม่มากกว่าคะแนนสูงสุด`
                     };
                 }
             }
@@ -728,7 +756,7 @@ export default function CreateFormPage() {
                         <CardHeader>
                             <CardTitle className="text-xl font-bold">เกณฑ์การประเมิน</CardTitle>
                             <p className="text-sm text-muted-foreground">
-                                กำหนดช่วงคะแนนและผลการประเมินที่สอดคล้องกัน
+                                กำหนดช่วงคะแนนและผลการประเมิน (ช่วงคะแนนต้องไม่ซ้อนทับกัน)
                             </p>
                         </CardHeader>
                         <CardContent className="p-6 space-y-4">
@@ -738,57 +766,102 @@ export default function CreateFormPage() {
                                     <p className="text-sm">คลิก "เพิ่มเกณฑ์การประเมิน" เพื่อเริ่มต้น</p>
                                 </div>
                             )}
-                            {evaluationThresholds.map((threshold, index) => (
-                                <div key={index} className="flex items-end gap-2 p-4 border rounded-lg">
-                                    <div className="flex-1 space-y-2">
-                                        <Label className="text-sm">ช่วงคะแนน</Label>
-                                        <div className="flex items-center gap-2">
-                                            <Input
-                                                type="number"
-                                                placeholder="คะแนนต่ำสุด *"
-                                                value={threshold.minScore}
-                                                onChange={(e) => updateThreshold(index, 'minScore', e.target.value)}
-                                                className={`w-24 ${threshold.minScore === '' ? 'border-red-300 focus-visible:border-red-500' : ''}`}
-                                                onWheel={(e) => e.currentTarget.blur()}
-                                            />
-                                            <span className="text-sm text-muted-foreground">ถึง</span>
-                                            <Input
-                                                type="number"
-                                                placeholder="คะแนนสูงสุด *"
-                                                value={threshold.maxScore}
-                                                onChange={(e) => updateThreshold(index, 'maxScore', e.target.value)}
-                                                className={`w-24 ${threshold.maxScore === '' ? 'border-red-300 focus-visible:border-red-500' : ''}`}
-                                                onWheel={(e) => e.currentTarget.blur()}
-                                            />
+                            
+                            {/* Overlap Warning */}
+                            {evaluationThresholds.length > 1 && checkOverlaps().length > 0 && (
+                                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                    <div className="flex items-start gap-2">
+                                        <svg className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                        </svg>
+                                        <div className="flex-1">
+                                            <h4 className="text-sm font-semibold text-yellow-800 mb-1">⚠️ พบช่วงคะแนนที่ทับซ้อนกัน</h4>
+                                            <ul className="text-sm text-yellow-700 list-disc list-inside space-y-1">
+                                                {checkOverlaps().map((msg, idx) => (
+                                                    <li key={idx}>{msg}</li>
+                                                ))}
+                                            </ul>
+                                            <p className="text-xs text-yellow-600 mt-2">💡 แนะนำ: ใช้ช่วงคะแนนที่ไม่ทับซ้อนกัน เช่น 0-2, 3-5, 6-10</p>
                                         </div>
                                     </div>
-                                    <div className="flex-1 space-y-2">
-                                        <Label className="text-sm">ผลการประเมิน <span className="text-red-500">*</span></Label>
-                                        <Input
-                                            placeholder="เช่น ดีมาก, ดี, ปานกลาง, ต้องปรับปรุง"
-                                            value={threshold.result}
-                                            onChange={(e) => updateThreshold(index, 'result', e.target.value)}
-                                            className={`${!threshold.result?.trim() ? 'border-red-300 focus-visible:border-red-500' : ''}`}
-                                        />
+                                </div>
+                            )}
+
+                            {evaluationThresholds.map((threshold, index) => (
+                                <div key={index} className="border-2 rounded-lg p-4 bg-white hover:bg-gray-50 transition-colors">
+                                    <div className="flex items-start gap-3">
+                                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-sm">
+                                            {index + 1}
+                                        </div>
+                                        <div className="flex-1 space-y-3">
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                                <div className="space-y-2">
+                                                    <Label className="text-sm font-semibold flex items-center gap-1">
+                                                        <span className="text-blue-600">📊</span>
+                                                        ช่วงคะแนน <span className="text-red-500">*</span>
+                                                    </Label>
+                                                    <div className="flex items-center gap-2">
+                                                        <Input
+                                                            type="number"
+                                                            placeholder="ต่ำสุด"
+                                                            value={threshold.minScore}
+                                                            onChange={(e) => updateThreshold(index, 'minScore', e.target.value)}
+                                                            className={`w-full ${threshold.minScore === '' ? 'border-red-300 focus-visible:ring-red-500' : ''}`}
+                                                            onWheel={(e) => e.currentTarget.blur()}
+                                                        />
+                                                        <span className="text-lg font-bold text-gray-400">-</span>
+                                                        <Input
+                                                            type="number"
+                                                            placeholder="สูงสุด"
+                                                            value={threshold.maxScore}
+                                                            onChange={(e) => updateThreshold(index, 'maxScore', e.target.value)}
+                                                            className={`w-full ${threshold.maxScore === '' ? 'border-red-300 focus-visible:ring-red-500' : ''}`}
+                                                            onWheel={(e) => e.currentTarget.blur()}
+                                                        />
+                                                    </div>
+                                                    {threshold.minScore !== '' && threshold.maxScore !== '' && (
+                                                        <p className="text-xs text-gray-500">
+                                                            ช่วง: {threshold.minScore} ≤ คะแนน ≤ {threshold.maxScore}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label className="text-sm font-semibold flex items-center gap-1">
+                                                        <span className="text-green-600">✅</span>
+                                                        ผลการประเมิน <span className="text-red-500">*</span>
+                                                    </Label>
+                                                    <Input
+                                                        placeholder="เช่น ดีมาก, ดี, ปานกลาง"
+                                                        value={threshold.result}
+                                                        onChange={(e) => updateThreshold(index, 'result', e.target.value)}
+                                                        className={`${!threshold.result?.trim() ? 'border-red-300 focus-visible:ring-red-500' : ''}`}
+                                                    />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label className="text-sm font-semibold flex items-center gap-1">
+                                                        <span className="text-gray-500">📝</span>
+                                                        คำอธิบาย (ไม่บังคับ)
+                                                    </Label>
+                                                    <Input
+                                                        placeholder="คำอธิบายเพิ่มเติม"
+                                                        value={threshold.description}
+                                                        onChange={(e) => updateThreshold(index, 'description', e.target.value)}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <Button 
+                                            variant="ghost" 
+                                            size="icon" 
+                                            onClick={() => removeThreshold(index)}
+                                            className="flex-shrink-0 hover:bg-red-50 hover:text-red-600"
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
                                     </div>
-                                    <div className="flex-1 space-y-2">
-                                        <Label className="text-sm">คำอธิบาย (ไม่บังคับ)</Label>
-                                        <Input
-                                            placeholder="คำอธิบายเพิ่มเติมเกี่ยวกับผลการประเมิน"
-                                            value={threshold.description}
-                                            onChange={(e) => updateThreshold(index, 'description', e.target.value)}
-                                        />
-                                    </div>
-                                    <Button 
-                                        variant="ghost" 
-                                        size="icon" 
-                                        onClick={() => removeThreshold(index)}
-                                    >
-                                        <Trash2 className="h-4 w-4 text-destructive" />
-                                    </Button>
                                 </div>
                             ))}
-                            <Button variant="outline" size="sm" onClick={addThreshold}>
+                            <Button variant="outline" size="sm" onClick={addThreshold} className="w-full md:w-auto">
                                 <PlusCircle className="h-4 w-4 mr-2" />
                                 เพิ่มเกณฑ์การประเมิน
                             </Button>
