@@ -36,12 +36,10 @@ export interface GroupAssignmentRule {
     rule_config: {
         forms?: Array<{
             form_id: string;
-            weight: number;
-            threshold?: number;
+            threshold: number;
+            operator: 'gte' | 'lte' | 'gt' | 'lt' | 'eq';
         }>;
-        min_score?: number;
-        max_score?: number;
-        operator?: 'gte' | 'lte' | 'eq' | 'between';
+        logic_operator?: 'AND' | 'OR';
     };
     is_active: boolean;
     created_at: string;

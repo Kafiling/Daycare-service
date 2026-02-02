@@ -63,8 +63,8 @@ import {
 
 export interface FormConfig {
   form_id: string;
-  weight: number;
-  threshold?: number;
+  threshold: number;
+  operator: 'gte' | 'lte' | 'gt' | 'lt' | 'eq';
 }
 
 interface CreateRuleForm {
@@ -73,9 +73,7 @@ interface CreateRuleForm {
   group_id: string;
   rule_type: 'score_based';
   forms: FormConfig[];
-  min_score?: number;
-  max_score?: number;
-  operator: 'gte' | 'lte' | 'eq' | 'between';
+  logic_operator: 'AND' | 'OR';
   is_active: boolean;
 }
 
@@ -108,10 +106,8 @@ export function GroupAssignmentManagementClient() {
     description: '',
     group_id: '',
     rule_type: 'score_based',
-    forms: [{ form_id: '', weight: 1.0 }],
-    min_score: undefined,
-    max_score: undefined,
-    operator: 'gte',
+    forms: [{ form_id: '', threshold: 0, operator: 'gte' }],
+    logic_operator: 'AND',
     is_active: true,
   });
 
@@ -120,10 +116,8 @@ export function GroupAssignmentManagementClient() {
     description: '',
     group_id: '',
     rule_type: 'score_based',
-    forms: [{ form_id: '', weight: 1.0 }],
-    min_score: undefined,
-    max_score: undefined,
-    operator: 'gte',
+    forms: [{ form_id: '', threshold: 0, operator: 'gte' }],
+    logic_operator: 'AND',
     is_active: true,
   });
 
@@ -177,9 +171,7 @@ export function GroupAssignmentManagementClient() {
     try {
       const ruleConfig = {
         forms: createForm.forms.filter(f => f.form_id),
-        min_score: createForm.min_score,
-        max_score: createForm.max_score,
-        operator: createForm.operator
+        logic_operator: createForm.logic_operator
       };
 
       const newRule = await createGroupAssignmentRule({
@@ -210,9 +202,7 @@ export function GroupAssignmentManagementClient() {
     try {
       const ruleConfig = {
         forms: editForm.forms.filter(f => f.form_id),
-        min_score: editForm.min_score,
-        max_score: editForm.max_score,
-        operator: editForm.operator
+        logic_operator: editForm.logic_operator
       };
 
       const updatedRule = await updateGroupAssignmentRule(editingRule.id, {
@@ -351,10 +341,8 @@ export function GroupAssignmentManagementClient() {
       description: '',
       group_id: '',
       rule_type: 'score_based',
-      forms: [{ form_id: '', weight: 1.0 }],
-      min_score: undefined,
-      max_score: undefined,
-      operator: 'gte',
+      forms: [{ form_id: '', threshold: 0, operator: 'gte' }],
+      logic_operator: 'AND',
       is_active: true,
     });
   };
@@ -374,10 +362,8 @@ export function GroupAssignmentManagementClient() {
       description: rule.description || '',
       group_id: rule.group_id,
       rule_type: rule.rule_type as 'score_based',
-      forms: rule.rule_config.forms || [{ form_id: '', weight: 1.0 }],
-      min_score: rule.rule_config.min_score,
-      max_score: rule.rule_config.max_score,
-      operator: rule.rule_config.operator || 'gte',
+      forms: rule.rule_config.forms || [{ form_id: '', threshold: 0, operator: 'gte' }],
+      logic_operator: rule.rule_config.logic_operator || 'AND',
       is_active: rule.is_active,
     });
     setIsEditDialogOpen(true);
@@ -399,7 +385,7 @@ export function GroupAssignmentManagementClient() {
 
     formSetter({
       ...currentForm,
-      forms: [...currentForm.forms, { form_id: '', weight: 1.0 }]
+      forms: [...currentForm.forms, { form_id: '', threshold: 0, operator: 'gte' }]
     });
   };
 
@@ -846,7 +832,7 @@ export function GroupAssignmentManagementClient() {
 
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <Label>แบบสอบถามและน้ำหนัก *</Label>
+                <Label>แบบสอบถามและเงื่อนไข *</Label>
                 <Button
                   type="button"
                   variant="outline"
@@ -860,7 +846,8 @@ export function GroupAssignmentManagementClient() {
 
               {editForm.forms.map((form, index) => (
                 <div key={index} className="grid grid-cols-12 gap-2 items-end">
-                  <div className="col-span-6">
+                  <div className="col-span-4">
+                    <Label className="text-xs">แบบสอบถาม</Label>
                     <Select
                       value={form.form_id}
                       onValueChange={(value) => updateFormConfig(index, 'form_id', value, true)}
@@ -880,13 +867,31 @@ export function GroupAssignmentManagementClient() {
                     </Select>
                   </div>
                   <div className="col-span-3">
+                    <Label className="text-xs">เงื่อนไข</Label>
+                    <Select
+                      value={form.operator}
+                      onValueChange={(value: any) => updateFormConfig(index, 'operator', value, true)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="gte">≥</SelectItem>
+                        <SelectItem value="gt">&gt;</SelectItem>
+                        <SelectItem value="eq">=</SelectItem>
+                        <SelectItem value="lt">&lt;</SelectItem>
+                        <SelectItem value="lte">≤</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="col-span-3">
+                    <Label className="text-xs">คะแนน</Label>
                     <Input
                       type="number"
                       step="0.1"
-                      min="0"
-                      value={form.weight}
-                      onChange={(e) => updateFormConfig(index, 'weight', parseFloat(e.target.value) || 1, true)}
-                      placeholder="น้ำหนัก"
+                      value={form.threshold}
+                      onChange={(e) => updateFormConfig(index, 'threshold', parseFloat(e.target.value) || 0, true)}
+                      placeholder="0"
                     />
                   </div>
                   <div className="col-span-2">
@@ -905,48 +910,26 @@ export function GroupAssignmentManagementClient() {
               ))}
             </div>
 
-            <div className="grid grid-cols-3 gap-3">
+            {editForm.forms.length > 1 && (
               <div>
-                <Label htmlFor="edit-operator">เงื่อนไข</Label>
+                <Label htmlFor="edit-logic-operator">ตรรกะการรวมเงื่อนไข</Label>
                 <Select
-                  value={editForm.operator}
-                  onValueChange={(value: any) => setEditForm({ ...editForm, operator: value })}
+                  value={editForm.logic_operator}
+                  onValueChange={(value: 'AND' | 'OR') => setEditForm({ ...editForm, logic_operator: value })}
                 >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="gte">มากกว่าเท่ากับ (≥)</SelectItem>
-                    <SelectItem value="lte">น้อยกว่าเท่ากับ (≤)</SelectItem>
-                    <SelectItem value="between">ระหว่าง</SelectItem>
+                    <SelectItem value="AND">AND (ต้องผ่านเงื่อนไขทั้งหมด)</SelectItem>
+                    <SelectItem value="OR">OR (ผ่านเงื่อนไขใดเงื่อนไขหนึ่ง)</SelectItem>
                   </SelectContent>
                 </Select>
+                <p className="text-xs text-muted-foreground mt-1">
+                  AND: ผู้ใช้บริการต้องผ่านเงื่อนไขของแบบสอบถามทั้งหมด | OR: ผ่านแบบสอบถามใดแบบหนึ่งก็ได้
+                </p>
               </div>
-              <div>
-                <Label htmlFor="edit-min-score">คะแนนต่ำสุด</Label>
-                <Input
-                  id="edit-min-score"
-                  type="number"
-                  step="0.1"
-                  value={editForm.min_score || ''}
-                  onChange={(e) => setEditForm({ ...editForm, min_score: parseFloat(e.target.value) || undefined })}
-                  placeholder="0"
-                />
-              </div>
-              {editForm.operator === 'between' && (
-                <div>
-                  <Label htmlFor="edit-max-score">คะแนนสูงสุด</Label>
-                  <Input
-                    id="edit-max-score"
-                    type="number"
-                    step="0.1"
-                    value={editForm.max_score || ''}
-                    onChange={(e) => setEditForm({ ...editForm, max_score: parseFloat(e.target.value) || undefined })}
-                    placeholder="100"
-                  />
-                </div>
-              )}
-            </div>
+            )}
 
             <div className="flex items-center space-x-2">
               <input
