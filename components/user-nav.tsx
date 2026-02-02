@@ -12,6 +12,7 @@ import {
 import { createClient } from "@/utils/supabase/server";
 import { LogoutButton } from "@/components/logout-button";
 import { getUserProfile } from "@/app/service/nurse";
+import { ChangePasswordDialog } from "@/components/change-password-dialog";
 
 import { revalidatePath } from "next/cache";
 
@@ -87,6 +88,10 @@ export default async function UserNav() {
             )}
           </div>
         </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem asChild className="p-0">
+          <ChangePasswordDialog />
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <LogoutButton />
       </DropdownMenuContent>
