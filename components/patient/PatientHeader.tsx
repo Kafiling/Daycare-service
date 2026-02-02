@@ -4,6 +4,7 @@ import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/ca
 import type { Patient } from '@/app/service/patient';
 import { PatientGroup } from '@/app/service/group-assignment';
 import { Users } from 'lucide-react';
+import { toThaiDate, getBangkokDate } from '@/lib/timezone';
 
 interface PatientHeaderProps {
     patient: Patient;
@@ -13,7 +14,7 @@ interface PatientHeaderProps {
 
 export default function PatientHeader({ patient, patientId, patientGroups = [] }: PatientHeaderProps) {
     const calculateAge = (birthDate: string) => {
-        const today = new Date();
+        const today = getBangkokDate();
         const birth = new Date(birthDate);
         let age = today.getFullYear() - birth.getFullYear();
         const monthDiff = today.getMonth() - birth.getMonth();
@@ -24,11 +25,7 @@ export default function PatientHeader({ patient, patientId, patientGroups = [] }
     };
 
     const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('th-TH', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
+        return toThaiDate(dateString);
     };
     
     console.log('PatientHeader - patient:', patient);

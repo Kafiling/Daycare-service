@@ -197,11 +197,7 @@ export function PatientIdInput() {
           const daysRemaining = Math.ceil((deletionDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
           
           setDeletedPatientInfo({
-            scheduledDeleteAt: deletionDate.toLocaleDateString('th-TH', { 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
-            }),
+            scheduledDeleteAt: toThaiDate(patient.scheduled_permanent_delete_at),
             daysRemaining,
           });
           setShowDeletedDialog(true);

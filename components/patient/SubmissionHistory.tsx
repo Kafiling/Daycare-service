@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, FileText, Heart, Activity, AlertCircle, User, ChevronLeft, ChevronRight, Calendar, Eye } from 'lucide-react';
 import { FormSubmissionWithForm } from '@/app/service/patient';
+import { toThaiDateShort, toThaiTimeShort } from '@/lib/timezone';
 
 interface SubmissionHistoryProps {
     submissions: FormSubmissionWithForm[];
@@ -112,19 +113,10 @@ export default function SubmissionHistory({ submissions }: SubmissionHistoryProp
                             <div className="flex items-center gap-3">
                                 <div className="text-sm text-muted-foreground text-right">
                                     <p>
-                                        {submittedDate.toLocaleDateString('th-TH', {
-                                            day: 'numeric',
-                                            month: 'short',
-                                            year: 'numeric'
-                                        })}
+                                        {toThaiDateShort(submission.submitted_at)}
                                     </p>
                                     <p className="text-xs">
-                                        {submittedDate.toLocaleTimeString('th-TH', {
-                                            timeZone: 'Asia/Bangkok',
-                                            hour: '2-digit',
-                                            minute: '2-digit',
-                                            hour12: false
-                                        })} น.
+                                        {toThaiTimeShort(submission.submitted_at)} น.
                                     </p>
                                 </div>
                                 <Link href={`/patient/${submission.patient_id}/history/${submission.id}`}>
