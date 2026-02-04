@@ -232,9 +232,20 @@ export function PatientIdInput() {
     <>
       {/* Quick Search Input */}
       <div className="relative">
-        <Label htmlFor="quickSearch" className="py-2">
-          ค้นหาผู้ใช้บริการ (ชื่อ, เบอร์โทร, ที่อยู่, ผู้ดูแล, รหัสไปรษณีย์, เลขบัตรประชาชน)
-        </Label>
+        <div className="flex items-center justify-between mb-2">
+          <Label htmlFor="quickSearch">
+            ค้นหาผู้ใช้บริการ (ชื่อ, เบอร์โทร, ที่อยู่, ผู้ดูแล, รหัสไปรษณีย์, เลขบัตรประชาชน)
+          </Label>
+          <Button 
+            variant="default" 
+            size="sm"
+            onClick={() => router.push('/patient-create')}
+            className="gap-2"
+          >
+            <Plus className="h-4 w-4" />
+            สร้างผู้ใช้บริการใหม่
+          </Button>
+        </div>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
