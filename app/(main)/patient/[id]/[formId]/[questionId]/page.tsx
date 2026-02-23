@@ -14,6 +14,9 @@ import {
     FileText,
 } from 'lucide-react';
 import QuestionRenderer from '@/components/question-types/QuestionRenderer';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { CalendarDays } from 'lucide-react';
 import { getFormById, getQuestionsByFormId } from '@/app/service/patient-client';
 import { Form, Question } from '@/app/service/patient-client';
 import { createClient } from '@/utils/supabase/client';
@@ -31,6 +34,7 @@ export default function QuestionPage() {
     const [isSaving, setIsSaving] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [submissionDate, setSubmissionDate] = useState<string>('');
 
 
     useEffect(() => {
@@ -60,6 +64,11 @@ export default function QuestionPage() {
                         console.error('Error parsing saved answers:', error);
                     }
                 }
+
+                // Restore submission date if set
+                const dateKey = `form_submission_date_${formId}_${patientId}`;
+                const savedDate = localStorage.getItem(dateKey);
+                if (savedDate) setSubmissionDate(savedDate);
 
             } catch (err: any) {
                 setError(err.message || "เกิดข้อผิดพลาดในการโหลดข้อมูล");
@@ -313,7 +322,9 @@ export default function QuestionPage() {
                 evaluation_result: evaluationResult,
                 evaluation_description: evaluationDescription,
                 status: 'completed',
-                submitted_at: new Date().toISOString(),
+                submitted_at: submissionDate
+                    ? new Date(`${submissionDate}T00:00:00`).toISOString()
+                    : new Date().toISOString(),
                 notes: `Form submission completed with total score: ${totalScore}`
             };
             
@@ -371,9 +382,10 @@ export default function QuestionPage() {
             console.log('🔍 Verifying saved evaluation_result:', submission.evaluation_result);
             console.log('🔑 Submission ID:', submission.id);
 
-            // Clear saved answers from localStorage since form is completed
+            // Clear saved answers and submission date from localStorage since form is completed
             const storageKey = `form_answers_${formId}_${patientId}`;
             localStorage.removeItem(storageKey);
+            localStorage.removeItem(`form_submission_date_${formId}_${patientId}`);
             console.log('🗑️ Cleared saved answers from localStorage');
 
             // Wait 1 second before redirect for better UX
@@ -522,23 +534,61 @@ export default function QuestionPage() {
 
             {/* Navigation */}
             <Card>
-                <CardContent className="pt-6">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <Button
-                                variant="outline"
-                                onClick={handlePrevious}
-                                disabled={currentQuestionIndex === 0}
-                                className="text-base px-6 py-3"
-                            >
-                                <ArrowLeft className="h-5 w-5 mr-2" />
-                                ย้อนกลับ
-                            </Button>
+                <CardContent className="pt-6 space-y-4">
+                    <div className="flex items-center justify-between gap-4">
+                        {/* Back */}
+                        <Button
+                            variant="outline"
+                            onClick={handlePrevious}
+                            disabled={currentQuestionIndex === 0}
+                            className="text-base px-6 py-3 shrink-0"
+                        >
+                            <ArrowLeft className="h-5 w-5 mr-2" />
+                            ย้อนกลับ
+                        </Button>
 
-                            
+                        {/* Centered date field */}
+                        <div className="flex flex-col items-center gap-1 flex-1">
+                            <Label htmlFor="submission-date" className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                <CalendarDays className="h-3.5 w-3.5" />
+                                บันทึกย้อนหลัง (ไม่บังคับ)
+                            </Label>
+                            <div className="flex items-center gap-1.5">
+                                <Input
+                                    id="submission-date"
+                                    type="date"
+                                    value={submissionDate}
+                                    max={new Date().toISOString().split('T')[0]}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        setSubmissionDate(val);
+                                        const dateKey = `form_submission_date_${formId}_${patientId}`;
+                                        if (val) {
+                                            localStorage.setItem(dateKey, val);
+                                        } else {
+                                            localStorage.removeItem(dateKey);
+                                        }
+                                    }}
+                                    className="text-sm h-8 w-40"
+                                />
+                                {submissionDate && (
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setSubmissionDate('');
+                                            localStorage.removeItem(`form_submission_date_${formId}_${patientId}`);
+                                        }}
+                                        className="text-muted-foreground hover:text-foreground text-sm leading-none"
+                                        title="ล้างวันที่"
+                                    >
+                                        ✕
+                                    </button>
+                                )}
+                            </div>
                         </div>
 
-                        <div className="flex items-center gap-2">
+                        {/* Next / Complete */}
+                        <div className="shrink-0">
                             {currentQuestionIndex === totalQuestions - 1 ? (
                                 <Button
                                     onClick={handleComplete}
@@ -561,8 +611,14 @@ export default function QuestionPage() {
                         </div>
                     </div>
 
+                    {submissionDate && (
+                        <p className="text-center text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-md py-1.5 px-3">
+                            ⚠️ จะบันทึกการส่งแบบสอบถามนี้ในวันที่ {new Date(`${submissionDate}T00:00:00`).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })}
+                        </p>
+                    )}
+
                     {currentQuestion.is_required && !isCurrentQuestionAnswered() && (
-                        <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                             <p className="text-base text-yellow-800">
                                 คำถามนี้จำเป็นต้องตอบก่อนดำเนินการต่อ
                             </p>
