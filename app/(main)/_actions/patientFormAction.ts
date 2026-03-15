@@ -52,7 +52,7 @@ export async function searchPatients(searchQuery: string): Promise<PatientSearch
     `)
     .is('deleted_at', null)
     .or(`id.ilike.%${search}%,first_name.ilike.%${search}%,last_name.ilike.%${search}%,phone_num.ilike.%${search}%,postal_num.ilike.%${search}%,caregiver_name.ilike.%${search}%,address.ilike.%${search}%,road.ilike.%${search}%,sub_district.ilike.%${search}%,district.ilike.%${search}%,province.ilike.%${search}%`)
-    .limit(10)
+    .limit(30)
     .order('created_at', { ascending: false });
 
   if (error) {
@@ -61,7 +61,7 @@ export async function searchPatients(searchQuery: string): Promise<PatientSearch
   }
 
   // Determine which fields matched for each patient
-  return (data || []).map(patient => {
+  const results = (data || []).map(patient => {
     const matchedFields: string[] = [];
     const lowerSearch = search.toLowerCase();
 
@@ -82,6 +82,18 @@ export async function searchPatients(searchQuery: string): Promise<PatientSearch
       matchedFields,
     };
   });
+
+  // Sort: ID/name matches first, then other matches
+  results.sort((a, b) => {
+    const primaryFields = ['id', 'first_name', 'last_name'];
+    const aHasPrimary = a.matchedFields.some(f => primaryFields.includes(f));
+    const bHasPrimary = b.matchedFields.some(f => primaryFields.includes(f));
+    if (aHasPrimary && !bHasPrimary) return -1;
+    if (!aHasPrimary && bHasPrimary) return 1;
+    return 0;
+  });
+
+  return results;
 }
 
 export async function searchPatientByID(id: string) {
