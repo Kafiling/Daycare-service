@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Search, Plus, AlertTriangle, User, Phone, MapPin, Calendar, Users } from "lucide-react";
+import { Search, Plus, AlertTriangle, User, Phone, MapPin, Calendar, Users, ChevronsDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { toThaiDate, toThaiDateTime } from '@/lib/timezone';
@@ -36,9 +36,9 @@ function HighlightedText({ text, search }: { text: string; search: string }) {
   );
 }
 
-// Patient search result card
-function PatientCard({ patient, searchQuery, onClick }: { 
-  patient: PatientSearchResult; 
+// Patient search result card (compact)
+function PatientCard({ patient, searchQuery, onClick }: {
+  patient: PatientSearchResult;
   searchQuery: string;
   onClick: () => void;
 }) {
@@ -46,80 +46,58 @@ function PatientCard({ patient, searchQuery, onClick }: {
   const initial = `${patient.first_name[0]}${patient.last_name[0]}`;
 
   return (
-    <Card 
-      className="cursor-pointer hover:bg-accent transition-colors"
+    <div
+      className="flex items-center gap-3 px-3 py-2 rounded-md cursor-pointer hover:bg-accent transition-colors"
       onClick={onClick}
     >
-      <CardContent className="p-4">
-        <div className="flex items-start gap-3">
-          <Avatar className="h-12 w-12">
-            <AvatarImage src={patient.profile_image_url} alt={fullName} />
-            <AvatarFallback>{initial}</AvatarFallback>
-          </Avatar>
-          
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <h3 className="font-semibold truncate">
-                <HighlightedText text={fullName} search={searchQuery} />
-              </h3>
-              {patient.matchedFields.includes('id') && (
-                <Badge variant="secondary" className="text-xs">ID</Badge>
-              )}
-            </div>
+      <Avatar className="h-9 w-9 shrink-0">
+        <AvatarImage src={patient.profile_image_url} alt={fullName} />
+        <AvatarFallback className="text-xs">{initial}</AvatarFallback>
+      </Avatar>
 
-            <div className="space-y-1 text-sm text-muted-foreground">
-              {patient.matchedFields.includes('id') && (
-                <div className="flex items-center gap-1">
-                  <User className="h-3 w-3" />
-                  <span className="text-xs">
-                    <HighlightedText text={patient.id} search={searchQuery} />
-                  </span>
-                </div>
-              )}
-              
-              {patient.phone_num && (
-                <div className="flex items-center gap-1">
-                  <Phone className="h-3 w-3" />
-                  <HighlightedText text={patient.phone_num} search={searchQuery} />
-                </div>
-              )}
-              
-              {patient.address && patient.matchedFields.includes('address') && (
-                <div className="flex items-center gap-1">
-                  <MapPin className="h-3 w-3" />
-                  <span className="truncate">
-                    <HighlightedText text={patient.address} search={searchQuery} />
-                  </span>
-                </div>
-              )}
-              
-              {patient.caregiver_name && patient.matchedFields.includes('caregiver_name') && (
-                <div className="flex items-center gap-1">
-                  <Users className="h-3 w-3" />
-                  <span>ผู้ดูแล: <HighlightedText text={patient.caregiver_name} search={searchQuery} /></span>
-                </div>
-              )}
-              
-              {patient.postal_num && patient.matchedFields.includes('postal_num') && (
-                <div className="flex items-center gap-1">
-                  <MapPin className="h-3 w-3" />
-                  <span>รหัสไปรษณีย์: <HighlightedText text={patient.postal_num} search={searchQuery} /></span>
-                </div>
-              )}
-              
-              {patient.date_of_birth && (
-                <div className="flex items-center gap-1">
-                  <Calendar className="h-3 w-3" />
-                  <span className="text-xs">
-                    {toThaiDate(patient.date_of_birth)}
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <span className="font-medium text-sm truncate">
+            <HighlightedText text={fullName} search={searchQuery} />
+          </span>
+          {patient.matchedFields.includes('id') && (
+            <Badge variant="secondary" className="text-[10px] px-1.5 py-0">ID</Badge>
+          )}
         </div>
-      </CardContent>
-    </Card>
+        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+          {patient.matchedFields.includes('id') && (
+            <span className="flex items-center gap-1">
+              <User className="h-3 w-3" />
+              <HighlightedText text={patient.id} search={searchQuery} />
+            </span>
+          )}
+          {patient.phone_num && (
+            <span className="flex items-center gap-1">
+              <Phone className="h-3 w-3" />
+              <HighlightedText text={patient.phone_num} search={searchQuery} />
+            </span>
+          )}
+          {patient.date_of_birth && (
+            <span className="flex items-center gap-1">
+              <Calendar className="h-3 w-3" />
+              {toThaiDate(patient.date_of_birth)}
+            </span>
+          )}
+          {patient.caregiver_name && patient.matchedFields.includes('caregiver_name') && (
+            <span className="flex items-center gap-1">
+              <Users className="h-3 w-3" />
+              <HighlightedText text={patient.caregiver_name} search={searchQuery} />
+            </span>
+          )}
+          {patient.address && patient.matchedFields.includes('address') && (
+            <span className="flex items-center gap-1 truncate">
+              <MapPin className="h-3 w-3" />
+              <HighlightedText text={patient.address} search={searchQuery} />
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -261,23 +239,34 @@ export function PatientIdInput() {
 
         {/* Search Results Dropdown */}
         {showSearchResults && (searchResults.length > 0 || isSearching) && (
-          <div className="absolute z-50 w-full mt-2 bg-background border rounded-lg shadow-lg max-h-96 overflow-y-auto">
+          <div className="absolute z-50 w-full mt-2 bg-background border rounded-lg shadow-lg max-h-80 overflow-y-auto">
             {isSearching ? (
               <div className="p-4 text-center text-muted-foreground">
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto mb-2"></div>
                 กำลังค้นหา...
               </div>
             ) : (
-              <div className="p-2 space-y-2">
-                {searchResults.map((patient) => (
-                  <PatientCard
-                    key={patient.id}
-                    patient={patient}
-                    searchQuery={searchQuery}
-                    onClick={() => handleSelectPatient(patient.id)}
-                  />
-                ))}
-              </div>
+              <>
+                <div className="sticky top-0 bg-background border-b px-3 py-2 flex items-center justify-between text-xs text-muted-foreground">
+                  <span>พบ {searchResults.length} ผลลัพธ์</span>
+                  {searchResults.length > 5 && (
+                    <span className="flex items-center gap-1">
+                      <ChevronsDown className="h-3 w-3" />
+                      เลื่อนลงเพื่อดูเพิ่มเติม
+                    </span>
+                  )}
+                </div>
+                <div className="py-1">
+                  {searchResults.map((patient) => (
+                    <PatientCard
+                      key={patient.id}
+                      patient={patient}
+                      searchQuery={searchQuery}
+                      onClick={() => handleSelectPatient(patient.id)}
+                    />
+                  ))}
+                </div>
+              </>
             )}
           </div>
         )}
