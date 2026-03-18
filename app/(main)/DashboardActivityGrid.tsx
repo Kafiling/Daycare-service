@@ -266,19 +266,29 @@ export function DashboardActivityGrid() {
 										<h3 className="text-lg font-semibold">สมาชิกในกลุ่ม</h3>
 									</div>
 									{group.patients.length > 0 ? (
-										<ul className="space-y-2 max-h-40 overflow-y-auto">
-											{group.patients.map((patient) => (
-												<li key={patient.id} className="flex items-center">
-													<span 
-														className="h-2 w-2 rounded-full mr-3" 
-														style={{ backgroundColor: group.color || '#6B7280' }}
-													></span>
-													<span className="text-sm">
-														{patient.first_name} {patient.last_name}
-													</span>
-												</li>
-											))}
-										</ul>
+										<div className="relative">
+											<ul className="space-y-2 max-h-[160px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+												{group.patients.map((patient) => (
+													<li key={patient.id} className="flex items-center">
+														<span 
+															className="h-2 w-2 rounded-full mr-3" 
+															style={{ backgroundColor: group.color || '#6B7280' }}
+														></span>
+														<span className="text-sm">
+															{patient.first_name} {patient.last_name}
+														</span>
+													</li>
+												))}
+											</ul>
+											{group.patients.length > 5 && (
+												<div className="text-xs text-gray-500 flex flex-col items-center mt-2 group-hover:text-gray-700 transition-colors">
+													<span>และอีก {group.patients.length - 5} คน (เลื่อนลง)</span>
+													<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="animate-bounce mt-1">
+														<path d="m6 9 6 6 6-6"/>
+													</svg>
+												</div>
+											)}
+										</div>
 									) : (
 										<p className="text-gray-500 text-sm italic">ยังไม่มีสมาชิกในกลุ่ม</p>
 									)}
