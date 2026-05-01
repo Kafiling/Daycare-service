@@ -1,0 +1,16 @@
+services:
+  daycare-bun:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: daycare-bun
+    container_name: daycare-bun
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
+    ports:
+      - "3000:3000"
+    restart: unless-stopped

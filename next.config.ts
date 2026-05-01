@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
+  output: "standalone",
 
   // External packages that should not be bundled by Next.js
   serverExternalPackages: [],

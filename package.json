@@ -1,12 +1,11 @@
 {
-  "name": "daycare-service2",
+  "name": "daycare-service",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "dev": "bun --bun next dev",
+    "build": "bun --bun next build",
+    "start": "bun --bun next start"
   },
   "dependencies": {
     "@ant-design/icons": "^6.0.0",
@@ -61,3 +60,4 @@
     "typescript": "^5"
   }
 }
+
