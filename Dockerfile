@@ -23,6 +23,9 @@ RUN --mount=type=cache,target=/root/.bun/install/cache \
 
 FROM oven/bun:1 AS builder
 
+ARG NEXT_PUBLIC_SUPABASE_URL
+ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
+
 # Set working directory
 WORKDIR /app
 
@@ -33,9 +36,6 @@ COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
 
 ENV NODE_ENV=production
-# Force Next.js to embed these placeholders during build time
-ENV NEXT_PUBLIC_SUPABASE_URL=RUNTIME_PUBLIC_SUPABASE_URL_PLACEHOLDER
-ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=RUNTIME_PUBLIC_SUPABASE_ANON_KEY_PLACEHOLDER
 
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
@@ -76,21 +76,15 @@ RUN chown bun:bun .next
 COPY --from=builder --chown=bun:bun /app/.next/standalone ./
 COPY --from=builder --chown=bun:bun /app/.next/static ./.next/static
 
-# Copy the entrypoint script and make it executable
-COPY docker-entrypoint.sh /app/docker-entrypoint.sh
-RUN chmod +x /app/docker-entrypoint.sh
-
-# Give the bun user permission to write to /app so `sed -i` can create temp files
-RUN chown -R bun:bun /app
+# If you want to persist the fetch cache generated during the build so that
+# cached responses are available immediately on startup, uncomment this line:
+# COPY --from=builder --chown=bun:bun /app/.next/cache ./.next/cache
 
 # Switch to non-root user for security best practices
 USER bun
 
-# Expose port $PORT to allow HTTP traffic
-EXPOSE ${PORT}
-
-# Use the entrypoint script to replace variables at boot
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
+# Expose port 3000 to allow HTTP traffic
+EXPOSE 3000
 
 # Start Next.js standalone server with Bun
 CMD ["bun", "server.js"]
