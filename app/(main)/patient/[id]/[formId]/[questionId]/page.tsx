@@ -20,6 +20,7 @@ import { CalendarDays } from 'lucide-react';
 import { getFormById, getQuestionsByFormId } from '@/app/service/patient-client';
 import { Form, Question } from '@/app/service/patient-client';
 import { createClient } from '@/utils/supabase/client';
+import { calculateTotalScore } from '@/lib/scoring';
 
 export default function QuestionPage() {
     const params = useParams();
@@ -116,106 +117,6 @@ export default function QuestionPage() {
             const prevQuestion = questions[currentQuestionIndex - 1];
             router.push(`/patient/${patientId}/${formId}/${prevQuestion.question_id}`);
         }
-    };
-
-    const calculateTotalScore = (answers: Record<number, string>, questions: any[]) => {
-        let totalScore = 0;
-        
-        console.log('🔍 Starting score calculation...');
-        console.log('📝 All answers:', answers);
-        console.log('🔢 Number of answers:', Object.keys(answers).length);
-        console.log('❓ All questions:', questions.map(q => ({ id: q.question_id, type: q.question_type })));
-        console.log('🔢 Number of questions:', questions.length);
-        
-        // Check if we have answers for all questions
-        const questionIds = questions.map(q => q.question_id);
-        const answeredIds = Object.keys(answers).map(id => parseInt(id));
-        const missingAnswers = questionIds.filter(id => !answeredIds.includes(id));
-        
-        if (missingAnswers.length > 0) {
-            console.warn('⚠️ Missing answers for questions:', missingAnswers);
-        }
-        
-        Object.entries(answers).forEach(([questionIdStr, answer]) => {
-            const questionId = parseInt(questionIdStr, 10);
-            const question = questions.find(q => q.question_id === questionId);
-            
-            if (!question) {
-                console.log(`⚠️ Question not found for ID: ${questionId}`);
-                return;
-            }
-            
-            let questionScore = 0;
-            console.log(`\n🔍 Processing question ${questionId}:`);
-            console.log(`   Type: ${question.question_type}`);
-            console.log(`   Answer: "${answer}"`);
-            console.log(`   Options:`, question.options);
-            
-            switch (question.question_type) {
-                case 'multiple_choice':
-                case 'multipleChoice':
-                    const choices = question.options?.choices || [];
-                    console.log(`   Choices available:`, choices);
-                    
-                    const selectedChoice = choices.find((choice: any) => {
-                        const choiceText = typeof choice === 'string' ? choice : (choice.text || choice.choice);
-                        return choiceText === answer;
-                    });
-                    
-                    if (selectedChoice) {
-                        questionScore = typeof selectedChoice === 'string' ? 0 : (parseFloat(selectedChoice.score) || 0);
-                        console.log(`   ✅ Found matching choice, score: ${questionScore}`);
-                    } else {
-                        console.log(`   ⚠️ No matching choice found for answer: "${answer}"`);
-                    }
-                    break;
-                    
-                case 'true_false':
-                case 'trueFalse':
-                    const options = question.options || {};
-                    if (answer === 'true' && options.trueScore !== undefined) {
-                        questionScore = parseFloat(options.trueScore) || 0;
-                    } else if (answer === 'false' && options.falseScore !== undefined) {
-                        questionScore = parseFloat(options.falseScore) || 0;
-                    }
-                    console.log(`   ✅ True/False score: ${questionScore}`);
-                    break;
-                    
-                case 'rating':
-                    const ratingValue = parseFloat(answer || '0');
-                    const multiplier = Number(question.options?.scoreMultiplier) || 1;
-                    // Calculate exact score with precision, no rounding to integer
-                    questionScore = parseFloat((ratingValue * multiplier).toFixed(2));
-                    console.log(`   ✅ Rating score: ${questionScore} (${ratingValue} × ${multiplier})`);
-                    break;
-                    
-                case 'number':
-                    const numberValue = parseFloat(answer || '0');
-                    const numberMultiplier = Number(question.options?.scoreMultiplier) || 1;
-                    // Calculate exact score with precision, no rounding to integer
-                    questionScore = parseFloat((numberValue * numberMultiplier).toFixed(2));
-                    console.log(`   ✅ Number score: ${questionScore} (${numberValue} × ${numberMultiplier})`);
-                    break;
-                    
-                case 'text':
-                    questionScore = 0;
-                    console.log(`   ✅ Text question score: ${questionScore}`);
-                    break;
-                    
-                default:
-                    questionScore = 0;
-                    console.log(`   ⚠️ Unknown question type: ${question.question_type}`);
-            }
-            
-            console.log(`   📊 Question ${questionId} contributes: ${questionScore} points`);
-            console.log(`   📈 Total before adding: ${totalScore}`);
-            totalScore += questionScore;
-            console.log(`   📈 Total after adding: ${totalScore}`);
-        });
-        
-        console.log(`\n🎯 FINAL TOTAL SCORE: ${totalScore}`);
-        console.log(`📊 Summary: Processed ${Object.keys(answers).length} answers out of ${questions.length} questions`);
-        return totalScore;
     };
 
     const handleComplete = async () => {
