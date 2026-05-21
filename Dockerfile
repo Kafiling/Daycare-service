@@ -23,8 +23,9 @@ RUN --mount=type=cache,target=/root/.bun/install/cache \
 
 FROM oven/bun:1 AS builder
 
-ARG NEXT_PUBLIC_SUPABASE_URL
-ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
+# Provide placeholder values during build to be replaced at runtime by docker-entrypoint.sh
+ENV NEXT_PUBLIC_SUPABASE_URL="NEXT_PUBLIC_SUPABASE_URL_PLACEHOLDER"
+ENV NEXT_PUBLIC_SUPABASE_ANON_KEY="NEXT_PUBLIC_SUPABASE_ANON_KEY_PLACEHOLDER"
 
 # Set working directory
 WORKDIR /app
@@ -80,11 +81,16 @@ COPY --from=builder --chown=bun:bun /app/.next/static ./.next/static
 # cached responses are available immediately on startup, uncomment this line:
 # COPY --from=builder --chown=bun:bun /app/.next/cache ./.next/cache
 
+COPY --chown=bun:bun docker-entrypoint.sh ./
+RUN chmod +x docker-entrypoint.sh && chown bun:bun /app
+
 # Switch to non-root user for security best practices
 USER bun
 
 # Expose port 3000 to allow HTTP traffic
 EXPOSE 3000
+
+ENTRYPOINT ["./docker-entrypoint.sh"]
 
 # Start Next.js standalone server with Bun
 CMD ["bun", "server.js"]

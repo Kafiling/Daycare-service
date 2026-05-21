@@ -1,5 +1,5 @@
 name: Docker Image CI
-
+run-name: Build Docker Image
 on:
   push:
     branches: [ "chore/bun-container" ]
@@ -7,11 +7,8 @@ on:
     branches: [ "chore/bun-container" ]
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v4
     - name: Build the Docker image
