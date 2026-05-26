@@ -1,10 +1,9 @@
 name: Docker Image CI
 run-name: Build Docker Image
 on:
-  push:
-    branches: [ "chore/bun-container" ]
   pull_request:
-    branches: [ "chore/bun-container" ]
+    branches:
+      - chore/bun-container
 
 jobs:
   build:
